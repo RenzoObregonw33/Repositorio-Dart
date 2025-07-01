@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:login/api_services.dart';
-import 'package:login/screems/home_screem.dart';
+import 'package:login/screems/password_reset_screen.dart';
+import 'package:login/widgets/login_button.dart';
 
 class LoginScreem extends StatefulWidget {
   const LoginScreem({super.key});
@@ -13,14 +13,13 @@ class _LoginScreemState extends State<LoginScreem> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  String? _errorMessage;
+
   String? _emailError;
   String? _passwordError;
 
   bool _ocultarPassword = true;
-  bool _emailVacio = false;
-  bool _passwordVacio = false;
 
+ 
   //Sobreescribir api
   @override
   void dispose() {
@@ -28,48 +27,6 @@ class _LoginScreemState extends State<LoginScreem> {
     _passwordController.dispose();
     super.dispose();
   }
-
-  //Validacion del email
-  void _validarEmail() {
-    String email = _usernameController.text.trim();
-    String password = _passwordController.text;
-
-    setState(() {
-      _emailVacio = email.isEmpty;
-      _passwordVacio = password.isEmpty;
-
-      if (_emailVacio || _passwordVacio) {
-        _errorMessage = 'Este campo no puede estar vacio';
-      } else if (!_esEmailValido(email)) {
-        _errorMessage = 'Ingrese un email valido';
-      } else {
-        _errorMessage = null;
-      }
-    });
-  }
-
-  //Estructura de escritura del Email
-  bool _esEmailValido(String email) {
-    String emailPattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
-    RegExp regex = RegExp(emailPattern);
-    return regex.hasMatch(email);
-  }
-  /*void _login() {
-    final username = _usernameController.text;
-    final password = _passwordController.text;
-  
-
-    if (username == 'admin' && password == '1234') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreem(username: username)),
-      );
-    } else {
-      setState(() {
-        _errorMessage = 'Usuario o contraseña incorrectos';
-      });
-    }
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -104,91 +61,42 @@ class _LoginScreemState extends State<LoginScreem> {
               //TextField de Email
               TextField(
                 controller: _usernameController,
-                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  labelStyle: TextStyle(
-                    color: _emailVacio ? Color(0xFFF7596E) : Colors.grey[700],
-                  ),
                   prefixIcon: Icon(
                     Icons.person_outline,
-                    color: _emailVacio
-                        ? Color(0xFFF7596E)
+                    color: _emailError != null
+                        ? Colors.red
                         : Colors.lightBlueAccent,
                   ),
-                  suffixIcon: _emailVacio
-                      ? Icon(Icons.error_outline, color: Color(0xFFF7596E))
+                  suffixIcon: _emailError != null
+                      ? Icon(Icons.error_outline, color: Colors.red)
                       : null,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: _emailVacio
-                          ? Color(0xFFF7596E)
-                          : Colors.grey.shade300,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: _emailVacio
-                          ? Color(0xFFF7596E)
-                          : Colors.lightBlueAccent,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  errorText: _emailError,
                 ),
                 onChanged: (value) {
                   setState(() {
-                    _emailVacio = value.isEmpty;
-
-                    if (value.isNotEmpty && !_esEmailValido(value)) {
-                      _errorMessage = 'Ingrese un email valido';
-                    } else {
-                      _errorMessage = null;
-                    }
+                    _emailError = null;
                   });
                 },
               ),
 
-              if (_emailVacio ||
-                  (_usernameController.text.isNotEmpty &&
-                      !_esEmailValido(_usernameController.text)))
-                Padding(
-                  padding: const EdgeInsets.only(top: 5),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      _emailVacio
-                          ? 'Este campo debe ser llenado'
-                          : 'Ingrese un email valido',
-                      style: TextStyle(color: Colors.red, fontSize: 12),
-                    ),
-                  ),
-                ),
-
               //TextField de Password
               SizedBox(height: 20),
+
               TextField(
                 controller: _passwordController,
-                keyboardType: TextInputType.emailAddress,
                 obscureText: _ocultarPassword,
                 decoration: InputDecoration(
                   labelText: 'Contraseña',
-                  labelStyle: TextStyle(
-                    color: _passwordVacio
-                        ? Color(0xFFF7596E)
-                        : Colors.grey[700],
-                  ),
                   prefixIcon: Icon(
                     Icons.lock_outline,
-                    color: _passwordVacio
-                        ? Color(0xFFF7596E)
+                    color: _passwordError != null
+                        ? Colors.red
                         : Colors.lightBlueAccent,
                   ),
-                  suffixIcon: _passwordVacio
-                      ? Icon(
-                          Icons.error_outline,
-                          color: Color(0xFFF7596E),
-                        ) // Ícono de correo cuando campo vacío
+                  suffixIcon: _passwordError != null
+                      ? Icon(Icons.error_outline, color: Colors.red)
                       : IconButton(
                           onPressed: () {
                             setState(() {
@@ -199,70 +107,51 @@ class _LoginScreemState extends State<LoginScreem> {
                             _ocultarPassword
                                 ? Icons.visibility_off
                                 : Icons.visibility,
-                            color: Colors.grey[700],
                           ),
                         ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: _passwordVacio
-                          ? Color(0xFFF7596E)
-                          : Colors.grey.shade300,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: _passwordVacio
-                          ? Color(0xFFF7596E)
-                          : Colors.lightBlueAccent,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  errorText: _passwordError,
                 ),
                 onChanged: (value) {
                   setState(() {
-                    // Limpiar el error y restablecer colores cuando se escribe
-                    _passwordVacio = false;
-                    _errorMessage = null;
+                    _passwordError = null;
                   });
                 },
               ),
 
-              if (_passwordVacio)
-                Padding(
-                  padding: const EdgeInsets.only(top: 5),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Este campo debe ser llenado',
-                      style: TextStyle(color: Colors.red, fontSize: 12),
+              SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PasswordResetScreen(),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    'Recuperar Contraseña',
+                    style: TextStyle(
+                      color: Colors.lightBlueAccent,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                      decorationColor: Colors.lightBlueAccent
                     ),
                   ),
                 ),
+              ),
 
-              /*if (_errorMessage != null) ...[
-                SizedBox(height: 10),
-                Text(_errorMessage!,
-                    style: TextStyle(color: Colors.red, fontSize: 14)),
-              ],*/
               SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: _validarEmail,
-                //_login,
-                /*() {
-                  String email = _usernameController.text.trim();
-                  String password = _passwordController.text;
-                  loginUser(
-                    email: email,
-                    password: password,
-                    lumina: 1,
-                  );
-                },*/
-                //
-                child: Text(
-                  'Iniciar Sesión',
-                  style: TextStyle(fontSize: 16, color: Colors.lightBlue),
-                ),
+              LoginButton(
+                emailController: _usernameController,
+                passwordController: _passwordController,
+                onError: ({String? emailError, String? passwordError}) {
+                  setState(() {
+                    _emailError = emailError;
+                    _passwordError = passwordError;
+                  });
+                },
               ),
             ],
           ),

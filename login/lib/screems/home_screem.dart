@@ -1,16 +1,38 @@
 import 'package:flutter/material.dart';
 
 class HomeScreem extends StatelessWidget {
-  final String username;
+  final String nombre;
+  final String apellido;
+  final String ruc;
 
-  const HomeScreem({required this.username});
+  const HomeScreem({super.key, required this.nombre, required this.apellido, required this.ruc});
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Bienvenido')),
+      appBar: AppBar(
+        title: Text('Bienvenido'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context, 'logout');
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () {
+              Navigator.pop(context, 'logout');
+            },
+            tooltip: 'Cerrar sesión',
+          ),
+        ],
+      ),
       body: Center(
-        child: Text('Hola, $username', style: TextStyle(fontSize: 24)),
+        child: Text(
+          'Hola, $nombre $apellido $ruc',
+          style: TextStyle(fontSize: 24),
+        ),
       ),
     );
   }

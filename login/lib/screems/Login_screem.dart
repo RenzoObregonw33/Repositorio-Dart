@@ -31,23 +31,22 @@ class _LoginScreemState extends State<LoginScreem> {
 
   //Validacion del email
   void _validarEmail() {
-  String email = _usernameController.text.trim();
-  String password = _passwordController.text;
+    String email = _usernameController.text.trim();
+    String password = _passwordController.text;
 
-  setState(() {
-    _emailVacio = email.isEmpty;
-    _passwordVacio = password.isEmpty;
+    setState(() {
+      _emailVacio = email.isEmpty;
+      _passwordVacio = password.isEmpty;
 
-    if (_emailVacio || _passwordVacio) {
-      _errorMessage = 'Este campo no puede estar vacio';
-    } else if (!_esEmailValido(email)) {
-      _errorMessage = 'Ingrese un email valido';
-    } else {
-      _errorMessage = null;
-    }
-  });
-}
-
+      if (_emailVacio || _passwordVacio) {
+        _errorMessage = 'Este campo no puede estar vacio';
+      } else if (!_esEmailValido(email)) {
+        _errorMessage = 'Ingrese un email valido';
+      } else {
+        _errorMessage = null;
+      }
+    });
+  }
 
   //Estructura de escritura del Email
   bool _esEmailValido(String email) {
@@ -55,7 +54,7 @@ class _LoginScreemState extends State<LoginScreem> {
     RegExp regex = RegExp(emailPattern);
     return regex.hasMatch(email);
   }
-/*void _login() {
+  /*void _login() {
     final username = _usernameController.text;
     final password = _passwordController.text;
   
@@ -75,7 +74,7 @@ class _LoginScreemState extends State<LoginScreem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FC), 
+      backgroundColor: const Color(0xFFF5F8FC),
       body: Center(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 30),
@@ -84,14 +83,16 @@ class _LoginScreemState extends State<LoginScreem> {
             children: [
               SizedBox(
                 height: 70,
-                child: Image.asset('assets/lumina.png',
-                height: 100,
-                ),
+                child: Image.asset('assets/lumina.png', height: 100),
               ),
               SizedBox(height: 50),
               Text(
                 'Bienvenido',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey[700]),
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[700],
+                ),
               ),
               SizedBox(height: 10),
               Text(
@@ -101,54 +102,70 @@ class _LoginScreemState extends State<LoginScreem> {
               SizedBox(height: 30),
 
               //TextField de Email
-
               TextField(
                 controller: _usernameController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  labelStyle: TextStyle(color: _emailVacio ? Color(0xFFF7596E) : Colors.grey[700],),
-                  prefixIcon: Icon(Icons.person_outline, color: _emailVacio ? Color(0xFFF7596E): Colors.lightBlueAccent,),
+                  labelStyle: TextStyle(
+                    color: _emailVacio ? Color(0xFFF7596E) : Colors.grey[700],
+                  ),
+                  prefixIcon: Icon(
+                    Icons.person_outline,
+                    color: _emailVacio
+                        ? Color(0xFFF7596E)
+                        : Colors.lightBlueAccent,
+                  ),
                   suffixIcon: _emailVacio
-                    ? Icon(Icons.error_outline, color: Color(0xFFF7596E))
-                    : null,
+                      ? Icon(Icons.error_outline, color: Color(0xFFF7596E))
+                      : null,
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(
-                      color: _emailVacio? Color(0xFFF7596E) : Colors.grey.shade300,
+                      color: _emailVacio
+                          ? Color(0xFFF7596E)
+                          : Colors.grey.shade300,
                     ),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
-                    color: _emailVacio ? Color(0xFFF7596E): Colors.lightBlueAccent,
+                      color: _emailVacio
+                          ? Color(0xFFF7596E)
+                          : Colors.lightBlueAccent,
                     ),
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 onChanged: (value) {
                   setState(() {
-                    // Limpiar el error y restablecer colores cuando se escribe
-                    _emailVacio = false;
-                    _errorMessage = null;
+                    _emailVacio = value.isEmpty;
+
+                    if (value.isNotEmpty && !_esEmailValido(value)) {
+                      _errorMessage = 'Ingrese un email valido';
+                    } else {
+                      _errorMessage = null;
+                    }
                   });
-                }  
+                },
               ),
 
-
-              if (_emailVacio)
+              if (_emailVacio ||
+                  (_usernameController.text.isNotEmpty &&
+                      !_esEmailValido(_usernameController.text)))
                 Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Este campo debe ser llenado',
-                    style: TextStyle(color: Colors.red, fontSize: 12),
+                  padding: const EdgeInsets.only(top: 5),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      _emailVacio
+                          ? 'Este campo debe ser llenado'
+                          : 'Ingrese un email valido',
+                      style: TextStyle(color: Colors.red, fontSize: 12),
+                    ),
                   ),
                 ),
-              ),
 
               //TextField de Password
-
               SizedBox(height: 20),
               TextField(
                 controller: _passwordController,
@@ -156,27 +173,48 @@ class _LoginScreemState extends State<LoginScreem> {
                 obscureText: _ocultarPassword,
                 decoration: InputDecoration(
                   labelText: 'Contraseña',
-                  labelStyle: TextStyle(color: _passwordVacio ? Color(0xFFF7596E) : Colors.grey[700],),
-                  prefixIcon: Icon(Icons.lock_outline, color: _passwordVacio ? Color(0xFFF7596E) : Colors.lightBlueAccent,),
-                  suffixIcon: IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _ocultarPassword = !_ocultarPassword;
-                    });
-                  },
-                  icon: Icon(_ocultarPassword
-                      ? Icons.visibility_off
-                      : Icons.visibility, color: Colors.grey[700],),
+                  labelStyle: TextStyle(
+                    color: _passwordVacio
+                        ? Color(0xFFF7596E)
+                        : Colors.grey[700],
                   ),
+                  prefixIcon: Icon(
+                    Icons.lock_outline,
+                    color: _passwordVacio
+                        ? Color(0xFFF7596E)
+                        : Colors.lightBlueAccent,
+                  ),
+                  suffixIcon: _passwordVacio
+                      ? Icon(
+                          Icons.error_outline,
+                          color: Color(0xFFF7596E),
+                        ) // Ícono de correo cuando campo vacío
+                      : IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _ocultarPassword = !_ocultarPassword;
+                            });
+                          },
+                          icon: Icon(
+                            _ocultarPassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.grey[700],
+                          ),
+                        ),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(
-                      color: _passwordVacio? Color(0xFFF7596E) : Colors.grey.shade300,
+                      color: _passwordVacio
+                          ? Color(0xFFF7596E)
+                          : Colors.grey.shade300,
                     ),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
-                    color: _passwordVacio ? Color(0xFFF7596E): Colors.lightBlueAccent,
+                      color: _passwordVacio
+                          ? Color(0xFFF7596E)
+                          : Colors.lightBlueAccent,
                     ),
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -187,20 +225,20 @@ class _LoginScreemState extends State<LoginScreem> {
                     _passwordVacio = false;
                     _errorMessage = null;
                   });
-                }     
+                },
               ),
 
               if (_passwordVacio)
                 Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Este campo debe ser llenado',
-                    style: TextStyle(color: Colors.red, fontSize: 12),
+                  padding: const EdgeInsets.only(top: 5),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Este campo debe ser llenado',
+                      style: TextStyle(color: Colors.red, fontSize: 12),
+                    ),
                   ),
                 ),
-              ),
 
               /*if (_errorMessage != null) ...[
                 SizedBox(height: 10),
@@ -219,10 +257,11 @@ class _LoginScreemState extends State<LoginScreem> {
                     password: password,
                     lumina: 1,
                   );
-                },*/  //
+                },*/
+                //
                 child: Text(
-                  'Iniciar Sesión', 
-                  style: TextStyle(fontSize: 16, color: Colors.lightBlue )
+                  'Iniciar Sesión',
+                  style: TextStyle(fontSize: 16, color: Colors.lightBlue),
                 ),
               ),
             ],

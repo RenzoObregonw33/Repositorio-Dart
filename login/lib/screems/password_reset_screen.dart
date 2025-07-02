@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:login/api_services.dart';
 
 class PasswordResetScreen extends StatefulWidget {
   @override
@@ -15,21 +16,32 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
     super.dispose();
   }
 
-  void _enviarSolicitud() {
+  Future<void> _enviarSolicitud() async {
+
     final email = _emailController.text.trim();
+
     if (email.isEmpty) {
       setState(() => _error = 'Ingresa tu correo electrónico');
-    } else if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,4}$').hasMatch(email)) {
-      setState(() => _error = 'Correo inválido');
-    } else {
-      setState(() => _error = null);
-      // Aquí llamas a tu función para enviar la solicitud de recuperación
-      // Ejemplo: await enviarSolicitudReset(email);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Se ha enviado un correo de recuperación.')),
-      );
     }
+    if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$').hasMatch(email)) {
+      _mostrarMensaje('Correo inválido', error: true);
+      return;
+    }
+
+    final result = await resetPassword(email: email);
+    _mostrarMensaje(result['message'], error: !result['success']);
   }
+
+  void _mostrarMensaje(String mensaje, {bool error = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensaje),
+        backgroundColor: error ? const Color.fromARGB(255, 4, 4, 4) : const Color.fromARGB(255, 11, 15, 11),
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {

@@ -5,8 +5,7 @@ import 'package:login/screems/home_screem.dart';
 class LoginButton extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
-  final Function({String? emailError, String? passwordError})
-  onError; // Para mostrar error en el LoginScreen
+  final Function({String? emailError, String? passwordError}) onError;
 
   const LoginButton({
     super.key,
@@ -32,10 +31,11 @@ class LoginButton extends StatelessWidget {
         if (email.isEmpty) {
           emailError = 'Este campo no debe estar vacío';
           hasError = true;
-        } else if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,4}$').hasMatch(email)) {
+        } else if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$').hasMatch(email)) {
           emailError = 'Ingrese un email válido';
           hasError = true;
         }
+
 
         if (password.isEmpty) {
           passwordError = 'Este campo no debe estar vacío';
@@ -56,8 +56,7 @@ class LoginButton extends StatelessWidget {
         if (result['success']) {
           final data = result['data'];
           final nombre = data['nombre'] ?? data['usuario']?['nombre'] ?? '';
-          final apellido =
-              data['apellido'] ?? data['usuario']?['apellido'] ?? '';
+          final apellido = data['apellido'] ?? data['usuario']?['apellido'] ?? '';
 
           final resultado = await Navigator.push(
             context,
@@ -69,16 +68,20 @@ class LoginButton extends StatelessWidget {
               ),
             ),
           );
+
           if (resultado == 'logout') {
             emailController.clear();
             passwordController.clear();
           }
 
         } else {
-          onError(
-            emailError: result['message'],
-            passwordError: result['message'],
-          );
+          final message = result['message'] ?? 'Error desconocido';
+
+          if (message.toLowerCase().contains('correo')) {
+            onError(emailError: message);
+          } else {
+            onError(passwordError: message);
+          }
         }
       },
       child: const Text(

@@ -61,6 +61,7 @@ class _LoginScreemState extends State<LoginScreem> {
               //TextField de Email
               TextField(
                 controller: _usernameController,
+                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email',
                   prefixIcon: Icon(
@@ -118,30 +119,6 @@ class _LoginScreemState extends State<LoginScreem> {
                 },
               ),
 
-              SizedBox(height: 20),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PasswordResetScreen(),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'Recuperar Contraseña',
-                    style: TextStyle(
-                      color: Colors.lightBlueAccent,
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Colors.lightBlueAccent
-                    ),
-                  ),
-                ),
-              ),
-
               SizedBox(height: 30),
               LoginButton(
                 emailController: _usernameController,
@@ -153,6 +130,31 @@ class _LoginScreemState extends State<LoginScreem> {
                   });
                 },
               ),
+
+              SizedBox(height: 10),
+              Align(
+                alignment: Alignment.center,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PasswordResetScreen(),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    'Olvidaste tu Contraseña',
+                    style: TextStyle(
+                      color: Colors.lightBlueAccent,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                      decorationColor: Colors.lightBlueAccent
+                    ),
+                  ),
+                ),
+              ),
+
             ],
           ),
         ),

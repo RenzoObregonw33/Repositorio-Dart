@@ -5,9 +5,14 @@ class HomeScreem extends StatelessWidget {
   final String apellido;
   final String ruc;
 
-  const HomeScreem({super.key, required this.nombre, required this.apellido, required this.ruc});
+  const HomeScreem({
+    super.key,
+    required this.nombre,
+    required this.apellido,
+    required this.ruc,
+  });
 
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

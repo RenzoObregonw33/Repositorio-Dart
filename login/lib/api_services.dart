@@ -11,7 +11,10 @@ Future<Map<String, dynamic>> loginUser({
   try {
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
       body: jsonEncode({
         'email': email,
         'password': password,
@@ -19,13 +22,21 @@ Future<Map<String, dynamic>> loginUser({
       }),
     );
 
+    print(response.statusCode);
+    print(response.body);
+
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return {'success': true, 'data': data};
     } else if (response.statusCode == 401) {
       return {
         'success': false,
-        'message': 'Credenciales incorrectas'
+        'message': 'Contraseña Incorrecta'
+      };
+    } else if (response.statusCode == 422) {
+      return {
+        'success': false,
+        'message': 'Debe ingresar correo y contraseña'
       };
     } else {
       return {'success': false, 'message': 'Error: ${response.statusCode}'};
@@ -34,4 +45,41 @@ Future<Map<String, dynamic>> loginUser({
     return {'success': false, 'message': 'Error de conexión: $e'};
   }
 }
-//verificacion de tokens
+
+Future<Map<String, dynamic>> resetPassword({required String email}) async {
+  final url = Uri.parse('https://rhnube.com.pe/api/web_services/password-reset');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({'email': email}),
+    );
+
+    print(response.statusCode);
+    print(response.body);
+    
+    if (response.statusCode == 200) {
+      return {'success': true, 'message': 'Correo enviado correctamente'};
+    } else if (response.statusCode == 400) {
+      return {'success': false, 'message': 'Correo no enviado'};
+    } else if (response.statusCode == 422) {
+      final body = jsonDecode(response.body);
+      final errors = body['errors'] ?? {};
+      final emailError = errors['email']?[0];
+
+      return {
+        'success': false,
+        'emailError': emailError,
+        'message': body['message'] ?? 'Error de validación'
+      };
+    } else {
+      return {'success': false, 'message': 'Error: ${response.statusCode}'};
+    }
+  } catch (e) {
+    return {'success': false, 'message': 'Error de conexión: $e'};
+  }
+}

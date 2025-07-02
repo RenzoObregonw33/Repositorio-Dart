@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:login/screems/password_reset_screen.dart';
+import 'package:login/widgets/password_reset_screen.dart';
 import 'package:login/widgets/login_button.dart';
 
 class LoginScreem extends StatefulWidget {

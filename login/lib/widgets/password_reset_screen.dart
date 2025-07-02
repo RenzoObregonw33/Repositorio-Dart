@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:login/api_services.dart';
+import 'package:login/screems/api_services.dart';
 
 class PasswordResetScreen extends StatefulWidget {
   @override
@@ -46,6 +46,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor:  Color(0xFFF5F8FC),
       appBar: AppBar(title: Text('Recuperar contraseña')),
       body: Padding(
         padding: const EdgeInsets.all(20.0),

@@ -58,11 +58,19 @@ class LoginButton extends StatelessWidget {
           final nombre = data['user']?['perso_nombre'] ?? '';
           final apellido = data['user']?['perso_apPaterno'] ?? '';
 
-          final organizaciones = data['user']?['organizaciones'];
-          String ruc = '';
-          if (organizaciones is List) {
-            ruc = organizaciones.map((org) => org['organi_razonSocial']).join(', ');
-          }
+          final organizaciones = data['user']?['organizaciones']??[];
+
+          // Aquí guardamos el nombre, RUC y ID en una variable
+          final organizacionDetalles = organizaciones.map<Map<String, dynamic>>((org) {
+            final razonSocial = org['organi_razonSocial'] ?? 'Sin nombre';
+            final ruc = org['organi_ruc'] ?? 'Sin RUC';
+            final id = org['organi_id'] ?? 'Sin ID';
+            return {
+              'razonSocial': razonSocial,
+              'ruc': ruc,
+              'id': id,
+            };
+          }).toList();
 
           final resultado = await Navigator.push(
             context,
@@ -70,7 +78,7 @@ class LoginButton extends StatelessWidget {
               builder: (context) => HomeScreem(
                 nombre: nombre,
                 apellido: apellido,
-                ruc: ruc,
+                organizaciones: organizacionDetalles,
               ),
             ),
           );

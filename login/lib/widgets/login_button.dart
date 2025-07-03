@@ -55,8 +55,14 @@ class LoginButton extends StatelessWidget {
 
         if (result['success']) {
           final data = result['data'];
-          final nombre = data['nombre'] ?? data['usuario']?['nombre'] ?? '';
-          final apellido = data['apellido'] ?? data['usuario']?['apellido'] ?? '';
+          final nombre = data['user']?['perso_nombre'] ?? '';
+          final apellido = data['user']?['perso_apPaterno'] ?? '';
+
+          final organizaciones = data['user']?['organizaciones'];
+          String ruc = '';
+          if (organizaciones is List) {
+            ruc = organizaciones.map((org) => org['organi_razonSocial']).join(', ');
+          }
 
           final resultado = await Navigator.push(
             context,
@@ -64,7 +70,7 @@ class LoginButton extends StatelessWidget {
               builder: (context) => HomeScreem(
                 nombre: nombre,
                 apellido: apellido,
-                ruc: '',
+                ruc: ruc,
               ),
             ),
           );

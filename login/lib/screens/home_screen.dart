@@ -22,6 +22,7 @@ class HomeScreem extends StatelessWidget {
 
     //estructura base
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F8FC),
       appBar: AppBar(                               //Muestra la barra superior
         title: Text('Organizacion'),
         leading: IconButton(
@@ -87,13 +88,13 @@ class HomeScreem extends StatelessWidget {
                       title: Text(razonSocial),
                       subtitle: Text('RUC: $ruc\nID: $id'),                    // Muestra el RUC e ID                  
              
-                      onTap: () {
+                      onTap: () {                           // Acción cuando el usuario selecciona una organización
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => DashboardScreen(organiId: org['id']),
                           ),
-                        );// Acción cuando el usuario selecciona una organización
+                        );
                       },
                     ),
                   );

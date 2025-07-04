@@ -3,10 +3,12 @@ import 'package:login/Apis/api_services.dart';
 import 'package:login/screens/home_screen.dart';
 
 class LoginButton extends StatelessWidget {
+  // Controladores para obtener el texto de los campos de email y contraseña
   final TextEditingController emailController;
   final TextEditingController passwordController;
-  final Function({String? emailError, String? passwordError}) onError;
+  final Function({String? emailError, String? passwordError}) onError;      //Fun q llama errores de validacion
 
+  // Constructor
   const LoginButton({
     super.key,
     required this.emailController,
@@ -18,16 +20,17 @@ class LoginButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
-        FocusScope.of(context).unfocus();
+        FocusScope.of(context).unfocus();                       //oculta el teclado
 
-        final email = emailController.text.trim();
+        final email = emailController.text.trim();              //Limpieza al ingresar los valores
         final password = passwordController.text;
 
+        //Variables q se utilizara para los errores
         bool hasError = false;
-
         String? emailError;
         String? passwordError;
 
+        // Validación del campo email
         if (email.isEmpty) {
           emailError = 'Este campo no debe estar vacío';
           hasError = true;
@@ -36,23 +39,26 @@ class LoginButton extends StatelessWidget {
           hasError = true;
         }
 
-
+        // Validación de la contraseña
         if (password.isEmpty) {
           passwordError = 'Este campo no debe estar vacío';
           hasError = true;
         }
 
+        // Si hay errores, se notifica al widget padre y se detiene la ejecución
         if (hasError) {
           onError(emailError: emailError, passwordError: passwordError);
           return;
         }
 
+        // Llama a la función loginUser para hacer la petición al servidor
         final result = await loginUser(
           email: email,
           password: password,
           lumina: 1,
         );
 
+        //Condicional login exitoso
         if (result['success']) {
           final data = result['data'];
           final nombre = data['user']?['perso_nombre'] ?? '';
@@ -72,6 +78,7 @@ class LoginButton extends StatelessWidget {
             };
           }).toList();
 
+          // Navega a la pantalla principal (HomeScreem) y espera un resultado
           final resultado = await Navigator.push(
             context,
             MaterialPageRoute(
@@ -83,12 +90,13 @@ class LoginButton extends StatelessWidget {
             ),
           );
 
+          // Si el usuario cerró sesión desde la pantalla principal
           if (resultado == 'logout') {
             emailController.clear();
             passwordController.clear();
           }
 
-        } else {
+        } else {        // Si el login falló, muestra el mensaje de error correspondiente
           final message = result['message'] ?? 'Error desconocido';
 
           if (message.toLowerCase().contains('correo')) {

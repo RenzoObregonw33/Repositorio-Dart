@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';  //Importa el paquete principal de Flutter con todos los widgets visuales.
+import 'package:flutter/material.dart';
+import 'package:login/screens/dashboard_screen.dart';  //Importa el paquete principal de Flutter con todos los widgets visuales.
 
 class HomeScreem extends StatelessWidget {
 
@@ -87,7 +88,12 @@ class HomeScreem extends StatelessWidget {
                       subtitle: Text('RUC: $ruc\nID: $id'),                    // Muestra el RUC e ID                  
              
                       onTap: () {
-                        // Acción cuando el usuario selecciona una organización
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DashboardScreen(organiId: org['id']),
+                          ),
+                        );// Acción cuando el usuario selecciona una organización
                       },
                     ),
                   );

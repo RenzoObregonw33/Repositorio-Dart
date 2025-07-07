@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';                    // Para convertir datos JSON
 import 'package:flutter/material.dart';   // Widgets de Flutter
 import 'package:http/http.dart' as http;  // Cliente HTTP para hacer peticiones
@@ -25,7 +26,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    fetchDatosEficiencia();
+    //fetchDatosEficiencia();
+    isLoading = false;
   }
 
   Future<void> fetchDatosEficiencia() async {
@@ -139,7 +141,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
             if (isLoading)
               CircularProgressIndicator()
             else if (eficiencia != null)
-              GraficoEficiencia(eficiencia: eficiencia!)
+              Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.speed, color: Colors.blueAccent),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '% Eficiencia en ejecución de actividades',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,  // ✅ evita el desborde
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      GraficoEficiencia(eficiencia: eficiencia!),
+                    ],
+                  ),
+                ),
+              )
             else
               Text('Seleccione fechas para ver el gráfico.'),
           ],

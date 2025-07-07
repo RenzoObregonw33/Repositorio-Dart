@@ -1,5 +1,7 @@
 import 'dart:convert';                            //Convierte datos de Json
 import 'package:http/http.dart' as http;          //Para hacer peticiones en http
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 // Función asíncrona que intenta iniciar sesión con email, contraseña y lumina
 Future<Map<String, dynamic>> loginUser({                      //Future<> devuelve un valor en el futuro (peticion)
@@ -29,7 +31,13 @@ Future<Map<String, dynamic>> loginUser({                      //Future<> devuelv
 
     // Si la respuesta es exitosa (200), se decodifica el JSON y se retorna
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);    //convierte Json en un objeto
+      final data = jsonDecode(response.body);                 //convierte Json en un objeto
+      final token = data['token']; // <-- extrae el token
+
+      // Guardarlo localmente
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('auth_token', token); // Guarda con la clave 'auth_token'
+      
       return {'success': true, 'data': data};
 
     // Si el usuario no está autorizado (401)

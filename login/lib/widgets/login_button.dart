@@ -61,10 +61,17 @@ class LoginButton extends StatelessWidget {
         //Condicional login exitoso
         if (result['success']) {
           final data = result['data'];
-          final nombre = data['user']?['perso_nombre'] ?? '';
-          final apellido = data['user']?['perso_apPaterno'] ?? '';
+          final user = data['user'];
+          final nombre = user['perso_nombre'] ?? '';
+          final apellido = user['perso_apPaterno'] ?? '';
+          final organizaciones = user['organizaciones'] ?? [];
+          final token = (data['token'] ?? '').toString().trim(); // ✅ con .trim() y .toString() por seguridad
+          print('🟢 Token recibido: $token');
 
-          final organizaciones = data['user']?['organizaciones']??[];
+          print("🟢 Nombre: $nombre");
+          print("🟢 Apellido: $apellido");
+          print("🟢 Organizaciones: $organizaciones");
+
 
           // Aquí guardamos el nombre, RUC y ID en una variable
           final organizacionDetalles = organizaciones.map<Map<String, dynamic>>((org) {
@@ -86,6 +93,7 @@ class LoginButton extends StatelessWidget {
                 nombre: nombre,
                 apellido: apellido,
                 organizaciones: organizacionDetalles,
+                token: token,
               ),
             ),
           );

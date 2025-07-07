@@ -10,14 +10,14 @@ class LoginScreem extends StatefulWidget {
 }
 
 class _LoginScreemState extends State<LoginScreem> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();    //Controlador de email
+  final TextEditingController _passwordController = TextEditingController();    //Controlador de password
 
 
-  String? _emailError;
-  String? _passwordError;
+  String? _emailError;              //Mensaje de error para email
+  String? _passwordError;           //Mensaje de error para contraseña
 
-  bool _ocultarPassword = true;
+  bool _ocultarPassword = true;     //Contraseña oculta al escribir
 
  
   //Sobreescribir api
@@ -84,7 +84,6 @@ class _LoginScreemState extends State<LoginScreem> {
 
               //TextField de Password
               SizedBox(height: 20),
-
               TextField(
                 controller: _passwordController,
                 obscureText: _ocultarPassword,
@@ -119,6 +118,7 @@ class _LoginScreemState extends State<LoginScreem> {
                 },
               ),
 
+              //Boton Inicio de sesion
               SizedBox(height: 30),
               LoginButton(
                 emailController: _usernameController,
@@ -134,7 +134,7 @@ class _LoginScreemState extends State<LoginScreem> {
               SizedBox(height: 10),
               Align(
                 alignment: Alignment.center,
-                child: TextButton(
+                child: TextButton(                  //Reestablercer contraseña
                   onPressed: () {
                     Navigator.push(
                       context,

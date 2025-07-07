@@ -6,6 +6,7 @@ class HomeScreem extends StatelessWidget {
 //Parametros
   final String nombre;
   final String apellido;
+  final String token;
   final List<Map<String, dynamic>> organizaciones;
 
 //Constructor
@@ -13,7 +14,8 @@ class HomeScreem extends StatelessWidget {
     super.key,
     required this.nombre,
     required this.apellido,
-    required this.organizaciones,
+    required this.organizaciones, 
+    required this.token,
   });
 
 //Metodo que construye el UI widget
@@ -92,8 +94,11 @@ class HomeScreem extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => DashboardScreen(organiId: org['id']),
-                          ),
+                            builder: (context) => DashboardScreen(
+                            organiId: int.parse(org['id'].toString()),
+                            token: token, // ← Este es el token que recibiste del login
+                            ),
+                          ),  
                         );
                       },
                     ),

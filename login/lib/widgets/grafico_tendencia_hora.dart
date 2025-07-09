@@ -1,5 +1,3 @@
-// ✅ FILE: widgets/grafico_tendencia_horas.dart
-
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -17,6 +15,16 @@ class GraficoTendenciaHoras extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Filtrar solo las horas entre 08:00 y 18:00
+    final dataFiltrada = data.where((d) {
+      final partes = d.hora.split(':');
+      final horaNum = int.tryParse(partes[0]) ?? -1;
+      return horaNum >= 8 && horaNum <= 18;
+    }).toList();
+
+    // Si no hay datos útiles, no retorna nada
+    if (dataFiltrada.isEmpty) return const SizedBox.shrink();
+
     return SizedBox(
       height: 300,
       child: SfCartesianChart(
@@ -28,7 +36,7 @@ class GraficoTendenciaHoras extends StatelessWidget {
         ),
         series: <ColumnSeries<TendenciaHoraData, String>>[
           ColumnSeries<TendenciaHoraData, String>(
-            dataSource: data,
+            dataSource: dataFiltrada,
             xValueMapper: (TendenciaHoraData d, _) => d.hora,
             yValueMapper: (TendenciaHoraData d, _) => d.valor,
             dataLabelSettings: const DataLabelSettings(
@@ -38,7 +46,7 @@ class GraficoTendenciaHoras extends StatelessWidget {
             ),
             color: Colors.blueAccent,
           ),
-        ]
+        ],
       ),
     );
   }

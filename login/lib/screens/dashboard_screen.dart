@@ -193,6 +193,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // La carga de datos ya no se llama aquí al inicio. Ahora se dispara cuando ambas fechas son seleccionadas.
     // Se inicializa `isLoading` como `false` para que los botones de selección de fecha sean visibles
     // desde el principio, antes de que se haga cualquier petición.
+    fechaFin = DateTime.now(); // ← Establece la fecha actual por defecto
+    //fechaIni = DateTime.now().subtract(const Duration(days: 7)); // 7 días antes
     isLoading = false;
   }
 

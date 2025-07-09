@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';          // Para formatear fechas
 import 'package:login/widgets/grafico_donut.dart';
 import 'package:login/widgets/grafico_eficiencia.dart';
 import 'package:login/widgets/grafico_embudo.dart'; // Asegúrate de que el archivo se llame así
+import 'package:login/widgets/grafico_barras_horas.dart';
+import 'package:login/widgets/grafico_tendencia_hora.dart';
  // Widget personalizado para mostrar el gráfico
 //import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,6 +30,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<FunnelData>? cumplimientoLaboralData; // Variable para almacenar los datos que alimentarán el gráfico de embudo. También es `null` inicialmente.
   double? horasProductivas;
   double? horasNoProductivas;
+  double? programadas;
+  double? presencia;
+  double? productivas;
+  List<TendenciaHoraData>?  tendenciaHoras;
   bool isLoading = true; // Booleano que indica si los datos están cargándose. Se usa para mostrar un indicador de progreso.
   DateTime? fechaIni; // Variable para almacenar la fecha de inicio seleccionada por el usuario. `null` inicialmente.
   DateTime? fechaFin; // Variable para almacenar la fecha de fin seleccionada por el usuario. `null` inicialmente.
@@ -46,6 +52,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       isLoading = true; // Se pone `true` para mostrar el indicador de carga.
       eficiencia = null; // Se resetea la eficiencia a `null` mientras se cargan nuevos datos.
       cumplimientoLaboralData = null; // Se resetean los datos del embudo a `null` también.
+      horasProductivas = null;
+      horasNoProductivas = null;
+     
     });
 
      try {
@@ -83,6 +92,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final resultado = body['eficiencia']?['resultado']; // Intenta extraer el valor 'resultado' del mapa 'eficiencia' en el cuerpo de la respuesta. El '?' evita errores si 'eficiencia' es nulo.
       // Intenta extraer 'comparativo_horas' de 'eficiencia', si no existe, lo busca directamente en la raíz del cuerpo.
       final comparativo = body['eficiencia']?['comparativo_horas'] ?? body['comparativo_horas'];
+      final tendencia = body['tendencia_por_hora'];
 
       print('Contenido de cumplimiento: ${body['comparativo_horas']}'); // Impresión de depuración para los datos de cumplimiento.
 
@@ -93,22 +103,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
         // Aquí se asume que los datos serán un mapa o un objeto con `label`, `value`, `color`.
         // **Nota**: Si `GraficoEmbudo` espera una clase específica como `FunnelData`, esta línea necesitaría que `FunnelData` esté definida y sea compatible.
         cumplimientoLaboralData = [
-          FunnelData('Horas programadas', (comparativo['programadas'] ?? 0).toDouble(),Colors.blue,),  // Se convierte el valor a `double`. Si es nulo, se usa 0.
-          FunnelData('Horas de presencia', (comparativo['presencia'] ?? 0).toDouble(), Colors.orange),
-          FunnelData('Horas productivas', (comparativo['productivas'] ?? 0).toDouble(), Colors.red),
-          FunnelData('Horas no productivas', (comparativo['no_productivas'] ?? 0).toDouble(),Colors.green),
+          FunnelData('Horas programadas', (comparativo['programadas'] ?? 0).toDouble(),Color(0xFF1F71F0),),  // Se convierte el valor a `double`. Si es nulo, se usa 0.
+          FunnelData('Horas de presencia', (comparativo['presencia'] ?? 0).toDouble(), Color(0xFF08D7D4)),
+          FunnelData('Horas productivas', (comparativo['productivas'] ?? 0).toDouble(), Color(0xFFF7596E)),
+          FunnelData('Horas no productivas', (comparativo['no_productivas'] ?? 0).toDouble(),Color(0xFFFFCC66)),
         ];
 
         horasProductivas = (comparativo['productivas'] ?? 0).toDouble();
         horasNoProductivas = (comparativo['no_productivas'] ?? 0).toDouble();
         print("✅ Datos para donut: productivas=$horasProductivas | no_productivas=$horasNoProductivas");
-        
-      } else {
-        print('⚠️ No se encontró comparativo_horas en la respuesta');     // Mensaje si no se encuentran los datos esperados.
+
+        programadas = (comparativo['programadas'] ?? 0).toDouble();
+        presencia = (comparativo['presencia'] ?? 0).toDouble();
+        productivas = (comparativo['productivas'] ?? 0).toDouble();
+
+        print("✅ Datos para Barra Horas: ");
+        print("- Programadas: ${comparativo['programadas']}");
+        print("- Presencia: ${comparativo['presencia']}");
+        print("- Productivas: ${comparativo['productivas']}");
       }
 
 
-      print('📊 Datos para embudo: $cumplimientoLaboralData');
+      if (tendencia != null) {
+        final horas = tendencia['labels'] ?? [];
+        final valores = tendencia['series'] ?? [];
+        tendenciaHoras = List.generate(
+          horas.length,
+          (i) => TendenciaHoraData(horas[i], (valores[i] ?? 0).toDouble()),
+        );
+        print("📈 Datos de tendencia por hora cargados: ${tendenciaHoras!.length} items");
+      } else {
+        print('⚠️ No se encontró tendencia_por_hora en la respuesta');
+      }
+
+
 
       // Actualiza el estado con los nuevos datos.
       setState(() {
@@ -278,7 +306,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
 
-               const SizedBox(height: 30),
+              const SizedBox(height: 30),
 
               // 🟣 Gráfico Donut
               if (horasProductivas != null && horasNoProductivas != null)
@@ -316,8 +344,82 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                   ),
-                ) 
+                ),
+
+              const SizedBox(height: 20), 
+
+              // 📘 Gráfico de Barras Horas Programadas
+              if (programadas != null && presencia != null && productivas != null)
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: const [
+                            Icon(Icons.schedule, color: Colors.indigo),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Grado de Ejecución de Horas Programadas',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        GraficoBarrasHoras(
+                          programadas: programadas!,
+                          presencia: presencia!,
+                          productivas: productivas!,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 20),
+
+               // 🔶 Gráfico de tendencia por hora
+              if (tendenciaHoras != null && tendenciaHoras!.isNotEmpty)
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.show_chart, color: Colors.orange),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Tendencia de Actividad por Hora',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        GraficoTendenciaHoras(data: tendenciaHoras!),
+                      ],
+                    ),
+                  ),
+                ), 
             ],
+            
           ),
         ),
       ),

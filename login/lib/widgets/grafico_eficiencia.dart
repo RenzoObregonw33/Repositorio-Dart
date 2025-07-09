@@ -14,7 +14,7 @@ class GraficoEficiencia extends StatelessWidget {
           'Eficiencia',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 5),
         SfRadialGauge(
           axes: <RadialAxis>[
             RadialAxis(

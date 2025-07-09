@@ -15,8 +15,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Login App',
-      debugShowCheckedModeBanner: false,                  
+      title: 'Login App', 
+      debugShowCheckedModeBanner: false,               
       theme: ThemeData(                                   //tema visual
         primaryColor: primaryColor,                       //usado en botones, íconos, etc
         colorScheme: ColorScheme.fromSwatch().copyWith(   //hace color personalizado

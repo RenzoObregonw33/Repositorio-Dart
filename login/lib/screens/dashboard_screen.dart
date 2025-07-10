@@ -232,6 +232,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final formato = DateFormat('yyyy-MM-dd');
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F8FC),
       appBar: AppBar(title: Text('Dashboard de Organización')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

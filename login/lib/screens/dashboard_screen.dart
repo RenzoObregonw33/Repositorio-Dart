@@ -3,10 +3,13 @@ import 'dart:convert';                    // Para convertir datos JSON
 import 'package:flutter/material.dart';   // Widgets de Flutter
 import 'package:http/http.dart' as http;  // Cliente HTTP para hacer peticiones
 import 'package:intl/intl.dart';          // Para formatear fechas
-import 'package:login/widgets/grafico_donut.dart';
-import 'package:login/widgets/grafico_eficiencia.dart';
+import 'package:login/Cards/card_barras_horas.dart';
+import 'package:login/Cards/card_donut.dart';
+import 'package:login/Cards/card_eficiencia.dart';
+import 'package:login/Cards/card_embudo.dart';
+import 'package:login/Cards/card_tendencia_hora.dart';
+import 'package:login/widgets/grafico_actividad_diaria.dart';
 import 'package:login/widgets/grafico_embudo.dart'; // Asegúrate de que el archivo se llame así
-import 'package:login/widgets/grafico_barras_horas.dart';
 import 'package:login/widgets/grafico_tendencia_hora.dart';
  // Widget personalizado para mostrar el gráfico
 //import 'package:shared_preferences/shared_preferences.dart';
@@ -38,6 +41,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   DateTime? fechaIni; // Variable para almacenar la fecha de inicio seleccionada por el usuario. `null` inicialmente.
   DateTime? fechaFin; // Variable para almacenar la fecha de fin seleccionada por el usuario. `null` inicialmente.
   
+  bool esLinea = true;
+  List<ActividadDiariaData> actividadData = [
+    ActividadDiariaData('Lun.', 44.29),
+    ActividadDiariaData('Mar.', 33.62),
+    ActividadDiariaData('Mié.', 43.25),
+    ActividadDiariaData('Jue.', 38.14),
+    ActividadDiariaData('Vie.', 48.60),
+    ActividadDiariaData('Sáb.', 41.79),
+  ];
+
+
 // --------- Método para obtener datos de la API ---------
   // Este método es asíncrono (`async`) porque realiza una operación que toma tiempo (una petición de red).
   Future<void> fetchDatosEficiencia() async {
@@ -93,6 +107,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       // Intenta extraer 'comparativo_horas' de 'eficiencia', si no existe, lo busca directamente en la raíz del cuerpo.
       final comparativo = body['eficiencia']?['comparativo_horas'] ?? body['comparativo_horas'];
       final tendencia = body['tendencia_por_hora'];
+      final actividad = body['actividad_ultimos_dias'];
 
       print('Contenido de cumplimiento: ${body['comparativo_horas']}'); // Impresión de depuración para los datos de cumplimiento.
 
@@ -123,7 +138,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         print("- Productivas: ${comparativo['productivas']}");
       }
 
-
       if (tendencia != null) {
         final horas = tendencia['labels'] ?? [];
         final valores = tendencia['series'] ?? [];
@@ -132,10 +146,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
           (i) => TendenciaHoraData(horas[i], (valores[i] ?? 0).toDouble()),
         );
         print("📈 Datos de tendencia por hora cargados: ${tendenciaHoras!.length} items");
-      } else {
+      } 
+      
+      if (actividad != null) {
+        final dias = List<String>.from(actividad['labels'] ?? []);
+        final valores = List<String>.from(actividad['series']?['Total'] ?? []);
+        setState(() {
+          actividadData = List.generate(
+            dias.length,
+            (i) => ActividadDiariaData(
+              dias[i],
+              double.tryParse(valores[i]) ?? 0,
+            ),
+          );
+        });
+        print("✅ Datos de actividad diaria cargados: ${actividadData.length}");
+      }
+    
+      else {
         print('⚠️ No se encontró tendencia_por_hora en la respuesta');
       }
-
 
 
       // Actualiza el estado con los nuevos datos.
@@ -226,132 +256,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         : 'Fin: ${formato.format(fechaFin!)}'),
                   ),
                 ],
-              ),
+              ), 
               const SizedBox(height: 30),
 
               // ⬇️ CARD DEL GRÁFICO DE EFICIENCIA
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.speed, color: Colors.blueAccent),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              '% Eficiencia en ejecución de actividades',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Center(
-                        child: isLoading
-                            ? const CircularProgressIndicator()
-                            : eficiencia != null
-                                ? GraficoEficiencia(eficiencia: eficiencia!)
-                                : const Text('Seleccione fechas para ver el gráfico.'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
 
+              CardEficiencia(eficiencia:eficiencia,isLoading: isLoading),
+  
               const SizedBox(height: 30),
 
               // ⬇️ CARD DEL GRÁFICO DE CUMPLIMIENTO (EMBUDO)
+
               if (cumplimientoLaboralData != null)
-                Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.bar_chart, color: Colors.teal),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Análisis de Cumplimiento Laboral',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        cumplimientoLaboralData!.isNotEmpty
-                        ? GraficoEmbudo(data: cumplimientoLaboralData!)
-                        : const Text('No hay datos suficientes para mostrar el gráfico.'),
-                      ],
-                    ),
-                  ),
-                ),
+
+                CardEmbudo(cumplimientoLaboralData: cumplimientoLaboralData!),
 
               const SizedBox(height: 30),
 
-              // 🟣 Gráfico Donut
+              // 🟣 GRÁFICO DONUT
+
               if (horasProductivas != null && horasNoProductivas != null)
-                Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.filter_alt, color: Colors.deepPurple),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Distribución de Actividad Laboral',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        GraficoDonut(
-                          productivas: horasProductivas!,
-                          noProductivas: horasNoProductivas!,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                
+                CardDonut(horasProductivas: horasProductivas, horasNoProductivas: horasNoProductivas),
 
               const SizedBox(height: 20), 
 
-              // 📘 Gráfico de Barras Horas Programadas
+              // 📘 GRÁFICO DE BARRAS HORAS PROGRAMADAS
+
               if (programadas != null && presencia != null && productivas != null)
+                
+                CardBarrasHoras(programadas: programadas,presencia: presencia,productivas: productivas,),
+
+              const SizedBox(height: 20),
+
+              // 🔶 GRÁFICO DE TENDENCIA POR HORAS
+
+              if (tendenciaHoras != null && tendenciaHoras!.isNotEmpty)
+                
+                CardTendenciaHora(tendenciaHoras: tendenciaHoras!),
+
+              const SizedBox(height: 20),
+
+              if (actividadData.isNotEmpty)
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -361,67 +307,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          children: const [
-                            Icon(Icons.schedule, color: Colors.indigo),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Grado de Ejecución de Horas Programadas',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                          children: [
+                            const Icon(Icons.swap_horiz, color: Colors.purple),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Actividad Diaria',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            const Spacer(),
+                            ToggleButtons(
+                              isSelected: [esLinea, !esLinea],
+                              onPressed: (index) {
+                                setState(() {
+                                  esLinea = index == 0;
+                                });
+                              },
+                              children: const [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                  child: Text('Línea'),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                  child: Text('Barras'),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
-                        GraficoBarrasHoras(
-                          programadas: programadas!,
-                          presencia: presencia!,
-                          productivas: productivas!,
-                        )
+                        const SizedBox(height: 10),
+                        GraficoActividadDiaria(data: actividadData, esLinea: esLinea),
                       ],
                     ),
                   ),
                 ),
 
-              const SizedBox(height: 20),
-
-               // 🔶 Gráfico de tendencia por hora
-              if (tendenciaHoras != null && tendenciaHoras!.isNotEmpty)
-                Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.show_chart, color: Colors.orange),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Tendencia de Actividad por Hora',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        GraficoTendenciaHoras(data: tendenciaHoras!),
-                      ],
-                    ),
-                  ),
-                ), 
-            ],
-            
+            ],  
           ),
         ),
       ),

@@ -26,27 +26,34 @@ class GraficoTendenciaHoras extends StatelessWidget {
     if (dataFiltrada.isEmpty) return const SizedBox.shrink();
 
     return SizedBox(
-      height: 300,
-      child: SfCartesianChart(
-        tooltipBehavior: TooltipBehavior(enable: true),
-        primaryXAxis: CategoryAxis(),
-        primaryYAxis: NumericAxis(
-          title: AxisTitle(text: 'Tiempo de actividad (horas)'),
-          minimum: 0,
-        ),
-        series: <ColumnSeries<TendenciaHoraData, String>>[
-          ColumnSeries<TendenciaHoraData, String>(
-            dataSource: dataFiltrada,
-            xValueMapper: (TendenciaHoraData d, _) => d.hora,
-            yValueMapper: (TendenciaHoraData d, _) => d.valor,
-            dataLabelSettings: const DataLabelSettings(
-              isVisible: true,
-              labelAlignment: ChartDataLabelAlignment.top,
-              textStyle: TextStyle(fontWeight: FontWeight.bold),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+        width: dataFiltrada.length * 60, // ancho proporcional a la cantidad de datos
+        height: 300,
+        child: SfCartesianChart(
+            tooltipBehavior: TooltipBehavior(enable: true),
+            primaryXAxis: CategoryAxis(),
+            primaryYAxis: NumericAxis(
+              title: AxisTitle(text: 'Tiempo de actividad (horas)'),
+              minimum: 0,
             ),
-            color: Colors.blueAccent,
+            series: <ColumnSeries<TendenciaHoraData, String>>[
+              ColumnSeries<TendenciaHoraData, String>(
+                dataSource: dataFiltrada,
+                xValueMapper: (TendenciaHoraData d, _) => d.hora,
+                yValueMapper: (TendenciaHoraData d, _) => d.valor,
+                dataLabelSettings: const DataLabelSettings(
+                  isVisible: true,
+                  labelAlignment: ChartDataLabelAlignment.top,
+                  textStyle: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                color: Colors.blueAccent,
+              ),
+            ],
           ),
-        ],
+        ),
+        
       ),
     );
   }

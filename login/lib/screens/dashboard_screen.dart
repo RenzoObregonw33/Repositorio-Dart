@@ -42,14 +42,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   DateTime? fechaFin; // Variable para almacenar la fecha de fin seleccionada por el usuario. `null` inicialmente.
   
   bool esLinea = true;
-  List<ActividadDiariaData> actividadData = [
-    ActividadDiariaData('Lun.', 44.29),
-    ActividadDiariaData('Mar.', 33.62),
-    ActividadDiariaData('Mié.', 43.25),
-    ActividadDiariaData('Jue.', 38.14),
-    ActividadDiariaData('Vie.', 48.60),
-    ActividadDiariaData('Sáb.', 41.79),
-  ];
+  List<ActividadDiariaData> actividadData = [];
 
 
 // --------- Método para obtener datos de la API ---------
@@ -150,17 +143,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
       
       if (actividad != null) {
         final dias = List<String>.from(actividad['labels'] ?? []);
-        final valores = List<String>.from(actividad['series']?['Total'] ?? []);
+        final series = actividad['series']?['Total'] ?? [];
+
+        // Limitar a los últimos 7 días
+        final int totalDias = dias.length;
+        final int desde = totalDias >= 6 ? totalDias - 6 : 0;
+        final ultimosDias = dias.sublist(desde);
+        final ultimosValores = series.sublist(desde).map((v) => double.tryParse(v.toString()) ?? 0).toList();
+
         setState(() {
-          actividadData = List.generate(
-            dias.length,
-            (i) => ActividadDiariaData(
-              dias[i],
-              double.tryParse(valores[i]) ?? 0,
-            ),
-          );
+          actividadData = List.generate(ultimosDias.length,
+              (i) => ActividadDiariaData(ultimosDias[i], ultimosValores[i]));
         });
-        print("✅ Datos de actividad diaria cargados: ${actividadData.length}");
+
+        for (var dato in actividadData) {
+          print("📅 Día: ${dato.dia} → ${dato.porcentaje}%");
+        }
       }
     
       else {
@@ -297,50 +295,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               const SizedBox(height: 20),
 
-              if (actividadData.isNotEmpty)
+              if (actividadData != null && actividadData!.isNotEmpty)
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.swap_horiz, color: Colors.purple),
+                            Icon(Icons.view_week, color: Colors.green),
                             const SizedBox(width: 8),
-                            const Text(
-                              'Actividad Diaria',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            Expanded(
+                              child: Text(
+                                'Actividad Diaria Últimos 7 Días',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
                             ),
-                            const Spacer(),
-                            ToggleButtons(
-                              isSelected: [esLinea, !esLinea],
-                              onPressed: (index) {
-                                setState(() {
-                                  esLinea = index == 0;
-                                });
+                            IconButton(
+                              icon: Icon(esLinea ? Icons.show_chart : Icons.bar_chart),
+                              onPressed: () {
+                                setState(() => esLinea = !esLinea);
                               },
-                              children: const [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 12),
-                                  child: Text('Línea'),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 12),
-                                  child: Text('Barras'),
-                                ),
-                              ],
                             ),
                           ],
                         ),
                         const SizedBox(height: 10),
-                        GraficoActividadDiaria(data: actividadData, esLinea: esLinea),
+                        GraficoActividadDiaria(
+                          data: actividadData!,
+                          esLinea: esLinea,
+                        ),
                       ],
                     ),
                   ),
                 ),
+
 
             ],  
           ),

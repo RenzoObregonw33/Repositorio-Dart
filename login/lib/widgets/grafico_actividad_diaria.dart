@@ -18,36 +18,56 @@ class GraficoActividadDiaria extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SfCartesianChart(
-      title: ChartTitle(text: '% Actividad diaria (últimos 7 días)'),
-      primaryXAxis: CategoryAxis(),
-      primaryYAxis: NumericAxis(
-        minimum: 0,
-        maximum: 100,
-        interval: 20,
-        labelFormat: '{value} %',
+    final double maxY =
+        data.map((e) => e.porcentaje).reduce((a, b) => a > b ? a : b) + 10;
+
+    return SizedBox(
+      height: 300,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          width: data.length * 80,
+          child: SfCartesianChart(
+            title: ChartTitle(text: '% Actividad diaria (últimos 7 días)'),
+            primaryXAxis: CategoryAxis(),
+            primaryYAxis: NumericAxis(
+              minimum: 0,
+              maximum: maxY > 100 ? 100 : maxY,
+              interval: 20,
+              labelFormat: '{value} %',
+            ),
+            tooltipBehavior: TooltipBehavior(enable: true),
+            series: esLinea
+                ? <LineSeries<ActividadDiariaData, String>>[
+                    LineSeries<ActividadDiariaData, String>(
+                      dataSource: data,
+                      xValueMapper: (d, _) => d.dia,
+                      yValueMapper: (d, _) => d.porcentaje,
+                      markerSettings: const MarkerSettings(isVisible: true),
+                      dataLabelSettings: const DataLabelSettings(
+                        isVisible: true,
+                        labelAlignment: ChartDataLabelAlignment.top,
+                        textStyle: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      color: Colors.blue,
+                    )
+                  ]
+                : <ColumnSeries<ActividadDiariaData, String>>[
+                    ColumnSeries<ActividadDiariaData, String>(
+                      dataSource: data,
+                      xValueMapper: (d, _) => d.dia,
+                      yValueMapper: (d, _) => d.porcentaje,
+                      dataLabelSettings: const DataLabelSettings(
+                        isVisible: true,
+                        labelAlignment: ChartDataLabelAlignment.top,
+                        textStyle: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      color: Colors.blue,
+                    )
+                  ],
+          ),
+        ),
       ),
-      tooltipBehavior: TooltipBehavior(enable: true),
-      series: esLinea
-          ? <LineSeries<ActividadDiariaData, String>>[
-              LineSeries<ActividadDiariaData, String>(
-                dataSource: data,
-                xValueMapper: (d, _) => d.dia,
-                yValueMapper: (d, _) => d.porcentaje,
-                markerSettings: const MarkerSettings(isVisible: true),
-                dataLabelSettings: const DataLabelSettings(isVisible: true),
-                color: Colors.blue,
-              )
-            ]
-          : <ColumnSeries<ActividadDiariaData, String>>[
-              ColumnSeries<ActividadDiariaData, String>(
-                dataSource: data,
-                xValueMapper: (d, _) => d.dia,
-                yValueMapper: (d, _) => d.porcentaje,
-                dataLabelSettings: const DataLabelSettings(isVisible: true),
-                color: Colors.blue,
-              )
-            ],
     );
   }
 }

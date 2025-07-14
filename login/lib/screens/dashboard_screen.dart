@@ -203,18 +203,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 30),
               CardEficiencia(eficiencia: eficiencia, isLoading: isLoading),
               const SizedBox(height: 30),
-              if (cumplimientoLaboralData != null)
-                CardEmbudo(cumplimientoLaboralData: cumplimientoLaboralData!),
+              
+              CardEmbudo(cumplimientoLaboralData: cumplimientoLaboralData,isLoading: isLoading,),
               const SizedBox(height: 30),
-              if (horasProductivas != null && horasNoProductivas != null)
-                CardDonut(horasProductivas: horasProductivas, horasNoProductivas: horasNoProductivas),
+
+              
+              CardDonut(horasProductivas: horasProductivas, horasNoProductivas: horasNoProductivas, isLoading: isLoading),
               const SizedBox(height: 20),
+
               if (programadas != null && presencia != null && productivas != null)
                 CardBarrasHoras(programadas: programadas, presencia: presencia, productivas: productivas),
               const SizedBox(height: 20),
+
               if (tendenciaHoras != null && tendenciaHoras!.isNotEmpty)
                 CardTendenciaHora(tendenciaHoras: tendenciaHoras!),
               const SizedBox(height: 20),
+
               if (actividadData.isNotEmpty)
                 Card(
                   elevation: 4,

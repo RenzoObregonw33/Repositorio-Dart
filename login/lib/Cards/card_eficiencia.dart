@@ -37,10 +37,18 @@ class CardEficiencia extends StatelessWidget {
             const SizedBox(height: 10),
             Center(
               child: isLoading
-                  ? const CircularProgressIndicator()
+                  ? const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 32),
+                      child: CircularProgressIndicator(),
+                    )
                   : eficiencia != null
                       ? GraficoEficiencia(eficiencia: eficiencia!)
-                      : const Text('Seleccione fechas para ver el gráfico.'),
+                      : const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 32),
+                          child: Text(
+                            'Seleccione fechas para ver el gráfico.',
+                          ),
+                        ),
             ),
           ],
         ),

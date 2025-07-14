@@ -4,7 +4,8 @@ import 'package:login/widgets/grafico_donut.dart';
 class CardDonut extends StatelessWidget {
   final double? horasProductivas;
   final double? horasNoProductivas;
-  const CardDonut({super.key, this.horasProductivas, this.horasNoProductivas});
+  final bool isLoading;
+  const CardDonut({super.key, this.horasProductivas, this.horasNoProductivas, required this.isLoading});
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +36,16 @@ class CardDonut extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            GraficoDonut(
-              productivas: horasProductivas!,
-              noProductivas: horasNoProductivas!,
+            
+            Center(
+              child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : (horasProductivas != null && horasNoProductivas != null)
+                    ? GraficoDonut(
+                        productivas: horasProductivas!,
+                        noProductivas: horasNoProductivas!,
+                      )
+                    : const Text('Seleccione fechas para ver el gráfico.'),
             ),
           ],
         ),

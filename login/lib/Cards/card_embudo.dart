@@ -3,7 +3,8 @@ import 'package:login/widgets/grafico_embudo.dart';
 
 class CardEmbudo extends StatelessWidget {
   final List<FunnelData>? cumplimientoLaboralData;
-  const CardEmbudo({super.key,required this.cumplimientoLaboralData });
+  final bool isLoading;
+  const CardEmbudo({super.key,required this.cumplimientoLaboralData, required this.isLoading });
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +35,19 @@ class CardEmbudo extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            cumplimientoLaboralData!.isNotEmpty
-            ? GraficoEmbudo(data: cumplimientoLaboralData!)
-            : const Text('No hay datos suficientes para mostrar el gráfico.'),
+            Center(
+              child: isLoading
+                  ? const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 32),
+                      child: CircularProgressIndicator(),
+                    )
+                  : (cumplimientoLaboralData == null || cumplimientoLaboralData!.isEmpty)
+                      ? const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 32),
+                          child: Text('Seleccione fechas para ver el gráfico.'),
+                        )
+                      : GraficoEmbudo(data: cumplimientoLaboralData!),
+            ),
           ],
         ),
       ),

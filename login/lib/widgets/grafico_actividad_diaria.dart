@@ -1,5 +1,3 @@
-// ✅ FILE: widgets/grafico_actividad_diaria.dart
-
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -21,14 +19,23 @@ class GraficoActividadDiaria extends StatelessWidget {
     final double maxY =
         data.map((e) => e.porcentaje).reduce((a, b) => a > b ? a : b) + 10;
 
+    // Determinar el ancho mínimo (por si hay muy pocos días)
+    final double chartWidth = (data.length * 80).clamp(240, 600).toDouble();
+
+
+    // Título dinámico
+    final String titulo = data.length >= 7
+        ? '% Actividad diaria (últimos 7 días)'
+        : '% Actividad diaria seleccionada';
+
     return SizedBox(
       height: 300,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: SizedBox(
-          width: data.length * 80,
+          width: chartWidth,
           child: SfCartesianChart(
-            title: ChartTitle(text: '% Actividad diaria (últimos 7 días)'),
+            title: ChartTitle(text: titulo),
             primaryXAxis: CategoryAxis(),
             primaryYAxis: NumericAxis(
               minimum: 0,

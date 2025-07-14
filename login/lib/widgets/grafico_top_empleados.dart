@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 
-// Clase que representa la actividad de un empleado
 class TopEmpleadoData {
   final String nombre;
   final double porcentaje;
@@ -17,36 +16,32 @@ class GraficoTopEmpleados extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Separa nombres, positivos y negativos
     List<String> labels = [];
-    List<double> positiva = [];
-    List<double> negativa = [];
+    List<Map<String, dynamic>> valoresConEstilo = [];
 
     for (var empleado in data) {
       final nombre = empleado.nombre;
       final porcentaje = empleado.porcentaje;
+
+      final bool esNegativo = porcentaje < 30;
+
       labels.add(nombre);
-      if (porcentaje >= 0) {
-        positiva.add(porcentaje);
-        negativa.add(0);
-      } else {
-        positiva.add(0);
-        negativa.add(-porcentaje); // lo pasamos a positivo
-      }
+
+      valoresConEstilo.add({
+        'value': esNegativo ? -porcentaje : porcentaje, // ⬅️ Lo hacemos negativo si < 30%
+        'itemStyle': {
+          'color': esNegativo ? '#91cc75' : '#008fcb', // Verde o azul
+        }
+      });
     }
 
-    // Ancho dinámico del gráfico para scroll horizontal
     final chartWidth = labels.length * 100;
 
     final option = {
       'tooltip': {
         'trigger': 'axis',
         'axisPointer': {'type': 'shadow'},
-        // Eliminamos function personalizada para evitar errores
-        'formatter': '{b}: {c} %'
-      },
-      'legend': {
-        'data': ['Actividad positiva', 'Actividad negativa']
+        'formatter': '{b}: {c} %',
       },
       'grid': {
         'left': '3%',
@@ -72,28 +67,13 @@ class GraficoTopEmpleados extends StatelessWidget {
       ],
       'series': [
         {
-          'name': 'Actividad negativa',
           'type': 'bar',
           'label': {
             'show': true,
             'position': 'inside',
-            'formatter': '{c} %'
+            'formatter': (r'{c} %'),
           },
-          'itemStyle': {'color': '#91cc75'},
-          'emphasis': {'focus': 'series'},
-          'data': negativa.map((e) => -e).toList()
-        },
-        {
-          'name': 'Actividad positiva',
-          'type': 'bar',
-          'label': {
-            'show': true,
-            'position': 'inside',
-            'formatter': '{c} %'
-          },
-          'itemStyle': {'color': '#008fcb'},
-          'emphasis': {'focus': 'series'},
-          'data': positiva
+          'data': valoresConEstilo,
         }
       ]
     };
@@ -104,7 +84,7 @@ class GraficoTopEmpleados extends StatelessWidget {
         width: chartWidth.toDouble(),
         height: labels.length * 50 + 100,
         child: Echarts(
-          option: jsonEncode(option), // ✅ compatible con tu versión
+          option: jsonEncode(option),
         ),
       ),
     );

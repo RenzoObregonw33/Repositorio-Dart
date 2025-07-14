@@ -11,6 +11,7 @@ import 'package:login/Cards/card_tendencia_hora.dart';
 import 'package:login/widgets/grafico_actividad_diaria.dart';
 import 'package:login/widgets/grafico_embudo.dart'; // Asegúrate de que el archivo se llame así
 import 'package:login/widgets/grafico_tendencia_hora.dart';
+import 'package:login/widgets/grafico_top_empleados.dart';
  // Widget personalizado para mostrar el gráfico
 //import 'package:shared_preferences/shared_preferences.dart';
 
@@ -43,9 +44,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   
   bool esLinea = true;
   List<ActividadDiariaData> actividadData = [];
+  List<TopEmpleadoData> topEmpleadosData = [];
 
 
-// --------- Método para obtener datos de la API ---------
+// --------- Método para obtener datos de la API --------------------------------------------------
   // Este método es asíncrono (`async`) porque realiza una operación que toma tiempo (una petición de red).
   Future<void> fetchDatosEficiencia() async {
     // Si `fechaIni` o `fechaFin` son nulas, la función se detiene.
@@ -149,7 +151,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final int totalDias = dias.length;
         final int desde = totalDias >= 6 ? totalDias - 6 : 0;
         final ultimosDias = dias.sublist(desde);
-        final ultimosValores = series.sublist(desde).map((v) => double.tryParse(v.toString()) ?? 0).toList();
+        final ultimosValores = series.sublist(desde).map((v) {
+          if (v == null) return 0.0;
+          return double.tryParse(v.toString()) ?? 0.0;
+        }).toList();
 
         setState(() {
           actividadData = List.generate(ultimosDias.length,
@@ -160,10 +165,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
           print("📅 Día: ${dato.dia} → ${dato.porcentaje}%");
         }
       }
-    
+
       else {
         print('⚠️ No se encontró tendencia_por_hora en la respuesta');
       }
+
+      final labels = body['top_empleados']['labels'] as List<dynamic>;
+      final List<dynamic> positiva = body['top_empleados']['series']['Actividad positiva'];
+      final List<dynamic> negativa = body['top_empleados']['series']['Actividad negativa'];
+
+      topEmpleadosData.clear();
+
+      for (int i = 0; i < labels.length; i++) {
+        final nombre = labels[i].toString().trim();
+        final pos = (i < positiva.length) ? double.tryParse(positiva[i].toString()) ?? 0 : 0;
+        final neg = (i < negativa.length) ? double.tryParse(negativa[i].toString()) ?? 0 : 0;
+
+        final porcentajeFinal = pos != 0 ? pos : -neg;
+
+        topEmpleadosData.add(
+          TopEmpleadoData(nombre: nombre, porcentaje: porcentajeFinal.toDouble()),
+        );
+      }
+
 
 
       // Actualiza el estado con los nuevos datos.
@@ -175,10 +199,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } catch (e) {
       // Captura cualquier error que ocurra durante la petición o el procesamiento.
       print('Error al cargar datos: $e'); // Imprime el error para depuración.
-      setState(() {
-        eficiencia = 0; // Se asigna 0 a eficiencia en caso de error.
-        isLoading = false; // Se oculta el indicador de carga.
-      });
     }
   }
 
@@ -221,8 +241,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // La carga de datos ya no se llama aquí al inicio. Ahora se dispara cuando ambas fechas son seleccionadas.
     // Se inicializa `isLoading` como `false` para que los botones de selección de fecha sean visibles
     // desde el principio, antes de que se haga cualquier petición.
+    //fechaIni = DateTime.now().subtract(const Duration(days: 6)); // ← se muestra los últimos 6 días + hoy
     fechaFin = DateTime.now(); // ← Establece la fecha actual por defecto
-    //fechaIni = DateTime.now().subtract(const Duration(days: 7)); // 7 días antes
     isLoading = false;
   }
 
@@ -331,7 +351,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                 ),
+              const SizedBox(height: 30),
+              if (topEmpleadosData.isNotEmpty)
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: const [
+                            Icon(Icons.leaderboard, color: Colors.blue),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Top empleados con más y menos actividad',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
 
+                        // Llamada correcta
+                        GraficoTopEmpleados(data: topEmpleadosData),
+                      ],
+                    ),
+                  ),
+                )
 
             ],  
           ),

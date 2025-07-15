@@ -19,18 +19,18 @@ class GraficoTopEmpleados extends StatelessWidget {
     List<String> labels = [];
     List<Map<String, dynamic>> valoresConEstilo = [];
 
-    for (var empleado in data) {
-      final nombre = empleado.nombre;
-      final porcentaje = empleado.porcentaje;
-
-      final bool esNegativo = porcentaje < 30;
+    for (int i = 0; i < data.length; i++) {
+      final nombre = data[i].nombre;
+      final porcentaje = data[i].porcentaje;
 
       labels.add(nombre);
 
+      final bool esTop = i<3;
+
       valoresConEstilo.add({
-        'value': esNegativo ? -porcentaje : porcentaje, // ⬅️ Lo hacemos negativo si < 30%
+        'value': esTop? porcentaje : -porcentaje, // Siempre positivo
         'itemStyle': {
-          'color': esNegativo ? '#91cc75' : '#008fcb', // Verde o azul
+          'color': esTop ? '#008fcb' : '#91cc75', // Azul o verde
         }
       });
     }

@@ -56,8 +56,8 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:  Color(0xFFF5F8FC),
-      appBar: AppBar(title: Text('Recuperar contraseña')),          //BArra superior
+      backgroundColor:  const Color(0xFFFFF8EB),
+      appBar: AppBar(title: Text('Recuperar contraseña', style: TextStyle(fontFamily: 'Inter'),)),          //BArra superior
       body: Padding(
         padding: const EdgeInsets.all(20.0),                        //Espacio interno
         child: Column(
@@ -66,6 +66,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
               controller: _emailController,                   //Control
               decoration: InputDecoration(
                 labelText: 'Correo electrónico',
+                labelStyle: TextStyle(fontFamily: 'Inter'),
                 errorText: _error,                            //Mustra un mensaje de error si no existe
               ),
               keyboardType: TextInputType.emailAddress,
@@ -74,7 +75,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
             // Botón para enviar la solicitud de recuperación
             ElevatedButton(
               onPressed: _enviarSolicitud,
-              child: Text('Enviar'),
+              child: Text('Enviar', style: TextStyle(fontFamily: 'Inter'),),
             ),
           ],
         ),

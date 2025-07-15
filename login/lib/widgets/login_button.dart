@@ -116,7 +116,7 @@ class LoginButton extends StatelessWidget {
       },
       child: const Text(
         'Iniciar Sesión',
-        style: TextStyle(fontSize: 16, color: Colors.lightBlue),
+        style: TextStyle(fontSize: 16, color: Color(0xFFF3B83C), fontFamily: '-apple-system'),
       ),
     );
   }

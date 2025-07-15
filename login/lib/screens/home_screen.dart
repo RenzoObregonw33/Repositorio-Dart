@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:login/screens/dashboard_screen.dart';  //Importa el paquete principal de Flutter con todos los widgets visuales.
 
+
 class HomeScreem extends StatelessWidget {
 
 //Parametros
@@ -24,9 +25,9 @@ class HomeScreem extends StatelessWidget {
 
     //estructura base
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FC),
+      backgroundColor: const Color(0xFFFFF8EB),
       appBar: AppBar(                               //Muestra la barra superior
-        title: Text('Organizacion'),
+        title: Text('Organizacion', style: TextStyle(fontFamily: '-apple-system'),),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),             //Icono flecha atras
           onPressed: () {
@@ -59,7 +60,7 @@ class HomeScreem extends StatelessWidget {
                 Expanded(
                   child: Text(
                     '$nombre $apellido',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, fontFamily: 'Inter'),
                   ),
                 ),
               ],
@@ -67,7 +68,7 @@ class HomeScreem extends StatelessWidget {
             SizedBox(height: 24),                  //texto 
             Text(
               'Mis Organizaciones:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
             ),
             SizedBox(height: 8),
             Expanded(                               //esto crea una lista 
@@ -81,28 +82,70 @@ class HomeScreem extends StatelessWidget {
                   final razonSocial = org['razonSocial'];
                   final ruc = org['ruc'];
                   final id = org['id'];
-
-                  return Card(
-                    elevation: 2,
-                    margin: EdgeInsets.symmetric(vertical: 6),
-                    child: ListTile(
-                      leading: Icon(Icons.business, color: Colors.blueAccent),
-                      title: Text(razonSocial),
-                      subtitle: Text('RUC: $ruc\nID: $id'),                    // Muestra el RUC e ID                  
-             
-                      onTap: () {                           // Acción cuando el usuario selecciona una organización
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DashboardScreen(
+                  
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DashboardScreen(
                             organiId: int.parse(org['id'].toString()),
-                            token: token, // ← Este es el token que recibiste del login
+                            token: token,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8), // Tarjeta cuadrada
+                      ),
+                      child: Container(
+                        width: double.infinity,
+                        height: 120,
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.domain, color: Color(0xFFF3B83C), size: 28),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    razonSocial,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Inter',
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),  
-                        );
-                      },
+                            SizedBox(height: 10),
+                            Text(
+                              'RUC: $ruc',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                            Text(
+                              'ID: $id',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   );
+
                 },
               ),
             ),

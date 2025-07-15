@@ -8,7 +8,7 @@ void main() => runApp(const MyApp());
 // Clase principal de la app, que extiende StatelessWidget (no tiene estado interno)
 class MyApp extends StatelessWidget {
   // Define un color primario personalizado para usar en toda la app
-  final Color primaryColor = Colors.lightBlueAccent;
+  final Color primaryColor = const Color(0xFFF3B83C);
   const MyApp({super.key});                                //Constructor
 
   //Widget Principal

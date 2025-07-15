@@ -31,7 +31,7 @@ class _LoginScreemState extends State<LoginScreem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FC),
+      backgroundColor: const Color(0xFFFFF8EB),
       body: Center(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 30),
@@ -49,12 +49,25 @@ class _LoginScreemState extends State<LoginScreem> {
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey[700],
+                  fontFamily: '-apple-system'
                 ),
               ),
               SizedBox(height: 10),
               Text(
                 'Por favor, inicia sesión para continuar',
-                style: TextStyle(color: Colors.grey[700]),
+                style: TextStyle(color: Colors.grey[700], 
+                fontFamily: '-apple-system', // Tu fuente principal (como una sola String)
+                fontFamilyFallback: [
+                  'system-ui',
+                  'Segoe UI',
+                  'roboto',
+                  'helvetica',
+                  'arial',
+                  'sans-serif',
+                  'Apple Color Emoji',
+                  'Segoe UI Emoji',
+                  'Segoe UI Symbol',
+                ]),
               ),
               SizedBox(height: 30),
 
@@ -64,11 +77,12 @@ class _LoginScreemState extends State<LoginScreem> {
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email',
+                  labelStyle: TextStyle(fontFamily: '-apple-system'),
                   prefixIcon: Icon(
                     Icons.person_outline,
                     color: _emailError != null
                         ? Colors.red
-                        : Colors.lightBlueAccent,
+                        : Color(0xFFF3B83C),
                   ),
                   suffixIcon: _emailError != null
                       ? Icon(Icons.error_outline, color: Colors.red)
@@ -89,11 +103,12 @@ class _LoginScreemState extends State<LoginScreem> {
                 obscureText: _ocultarPassword,
                 decoration: InputDecoration(
                   labelText: 'Contraseña',
+                  labelStyle: TextStyle(fontFamily: '-apple-system'),
                   prefixIcon: Icon(
                     Icons.lock_outline,
                     color: _passwordError != null
                         ? Colors.red
-                        : Colors.lightBlueAccent,
+                        : Color(0xFFF3B83C),
                   ),
                   suffixIcon: _passwordError != null
                       ? Icon(Icons.error_outline, color: Colors.red)
@@ -146,15 +161,15 @@ class _LoginScreemState extends State<LoginScreem> {
                   child: Text(
                     'Olvidaste tu Contraseña',
                     style: TextStyle(
-                      color: Colors.lightBlueAccent,
+                      color: Color(0xFFF3B83C),
                       fontSize: 14,
                       decoration: TextDecoration.underline,
-                      decorationColor: Colors.lightBlueAccent
+                      decorationColor: Color(0xFFF3B83C),
+                      fontFamily: '-apple-system'
                     ),
                   ),
                 ),
               ),
-
             ],
           ),
         ),

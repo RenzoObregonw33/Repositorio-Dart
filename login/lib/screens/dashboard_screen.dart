@@ -47,8 +47,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    fechaFin = DateTime.now();
-    isLoading = false;
+    final hoy = DateTime.now();
+    fechaIni = DateTime(hoy.year, hoy.month, hoy.day);
+    fechaFin = DateTime(hoy.year, hoy.month, hoy.day);
+    fetchDatosEficiencia();
   }
 
   Future<void> fetchDatosEficiencia() async {                                     //FUNCION PARA BUSCAR LOS DATOS
@@ -91,10 +93,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       if (comparativo != null) {
         cumplimientoLaboralData = [                                               //COMPARARTIVO EN HORAS
-          FunnelData('Horas programadas', (comparativo['programadas'] ?? 0).toDouble(), Color(0xFF1F71F0)),
-          FunnelData('Horas de presencia', (comparativo['presencia'] ?? 0).toDouble(), Color(0xFF08D7D4)),
-          FunnelData('Horas productivas', (comparativo['productivas'] ?? 0).toDouble(), Color(0xFFF7596E)),
-          FunnelData('Horas no productivas', (comparativo['no_productivas'] ?? 0).toDouble(), Color(0xFFFFCC66)),
+          FunnelData('Horas programadas', (comparativo['programadas'] ?? 0).toDouble(), Color(0xFF748FC9)),
+          FunnelData('Horas de presencia', (comparativo['presencia'] ?? 0).toDouble(), Color(0xFF41C2C5)),
+          FunnelData('Horas productivas', (comparativo['productivas'] ?? 0).toDouble(), Color(0xFFEA5160)),
+          FunnelData('Horas no productivas', (comparativo['no_productivas'] ?? 0).toDouble(), Color(0xFFFFCD1C)),
         ];
 
         horasProductivas = (comparativo['productivas'] ?? 0).toDouble();
@@ -180,7 +182,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final formato = DateFormat('yyyy-MM-dd');
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F8FC),
+      backgroundColor: const Color(0xFFFFF8EB),
       appBar: AppBar(title: const Text('Dashboard de Organización')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -278,6 +280,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 30)
             ],
           ),
         ),

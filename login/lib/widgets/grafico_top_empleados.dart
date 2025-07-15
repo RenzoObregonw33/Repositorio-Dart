@@ -30,7 +30,7 @@ class GraficoTopEmpleados extends StatelessWidget {
       valoresConEstilo.add({
         'value': esTop? porcentaje : -porcentaje, // Siempre positivo
         'itemStyle': {
-          'color': esTop ? '#008fcb' : '#91cc75', // Azul o verde
+          'color': esTop ? '#748FC9' : '#41C2C5', // Azul o verde
         }
       });
     }

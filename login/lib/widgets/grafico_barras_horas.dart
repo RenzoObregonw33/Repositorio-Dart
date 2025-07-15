@@ -24,9 +24,9 @@ class GraficoBarrasHoras extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<HorasData> data = [
-      HorasData('Horas programadas', programadas, const Color(0xFF4D68E6)),
-      HorasData('Horas de presencia', presencia, const Color(0xFF92D384)),
-      HorasData('Horas productivas', productivas, const Color(0xFFF3B644)),
+      HorasData('Horas programadas', programadas, Color(0xFF748FC9)),
+      HorasData('Horas de presencia', presencia, Color(0xFF41C2C5)),
+      HorasData('Horas productivas', productivas, Color(0xFFEA5160)),
     ];
 
     return Column(

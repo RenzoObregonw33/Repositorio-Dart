@@ -48,7 +48,7 @@ class GraficoTendenciaHoras extends StatelessWidget {
                   labelAlignment: ChartDataLabelAlignment.top,
                   textStyle: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                color: Colors.blueAccent,
+                color: Color(0xFF41C2C5),
               ),
             ],
           ),

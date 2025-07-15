@@ -25,7 +25,7 @@ class HomeScreem extends StatelessWidget {
 
     //estructura base
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8EB),
+      backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(                               //Muestra la barra superior
         title: Text('Organizacion', style: TextStyle(fontFamily: '-apple-system'),),
         leading: IconButton(
@@ -70,7 +70,7 @@ class HomeScreem extends StatelessWidget {
               'Mis Organizaciones:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 10),
             Expanded(                               //esto crea una lista 
               child: ListView.builder(              //crea Listas Dinamicas jala datos de una BD o una API
                 itemCount: organizaciones.length,
@@ -97,9 +97,11 @@ class HomeScreem extends StatelessWidget {
                       );
                     },
                     child: Card(
+                      shadowColor: Color(0xFFF3B83C),
                       elevation: 4,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8), // Tarjeta cuadrada
+                        side: BorderSide(color: const Color(0xFFFFF8EB),width: 2),
                       ),
                       child: Container(
                         width: double.infinity,
@@ -112,7 +114,7 @@ class HomeScreem extends StatelessWidget {
                             Row(
                               children: [
                                 Icon(Icons.domain, color: Color(0xFFF3B83C), size: 28),
-                                SizedBox(width: 12),
+                                SizedBox(width: 15),
                                 Expanded(
                                   child: Text(
                                     razonSocial,
@@ -125,7 +127,7 @@ class HomeScreem extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 10),
+                            SizedBox(height: 15),
                             Text(
                               'RUC: $ruc',
                               style: TextStyle(

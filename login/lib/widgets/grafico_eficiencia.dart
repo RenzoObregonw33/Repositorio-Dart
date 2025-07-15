@@ -21,9 +21,9 @@ class GraficoEficiencia extends StatelessWidget {
               minimum: 0,
               maximum: 100,
               ranges: <GaugeRange>[
-                GaugeRange(startValue: 0, endValue: 40, color: Colors.red),
-                GaugeRange(startValue: 40, endValue: 70, color: Colors.orange),
-                GaugeRange(startValue: 70, endValue: 100, color: Colors.green),
+                GaugeRange(startValue: 0, endValue: 40, color: Color(0xFFEA5160)),
+                GaugeRange(startValue: 40, endValue: 70, color: Color(0xFFFFCD1C)),
+                GaugeRange(startValue: 70, endValue: 100, color: Color(0xFF41C2C5)),
               ],
               pointers: <GaugePointer>[
                 NeedlePointer(value: eficiencia),

@@ -56,7 +56,7 @@ class GraficoActividadDiaria extends StatelessWidget {
                         labelAlignment: ChartDataLabelAlignment.top,
                         textStyle: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      color: Colors.blue,
+                      color: Color(0xFFFFCD1C),
                     )
                   ]
                 : <ColumnSeries<ActividadDiariaData, String>>[
@@ -69,7 +69,7 @@ class GraficoActividadDiaria extends StatelessWidget {
                         labelAlignment: ChartDataLabelAlignment.top,
                         textStyle: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      color: Colors.blue,
+                      color: Color(0xFFEA5160),
                     )
                   ],
           ),

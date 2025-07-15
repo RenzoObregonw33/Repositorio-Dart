@@ -20,8 +20,8 @@ class GraficoDonut extends StatelessWidget {
   Widget build(BuildContext context) {
     final total = productivas + noProductivas;
     final data = [
-      DonutData('Horas productivas', productivas, Colors.indigo),
-      DonutData('Horas no productivas', noProductivas, Colors.cyan),
+      DonutData('Horas productivas', productivas, Color(0xFF748FC9)),
+      DonutData('Horas no productivas', noProductivas, Color(0xFF41C2C5)),
     ];
     return SfCircularChart(
       legend: Legend(

@@ -29,7 +29,7 @@ class GraficoTendenciaHoras extends StatelessWidget {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: SizedBox(
-        width: dataFiltrada.length * 60, // ancho proporcional a la cantidad de datos
+        width: dataFiltrada.length * 30, // ancho proporcional a la cantidad de datos
         height: 300,
         child: SfCartesianChart(
             tooltipBehavior: TooltipBehavior(enable: true),
@@ -46,9 +46,9 @@ class GraficoTendenciaHoras extends StatelessWidget {
                 dataLabelSettings: const DataLabelSettings(
                   isVisible: true,
                   labelAlignment: ChartDataLabelAlignment.top,
-                  textStyle: TextStyle(fontWeight: FontWeight.bold),
+                  //textStyle: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                color: Color(0xFF41C2C5),
+                color: Color(0xFF2BCA07),
               ),
             ],
           ),

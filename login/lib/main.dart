@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';   // paquete principal para construir interfaces gráficas Android
 import 'package:flutter/cupertino.dart';  
 import 'package:login/screens/Login_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 // Función principal que inicia la aplicación
 void main() => runApp(const MyApp());
@@ -34,6 +35,16 @@ class MyApp extends StatelessWidget {
           fillColor: Colors.white,
         ),
       ),
+     //Agrega esto para forzar idioma español
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('es'), // Español
+      ],
+      locale: const Locale('es'),
       home: const LoginScreem()
     );
   }

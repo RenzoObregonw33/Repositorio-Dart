@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:login/screens/dashboard_screen.dart';  //Importa el paquete principal de Flutter con todos los widgets visuales.
+import 'package:login/screens/dashboad_main_screen.dart';
+//import 'package:login/screens/dashboard_screen.dart';  //Importa el paquete principal de Flutter con todos los widgets visuales.
 
 
 class HomeScreem extends StatelessWidget {
@@ -25,16 +26,16 @@ class HomeScreem extends StatelessWidget {
 
     //estructura base
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFFFF),
+      backgroundColor: const Color(0xFFFFF8EB),
       appBar: AppBar(                               //Muestra la barra superior
-        title: Text('Organizacion', style: TextStyle(fontFamily: '-apple-system'),),
+        title: Text('Organización', style: TextStyle(fontFamily: '-apple-system'),),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),             //Icono flecha atras
+          icon: Icon(Icons.arrow_back, size: 24.0,),             //Icono flecha atras
           onPressed: () {
             Navigator.pop(context, 'logout');
           },
         ),
-        actions: [
+        /*actions: [
           IconButton(
             icon: Icon(Icons.logout),               //icono de salida
             onPressed: () {
@@ -42,7 +43,7 @@ class HomeScreem extends StatelessWidget {
             },
             tooltip: 'Cerrar sesión',             //muestra un mensaje flotante
           ),
-        ],
+        ],*/
       ),
       body: Padding(                                //Cuerpo redondeado en un padding de 16px del box
         padding: const EdgeInsets.all(16),
@@ -53,8 +54,8 @@ class HomeScreem extends StatelessWidget {
               children: [
                 CircleAvatar(                      //Icono circular del Usuario 
                   radius: 30,
-                  backgroundColor: Colors.grey.shade300,
-                  child: Icon(Icons.person, size: 30, color: Colors.grey.shade700),
+                  backgroundColor:  Color(0xFFF3C86C),
+                  child: Text('V', style: TextStyle(color: Colors.white, fontSize: 30,fontWeight: FontWeight.bold)),
                 ),
                 SizedBox(width: 16),
                 Expanded(
@@ -89,7 +90,7 @@ class HomeScreem extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => DashboardScreen(
+                          builder: (context) => DashboardMainScreen(
                             organiId: int.parse(org['id'].toString()),
                             token: token,
                           ),

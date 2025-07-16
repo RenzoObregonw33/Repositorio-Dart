@@ -145,7 +145,7 @@ class _LoginScreemState extends State<LoginScreem> {
                   });
                 },
               ),
-
+              //olvidaste contraseña
               SizedBox(height: 10),
               Align(
                 alignment: Alignment.center,

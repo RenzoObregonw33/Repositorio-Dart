@@ -17,6 +17,7 @@ class GraficoEmbudo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SfFunnelChart(
+      backgroundColor: Color(0xFF776F6C),
       title: ChartTitle(text: 'Cumplimiento Laboral', textStyle: TextStyle(fontWeight: FontWeight.bold)),
       tooltipBehavior: TooltipBehavior(enable: true),
       series: FunnelSeries<FunnelData, String>(

@@ -27,6 +27,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+
   // Datos para todos los gráficos
   double? eficiencia;
   List<FunnelData>? cumplimientoLaboralData;
@@ -93,10 +94,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       if (comparativo != null) {
         cumplimientoLaboralData = [                                               //COMPARARTIVO EN HORAS
-          FunnelData('Horas programadas', (comparativo['programadas'] ?? 0).toDouble(), Color(0xFF748FC9)),
-          FunnelData('Horas de presencia', (comparativo['presencia'] ?? 0).toDouble(), Color(0xFF41C2C5)),
-          FunnelData('Horas productivas', (comparativo['productivas'] ?? 0).toDouble(), Color(0xFFEA5160)),
-          FunnelData('Horas no productivas', (comparativo['no_productivas'] ?? 0).toDouble(), Color(0xFFFFCD1C)),
+          FunnelData('Horas programadas', (comparativo['programadas'] ?? 0).toDouble(), Colors.blue),
+          FunnelData('Horas de presencia', (comparativo['presencia'] ?? 0).toDouble(), Colors.green),
+          FunnelData('Horas productivas', (comparativo['productivas'] ?? 0).toDouble(), Colors.red),
+          FunnelData('Horas no productivas', (comparativo['no_productivas'] ?? 0).toDouble(), Colors.yellow),
         ];
 
         horasProductivas = (comparativo['productivas'] ?? 0).toDouble();
@@ -155,53 +156,56 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Future<void> _seleccionarFecha({required bool esInicio}) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2023),
-      lastDate: DateTime.now(),
-    );
-
-    if (picked != null) {
-      setState(() {
-        if (esInicio) {
-          fechaIni = picked;
-        } else {
-          fechaFin = picked;
-        }
-      });
-
-      if (fechaIni != null && fechaFin != null) {
-        fetchDatosEficiencia();
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     final formato = DateFormat('yyyy-MM-dd');
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8EB),
+      backgroundColor: const Color.fromARGB(255, 136, 135, 135),
       appBar: AppBar(title: const Text('Dashboard de Organización')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => _seleccionarFecha(esInicio: true),
-                    child: Text(fechaIni == null ? 'Seleccionar inicio' : 'Inicio: ${formato.format(fechaIni!)}'),
+              Align(
+                alignment: Alignment.center,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.date_range),
+                  label: Text(
+                    (fechaIni == null || fechaFin == null)
+                      ? 'Seleccionar rango de fechas'
+                      : 'Rango: ${formato.format(fechaIni!)} - ${formato.format(fechaFin!)}',
                   ),
-                  ElevatedButton(
-                    onPressed: () => _seleccionarFecha(esInicio: false),
-                    child: Text(fechaFin == null ? 'Seleccionar fin' : 'Fin: ${formato.format(fechaFin!)}'),
+                  onPressed: () async {
+                    final DateTimeRange? picked = await showDateRangePicker(
+                      context: context,
+                      firstDate: DateTime(2023),
+                      lastDate: DateTime.now(),
+                      initialDateRange: DateTimeRange(
+                        start: fechaIni ?? DateTime.now(),
+                        end: fechaFin ?? DateTime.now(),  
+                      ),
+                    );
+
+                    if (picked != null) {
+                      setState(() {
+                        fechaIni = picked.start;
+                        fechaFin = picked.end;
+                      });
+                      fetchDatosEficiencia();
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Color(0xFFF3B83C),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                   ),
-                ],
+                ),
               ),
+
+
               const SizedBox(height: 30),
               CardEficiencia(eficiencia: eficiencia, isLoading: isLoading),
               const SizedBox(height: 30),
@@ -223,6 +227,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               if (actividadData.isNotEmpty)
                 Card(
+                  color: Color(0xFF474747),
                   elevation: 4,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: Padding(
@@ -236,7 +241,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             const Expanded(
                               child: Text(
                                 'Actividad Diaria Últimos 7 Días',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: Colors.white),
                               ),
                             ),
                             IconButton(

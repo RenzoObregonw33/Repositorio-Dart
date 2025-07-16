@@ -9,13 +9,10 @@ class GraficoEficiencia extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      
       children: [
-        Text(
-          'Eficiencia',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 5),
         SfRadialGauge(
+          backgroundColor: Color(0xFF776F6C),
           axes: <RadialAxis>[
             RadialAxis(
               minimum: 0,

@@ -10,7 +10,17 @@ class PasswordResetScreen extends StatefulWidget {
 // Estado asociado al widget PasswordResetScreen
 class _PasswordResetScreenState extends State<PasswordResetScreen> {
   final TextEditingController _emailController = TextEditingController();
+  final FocusNode _focusNode = FocusNode(); 
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    // Enfocar automáticamente al iniciar
+    Future.delayed(Duration.zero, () {
+      FocusScope.of(context).requestFocus(_focusNode);
+    });
+  }
 
   // Método que se llama cuando el widget se elimina de la pantalla
   @override
@@ -61,21 +71,27 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
       body: Padding(
         padding: const EdgeInsets.all(20.0),                        //Espacio interno
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text('\tIngresa tu correo electronico:', style: TextStyle(fontFamily: '-apple-system'),),
+            SizedBox(height: 8),
             TextField(                                        //Se ingresa el correo
               controller: _emailController,                   //Control
+              focusNode: _focusNode,
               decoration: InputDecoration(
                 labelText: 'Correo electrónico',
-                labelStyle: TextStyle(fontFamily: 'Inter'),
+                labelStyle: TextStyle(fontFamily: '-apple-system'),
                 errorText: _error,                            //Mustra un mensaje de error si no existe
               ),
               keyboardType: TextInputType.emailAddress,
             ),
             SizedBox(height: 20),
             // Botón para enviar la solicitud de recuperación
-            ElevatedButton(
-              onPressed: _enviarSolicitud,
-              child: Text('Enviar', style: TextStyle(fontFamily: 'Inter'),),
+            Center(
+              child: ElevatedButton(
+                onPressed: _enviarSolicitud,
+                child: Text('Enviar', style: TextStyle(fontFamily: 'Inter'),),
+              ),
             ),
           ],
         ),

@@ -28,6 +28,21 @@ class GraficoActividadDiaria extends StatelessWidget {
         ? '% Actividad diaria (últimos 7 días)'
         : '% Actividad diaria seleccionada';
 
+    //colores
+    final List<Color> colores = [
+      Color(0xFF0868FB), // Azul
+      Color(0xFF2DC70D), // Verde
+      Color(0xFFFF1A15), // Rojo
+      Colors.brown, // Marrón
+      Colors.purple, // Morado
+      Colors.orange, // Naranja
+      Colors.pink, // Rosa
+      Colors.teal, // Verde azulado
+      Colors.indigo, // Índigo
+      Colors.amber, // Ámbar
+      Colors.cyan, // Cian
+    ];
+
     return SizedBox(
       height: 300,
       child: SingleChildScrollView(
@@ -35,13 +50,16 @@ class GraficoActividadDiaria extends StatelessWidget {
         child: SizedBox(
           width: chartWidth,
           child: SfCartesianChart(
-            title: ChartTitle(text: titulo),
-            primaryXAxis: CategoryAxis(),
-            primaryYAxis: NumericAxis(
+            title: ChartTitle(text: titulo, textStyle: TextStyle(color: Colors.white)),
+            primaryXAxis: CategoryAxis(                             //EJE X
+              labelStyle: TextStyle(color: Colors.white),
+            ),
+            primaryYAxis: NumericAxis(                              //EJE Y
               minimum: 0,
               maximum: maxY > 100 ? 100 : maxY,
               interval: 20,
               labelFormat: '{value} %',
+              labelStyle: TextStyle(color: Colors.white),
             ),
             tooltipBehavior: TooltipBehavior(enable: true),
             series: esLinea
@@ -50,13 +68,17 @@ class GraficoActividadDiaria extends StatelessWidget {
                       dataSource: data,
                       xValueMapper: (d, _) => d.dia,
                       yValueMapper: (d, _) => d.porcentaje,
-                      markerSettings: const MarkerSettings(isVisible: true),
+                      markerSettings: const MarkerSettings(isVisible: true, width: 10, height: 10),
                       dataLabelSettings: const DataLabelSettings(
                         isVisible: true,
                         labelAlignment: ChartDataLabelAlignment.top,
-                        textStyle: TextStyle(fontWeight: FontWeight.bold),
+                        textStyle: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-                      color: Colors.amber,
+                      pointColorMapper: (ActividadDiariaData d, int index) {
+                        // Asignar colores cíclicamente
+                        return colores[index % colores.length];
+                      },
+                      
                     )
                   ]
                 : <ColumnSeries<ActividadDiariaData, String>>[
@@ -69,7 +91,11 @@ class GraficoActividadDiaria extends StatelessWidget {
                         labelAlignment: ChartDataLabelAlignment.top,
                         textStyle: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      color: Colors.red,
+                      pointColorMapper: (ActividadDiariaData d, int index) {
+                        // Asignar colores cíclicamente
+                        return colores[index % colores.length];
+                      },
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(20))  ,
                     )
                   ],
           ),

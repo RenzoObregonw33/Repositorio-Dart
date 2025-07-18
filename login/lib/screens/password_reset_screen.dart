@@ -16,6 +16,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
   @override
   void initState() {
     super.initState();
+    
     // Enfocar automáticamente al iniciar
     Future.delayed(Duration.zero, () {
       FocusScope.of(context).requestFocus(_focusNode);
@@ -66,21 +67,21 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:  const Color(0xFFFFF8EB),
-      appBar: AppBar(title: Text('Recuperar contraseña', style: TextStyle(fontFamily: 'Inter'),)),          //BArra superior
+      
+      appBar: AppBar(title: Text('Recuperar contraseña', style: TextStyle(fontFamily: 'Inter'),)),          //Barra superior
       body: Padding(
         padding: const EdgeInsets.all(20.0),                        //Espacio interno
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('\tIngresa tu correo electronico:', style: TextStyle(fontFamily: '-apple-system'),),
-            SizedBox(height: 8),
+            Text('Introduce tu dirección de correo electronico:', style: TextStyle(fontFamily: 'Nunito'),),
+            SizedBox(height: 20),
             TextField(                                        //Se ingresa el correo
               controller: _emailController,                   //Control
-              focusNode: _focusNode,
               decoration: InputDecoration(
                 labelText: 'Correo electrónico',
-                labelStyle: TextStyle(fontFamily: '-apple-system'),
+                labelStyle: TextStyle(fontFamily: '-apple-system',color: Colors.white),
+                prefixIcon: Icon(Icons.email_outlined, color: Color(0xFFF3B83C),),
                 errorText: _error,                            //Mustra un mensaje de error si no existe
               ),
               keyboardType: TextInputType.emailAddress,
@@ -89,6 +90,14 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
             // Botón para enviar la solicitud de recuperación
             Center(
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFF3B83C),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  )
+                ),
                 onPressed: _enviarSolicitud,
                 child: Text('Enviar', style: TextStyle(fontFamily: 'Inter'),),
               ),

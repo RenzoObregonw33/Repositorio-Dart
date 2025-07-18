@@ -32,13 +32,13 @@ class LoginButton extends StatelessWidget {
       ),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,           // Color del botón
-          foregroundColor: Color(0xFFF3B83C),          // Color del texto
+          backgroundColor: Color(0xFFFBB347),           // Color del botón
+          foregroundColor: Colors.white,          // Color del texto
           elevation: 0,     
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
             side: BorderSide(
-              color: Color(0xFFF3B83C).withValues(alpha: 0.6), // Borde amarillo
+              color: Color(0xFFFBB347).withValues(alpha: 0.6), // Borde amarillo
               width: 2,
             ),
           ),                    // Sin sombra interna
@@ -140,7 +140,7 @@ class LoginButton extends StatelessWidget {
         },
         child: const Text(
           'Iniciar Sesión',
-          style: TextStyle(fontSize: 16, color: Color(0xFFF3B83C), fontFamily: '-apple-system'),
+          style: TextStyle(fontSize: 16, color: Colors.black, fontFamily: '-apple-system'),
         )
       ),
     );

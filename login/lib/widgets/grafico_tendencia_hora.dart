@@ -25,6 +25,19 @@ class GraficoTendenciaHoras extends StatelessWidget {
     // Si no hay datos útiles, no retorna nada
     if (dataFiltrada.isEmpty) return const SizedBox.shrink();
 
+    final List<Color> colores = [
+      Color(0xFF0868FB), // Azul
+      Color(0xFF2DC70D), // Verde
+      Color(0xFFFF1A15), // Rojo
+      Colors.brown, // Marrón
+      Colors.purple, // Morado
+      Colors.orange, // Naranja
+      Colors.pink, // Rosa
+      Colors.teal, // Verde azulado
+      Colors.indigo, // Índigo
+      Colors.amber, // Ámbar
+      Colors.cyan, // Cian
+    ];
     return SizedBox(
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -48,7 +61,11 @@ class GraficoTendenciaHoras extends StatelessWidget {
                   labelAlignment: ChartDataLabelAlignment.top,
                   //textStyle: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                color: Color(0xFF2BCA07),
+                pointColorMapper: (TendenciaHoraData d, int index) {
+                  // Asignar colores cíclicamente
+                  return colores[index % colores.length];
+                },
+                borderRadius: BorderRadius.vertical(top: Radius.circular(6)),
               ),
             ],
           ),

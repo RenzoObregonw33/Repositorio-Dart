@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:login/screens/password_reset_screen.dart';
 import 'package:login/widgets/login_button.dart';
+ // Asegúrate de que el path sea correcto
 
-class LoginScreem extends StatefulWidget {
-  const LoginScreem({super.key});
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<LoginScreem> createState() => _LoginScreemState();
+  State<LoginScreen> createState() => _LoginScreemState();
 }
 
-class _LoginScreemState extends State<LoginScreem> {
+class _LoginScreemState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();    //Controlador de email
   final TextEditingController _passwordController = TextEditingController();    //Controlador de password
-
+  
 
   String? _emailError;              //Mensaje de error para email
   String? _passwordError;           //Mensaje de error para contraseña
@@ -31,7 +33,6 @@ class _LoginScreemState extends State<LoginScreem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFFFF),
       body: Center(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 30),
@@ -40,7 +41,7 @@ class _LoginScreemState extends State<LoginScreem> {
             children: [
               SizedBox(
                 height: 70,
-                child: Image.asset('assets/lumina.png', height: 100),
+                child: Image.asset('assets/Lumina2.png', height: 100),
               ),
               SizedBox(height: 50),
               Text(
@@ -48,14 +49,14 @@ class _LoginScreemState extends State<LoginScreem> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[700],
+                  color: Color(0xFFFBB347),
                   fontFamily: '-apple-system'
                 ),
               ),
               SizedBox(height: 10),
               Text(
                 'Por favor, inicia sesión para continuar',
-                style: TextStyle(color: Colors.grey[700], 
+                style: TextStyle( 
                 fontFamily: '-apple-system', // Tu fuente principal (como una sola String)
                 fontFamilyFallback: [
                   'system-ui',
@@ -77,12 +78,12 @@ class _LoginScreemState extends State<LoginScreem> {
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  labelStyle: TextStyle(fontFamily: '-apple-system'),
+                  labelStyle: TextStyle(fontFamily: '-apple-system',color: Colors.white),
                   prefixIcon: Icon(
                     Icons.person_outline,
                     color: _emailError != null
                         ? Colors.red
-                        : Color(0xFFF3B83C),
+                        : Color(0xFFFBB347),
                   ),
                   suffixIcon: _emailError != null
                       ? Icon(Icons.error_outline, color: Colors.red)
@@ -103,12 +104,12 @@ class _LoginScreemState extends State<LoginScreem> {
                 obscureText: _ocultarPassword,
                 decoration: InputDecoration(
                   labelText: 'Contraseña',
-                  labelStyle: TextStyle(fontFamily: '-apple-system'),
+                  labelStyle: TextStyle(fontFamily: '-apple-system',color: Colors.white),
                   prefixIcon: Icon(
                     Icons.lock_outline,
                     color: _passwordError != null
                         ? Colors.red
-                        : Color(0xFFF3B83C),
+                        : Color(0xFFFBB347),
                   ),
                   suffixIcon: _passwordError != null
                       ? Icon(Icons.error_outline, color: Colors.red)
@@ -161,10 +162,10 @@ class _LoginScreemState extends State<LoginScreem> {
                   child: Text(
                     'Olvidaste tu Contraseña',
                     style: TextStyle(
-                      color: Color(0xFFF3B83C),
+                      color: Color(0xFFFBB347),
                       fontSize: 14,
                       decoration: TextDecoration.underline,
-                      decorationColor: Color(0xFFF3B83C),
+                      decorationColor: Color(0xFFFBB347),
                       fontFamily: '-apple-system'
                     ),
                   ),
@@ -175,5 +176,6 @@ class _LoginScreemState extends State<LoginScreem> {
         ),
       ),
     );
+  
   }
 }

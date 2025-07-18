@@ -12,15 +12,14 @@ class GraficoEficiencia extends StatelessWidget {
       
       children: [
         SfRadialGauge(
-          backgroundColor: Color(0xFF776F6C),
           axes: <RadialAxis>[
             RadialAxis(
               minimum: 0,
               maximum: 100,
               ranges: <GaugeRange>[
-                GaugeRange(startValue: 0, endValue: 40, color: Color(0xFFEA5160)),
-                GaugeRange(startValue: 40, endValue: 70, color: Color(0xFFFFCD1C)),
-                GaugeRange(startValue: 70, endValue: 100, color: Color(0xFF41C2C5)),
+                GaugeRange(startValue: 0, endValue: 40, color: Color(0xFFFF1A15)),
+                GaugeRange(startValue: 40, endValue: 70, color: Color(0xFFFDF807)),
+                GaugeRange(startValue: 70, endValue: 100, color: Color(0xFF2BCA07)),
               ],
               pointers: <GaugePointer>[
                 NeedlePointer(value: eficiencia),

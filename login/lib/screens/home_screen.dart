@@ -26,7 +26,6 @@ class HomeScreem extends StatelessWidget {
 
     //estructura base
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8EB),
       appBar: AppBar(                               //Muestra la barra superior
         title: Text('Organización', style: TextStyle(fontFamily: '-apple-system'),),
         leading: IconButton(
@@ -35,15 +34,6 @@ class HomeScreem extends StatelessWidget {
             Navigator.pop(context, 'logout');
           },
         ),
-        /*actions: [
-          IconButton(
-            icon: Icon(Icons.logout),               //icono de salida
-            onPressed: () {
-              Navigator.pop(context, 'logout');    //Regresa al usuario a la pantalla anterior
-            },
-            tooltip: 'Cerrar sesión',             //muestra un mensaje flotante
-          ),
-        ],*/
       ),
       body: Padding(                                //Cuerpo redondeado en un padding de 16px del box
         padding: const EdgeInsets.all(16),
@@ -98,6 +88,7 @@ class HomeScreem extends StatelessWidget {
                       );
                     },
                     child: Card(
+                      color: Colors.orange,
                       shadowColor: Color(0xFFF3B83C),
                       elevation: 4,
                       shape: RoundedRectangleBorder(
@@ -120,6 +111,7 @@ class HomeScreem extends StatelessWidget {
                                   child: Text(
                                     razonSocial,
                                     style: TextStyle(
+                                      color: Colors.black,
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Inter',

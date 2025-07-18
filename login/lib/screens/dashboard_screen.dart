@@ -94,10 +94,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       if (comparativo != null) {
         cumplimientoLaboralData = [                                               //COMPARARTIVO EN HORAS
-          FunnelData('Horas programadas', (comparativo['programadas'] ?? 0).toDouble(), Colors.blue),
-          FunnelData('Horas de presencia', (comparativo['presencia'] ?? 0).toDouble(), Colors.green),
-          FunnelData('Horas productivas', (comparativo['productivas'] ?? 0).toDouble(), Colors.red),
-          FunnelData('Horas no productivas', (comparativo['no_productivas'] ?? 0).toDouble(), Colors.yellow),
+          FunnelData('Horas programadas', (comparativo['programadas'] ?? 0).toDouble(), Color(0xFF0868FB)),
+          FunnelData('Horas de presencia', (comparativo['presencia'] ?? 0).toDouble(), Color(0xFF2BCA07)),
+          FunnelData('Horas productivas', (comparativo['productivas'] ?? 0).toDouble(), Color(0xFFFF1A15)),
+          FunnelData('Horas no productivas', (comparativo['no_productivas'] ?? 0).toDouble(), Color(0xFFFDF807)),
         ];
 
         horasProductivas = (comparativo['productivas'] ?? 0).toDouble();
@@ -227,7 +227,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               if (actividadData.isNotEmpty)
                 Card(
-                  color: Color(0xFF474747),
                   elevation: 4,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: Padding(
@@ -245,7 +244,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ),
                             IconButton(
-                              icon: Icon(esLinea ? Icons.show_chart : Icons.bar_chart),
+                              icon: Icon(esLinea ? Icons.show_chart : Icons.bar_chart, color: Colors.orange,),
                               onPressed: () => setState(() => esLinea = !esLinea),
                             ),
                           ],

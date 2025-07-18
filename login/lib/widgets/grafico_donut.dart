@@ -20,8 +20,8 @@ class GraficoDonut extends StatelessWidget {
   Widget build(BuildContext context) {
     final total = productivas + noProductivas;
     final data = [
-      DonutData('Horas productivas', productivas, Color(0xFF748FC9)),
-      DonutData('Horas no productivas', noProductivas, Color(0xFF41C2C5)),
+      DonutData('Horas productivas', productivas, Color(0xFFC909F7)),
+      DonutData('Horas no productivas', noProductivas, Color(0xFF0868FB)),
     ];
     return SfCircularChart(
       legend: Legend(
@@ -40,7 +40,7 @@ class GraficoDonut extends StatelessWidget {
           dataLabelSettings: const DataLabelSettings(
             isVisible: true,
             labelPosition: ChartDataLabelPosition.outside,
-            textStyle: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+            textStyle: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
           radius: '80%',
           innerRadius: '65%',

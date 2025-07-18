@@ -43,10 +43,11 @@ class _DashboardMainScreenState extends State<DashboardMainScreen> {
   Widget build(BuildContext context) {
 
     return Scaffold(
+      extendBody: true,
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-        color: const Color(0xFF776F6C), // Fondo pastel
+        color: Colors.transparent, // Fondo 
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -54,13 +55,13 @@ class _DashboardMainScreenState extends State<DashboardMainScreen> {
               icon: Icons.bar_chart_rounded,
               label: 'Panel',
               index: 0,
-              color: const Color(0xFFF3B83C), // verde pastel
+              color: Colors.orange, // verde pastel
             ),
             _buildNavItem(
               icon: Icons.calendar_month_rounded,
               label: 'Detalle',
               index: 1,
-              color: const Color.fromARGB(255, 248, 117, 117), // celeste pastel
+              color: Colors.blue, // celeste pastel
             ),
           ],
         ),
@@ -88,7 +89,7 @@ class _DashboardMainScreenState extends State<DashboardMainScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: isSelected ? color : Colors.grey, size: 28),
+            Icon(icon, color: isSelected ? color : Colors.black,),
             const SizedBox(height: 4),
             Text(
               label,

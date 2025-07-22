@@ -67,6 +67,7 @@ flutter:
 
   assets:
     - assets/Lumina2.png
+    - assets/MG.jpeg
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

@@ -56,7 +56,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
   void _mostrarMensaje(String mensaje, {bool error = false}) {
     ScaffoldMessenger.of(context).showSnackBar(                  //
       SnackBar(
-        content: Text(mensaje),
+        content: Text(mensaje, style: TextStyle(color: Colors.white),),
         backgroundColor: error ? const Color.fromARGB(255, 4, 4, 4) : const Color.fromARGB(255, 11, 15, 11),
         duration: Duration(seconds: 3),                         //Duracion del mensaje
       ),

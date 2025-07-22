@@ -3,8 +3,7 @@ import 'package:login/widgets/grafico_eficiencia.dart';
 
 class CardEficiencia extends StatelessWidget {
   final double? eficiencia;
-  final bool isLoading;
-  const CardEficiencia({super.key, this.eficiencia, required this.isLoading});
+  const CardEficiencia({super.key, this.eficiencia});
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +35,7 @@ class CardEficiencia extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Center(
-              child: isLoading
-                  ? const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 32),
-                      child: CircularProgressIndicator(),
-                    )
-                  : eficiencia != null
+              child: eficiencia != null
                       ? GraficoEficiencia(eficiencia: eficiencia!)
                       : const Padding(
                           padding: EdgeInsets.symmetric(vertical: 32),

@@ -161,9 +161,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final formato = DateFormat('yyyy-MM-dd');
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 136, 135, 135),
+      backgroundColor:  Colors.grey[800],
       appBar: AppBar(title: const Text('Dashboard de Organización')),
-      body: Padding(
+      body :isLoading
+      ? const Center(
+          child: CircularProgressIndicator(color: Color(0xFFFBB347)),
+        )
+      : Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
@@ -207,7 +211,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
 
               const SizedBox(height: 30),
-              CardEficiencia(eficiencia: eficiencia, isLoading: isLoading),
+              CardEficiencia(eficiencia: eficiencia),
               const SizedBox(height: 30),
               
               CardEmbudo(cumplimientoLaboralData: cumplimientoLaboralData,isLoading: isLoading,),

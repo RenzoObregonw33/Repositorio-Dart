@@ -33,14 +33,14 @@ class GraficoActividadDiaria extends StatelessWidget {
       Color(0xFF0868FB), // Azul
       Color(0xFF2DC70D), // Verde
       Color(0xFFFF1A15), // Rojo
-      Colors.brown, // Marrón
-      Colors.purple, // Morado
-      Colors.orange, // Naranja
-      Colors.pink, // Rosa
+      Color(0xFF7AD6D5), // Cian
+      Color(0xFFDC32F3), // Morado
+      Color(0xFFFE9717), // Naranja
+      Color(0xFFFFA2CD), // Rosa
       Colors.teal, // Verde azulado
       Colors.indigo, // Índigo
-      Colors.amber, // Ámbar
-      Colors.cyan, // Cian
+      Color(0xFFFDF807), // Ámbar
+      Colors.brown, // Marron
     ];
 
     return SizedBox(

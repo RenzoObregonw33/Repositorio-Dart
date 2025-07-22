@@ -42,7 +42,32 @@ class HomeScreem extends StatelessWidget {
           children: [
             Row(                                   //organiza en una fila horizontal   
               children: [
-                Container(
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: AssetImage('assets/MG.jpeg'),
+                    ),
+                    Positioned(
+                      bottom: 2,
+                      right: 2,
+                      child: Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                /*Container(
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
@@ -55,7 +80,6 @@ class HomeScreem extends StatelessWidget {
                   child:  CircleAvatar(                      //Icono circular del Usuario 
                     radius: 30,
                     backgroundColor:  Colors.transparent,
-                    //child: Text('V', style: TextStyle(color: Colors.black, fontSize: 30,fontWeight: FontWeight.bold)),
                     child: ClipOval(
                       child: Image.asset(
                         'assets/MG.jpeg', // Asegúrate de que la imagen esté en la carpeta assets
@@ -65,7 +89,7 @@ class HomeScreem extends StatelessWidget {
                       ),
                     ),
                   ),
-                ),
+                ),*/
                 SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -164,11 +188,11 @@ class HomeScreem extends StatelessWidget {
                               style: TextStyle(
                                 fontFamily: 'Inter',
                                 color: Colors.white,
-                                fontSize: 14,
+                                fontSize: 15,
                               ),
                             ),
                             Text(
-                              'ID: $id',
+                              'Cantidad de Colaboradores: 24',
                               style: TextStyle(
                                 fontFamily: 'Inter',
                                 color: Colors.white,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:login/screens/dashboad_main_screen.dart';
+import 'package:login/screens/dashboard_screen.dart';
 //import 'package:login/screens/dashboard_screen.dart';  //Importa el paquete principal de Flutter con todos los widgets visuales.
 
 
@@ -10,6 +10,9 @@ class HomeScreem extends StatelessWidget {
   final String apellido;
   final String token;
   final List<Map<String, dynamic>> organizaciones;
+  final String rolNombre; // Nuevo
+  final int rolId; // Nuevo
+  final int empleadosLumina; // Nuevo
 
 //Constructor
   const HomeScreem({  
@@ -17,7 +20,10 @@ class HomeScreem extends StatelessWidget {
     required this.nombre,
     required this.apellido,
     required this.organizaciones, 
-    required this.token,
+    required this.token, 
+    required this.rolNombre, 
+    required this.rolId, 
+    required this.empleadosLumina,
   });
 
 //Metodo que construye el UI widget
@@ -67,29 +73,7 @@ class HomeScreem extends StatelessWidget {
                     ),
                   ],
                 ),
-                /*Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.green, // Color del borde
-                      width: 3.0,          // Grosor del borde
-                    ),
-                  ),
-                  child:  CircleAvatar(                      //Icono circular del Usuario 
-                    radius: 30,
-                    backgroundColor:  Colors.transparent,
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/MG.jpeg', // Asegúrate de que la imagen esté en la carpeta assets
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover, // Ajusta la imagen para que ocupe todo el círculo
-                      ),
-                    ),
-                  ),
-                ),*/
+                
                 SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -121,10 +105,13 @@ class HomeScreem extends StatelessWidget {
 
                   final org = organizaciones[index];
 
-                  // Accediendo a los datos de la organización
+                  // Validación básica
                   final razonSocial = org['razonSocial'];
                   final ruc = org['ruc'];
-                  final id = org['id'];
+                  final tipo = org['tipo'];
+                  final cantEmpleados = org['cantEmpleados'];
+
+                  //final id = org['id'];
                   
                   return InkWell(
                     borderRadius: BorderRadius.circular(8),
@@ -132,7 +119,7 @@ class HomeScreem extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => DashboardMainScreen(
+                          builder: (context) => DashboardScreen(
                             organiId: int.parse(org['id'].toString()),
                             token: token,
                           ),
@@ -158,53 +145,61 @@ class HomeScreem extends StatelessWidget {
                           color: Color(0xFFF8A835),
                           borderRadius: BorderRadius.circular(20), // Tarjeta cuadrada
                         ),
-                        width: double.infinity,
-                        height: 120,
+                        
                         padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.domain, color: Colors.black, size: 28),
-                                SizedBox(width: 15),
-                                Expanded(
-                                  child: Text(
-                                    razonSocial,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Inter',
+                        constraints: BoxConstraints(minHeight: 140), // Altura mínima aumentada
+                        child: SingleChildScrollView( // Permite scroll si el contenido es muy largo
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min, // Ocupa solo el espacio necesario
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.domain, color: Colors.black, size: 28),
+                                  SizedBox(width: 15),
+                                  Expanded(
+                                    child: Text(
+                                      razonSocial ?? 'Sin razón social',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18, // Reducido ligeramente
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
+                                ],
+                              ),
+                              SizedBox(height: 8), // Espacio reducido
+                              Text(
+                                'RUC: $ruc',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500
                                 ),
-                              ],
-                            ),
-                            SizedBox(height: 15),
-                            Text(
-                              'RUC: $ruc',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                color: Colors.white,
-                                fontSize: 15,
                               ),
-                            ),
-                            Text(
-                              'Cantidad de Colaboradores: 24',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                color: Colors.white,
-                                fontSize: 14,
+                              SizedBox(height: 8), // Espacio reducido
+                              Text(
+                                'Tipo: $tipo',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
+                              SizedBox(height: 2), // Espacio reducido
+                              Text(
+                                'Cantidad de empleados: $cantEmpleados',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )  
                       ),
                     ),
                   );
-
                 },
               ),
             ),

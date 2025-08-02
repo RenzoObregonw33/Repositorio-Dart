@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:login/Models/datos_embudo.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-class FunnelData {
-  final String label;
-  final double value;
-  final Color color;
 
-  FunnelData(this.label, this.value, this.color);
-}
 
 class GraficoEmbudo extends StatelessWidget {
   final List<FunnelData> data;

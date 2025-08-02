@@ -99,13 +99,12 @@ class LoginButton extends StatelessWidget {
       
             // Aquí guardamos el nombre, RUC y ID en una variable
             final organizacionDetalles = organizaciones.map<Map<String, dynamic>>((org) {
-              final razonSocial = org['organi_razonSocial'] ?? 'Sin nombre';
-              final ruc = org['organi_ruc'] ?? 'Sin RUC';
-              final id = org['organi_id'] ?? 'Sin ID';
               return {
-                'razonSocial': razonSocial,
-                'ruc': ruc,
-                'id': id,
+                'razonSocial': org['organi_razonSocial'] ?? 'Sin nombre',
+                'ruc': org['organi_ruc'] ?? 'Sin RUC',
+                'id': org['organi_id']?.toString() ?? '0', // Convertir a String seguro
+                'tipo': org['organi_tipo'] ?? 'No especificado',
+                'cantidadEmpleadosLumina': (user['cantidad_empleados_lumina'] ?? 0).toString(),
               };
             }).toList();
       
@@ -118,6 +117,9 @@ class LoginButton extends StatelessWidget {
                   apellido: apellido,
                   organizaciones: organizacionDetalles,
                   token: token,
+                  rolNombre: data['user']['rol_nombre'], // Nuevo parámetro
+                  rolId: data['user']['rol_id'], // Nuevo parámetro
+                  empleadosLumina: (data['user'] ?? {})['cantidad_empleados_lumina'] ?? 0,
                 ),
               ),
             );

@@ -1,300 +1,354 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-
-import 'package:login/Cards/card_barras_horas.dart';
-import 'package:login/Cards/card_donut.dart';
-import 'package:login/Cards/card_eficiencia.dart';
-import 'package:login/Cards/card_embudo.dart';
-import 'package:login/Cards/card_tendencia_hora.dart';
-
+import 'package:login/Apis/api_graphics_services.dart';
+import 'package:login/Models/datos_actividad.dart';
+import 'package:login/Models/datos_embudo.dart';
 import 'package:login/widgets/grafico_actividad_diaria.dart';
+import 'package:login/widgets/grafico_barras_horas.dart';
+import 'package:login/widgets/grafico_distribucion_actividad.dart';
+import 'package:login/widgets/grafico_donut.dart';
+import 'package:login/widgets/grafico_eficiencia.dart';
 import 'package:login/widgets/grafico_embudo.dart';
-import 'package:login/widgets/grafico_tendencia_hora.dart';
+import 'package:login/widgets/grafico_picos_actividad.dart';
+import 'package:login/widgets/grafico_picos_porcentaje.dart';
 import 'package:login/widgets/grafico_top_empleados.dart';
+import 'package:login/widgets/selector_fechas.dart';
 
 class DashboardScreen extends StatefulWidget {
-  final int organiId;
   final String token;
+  final int organiId;
 
-  const DashboardScreen({super.key, required this.organiId, required this.token});
+
+  const DashboardScreen({
+    super.key,
+    required this.token,
+    required this.organiId, 
+  });
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-
-  // Datos para todos los gráficos
-  double? eficiencia;
-  List<FunnelData>? cumplimientoLaboralData;
-  double? horasProductivas;
-  double? horasNoProductivas;
-  double? programadas;
-  double? presencia;
-  double? productivas;
-  List<TendenciaHoraData>? tendenciaHoras;
-  List<ActividadDiariaData> actividadData = [];
-  List<TopEmpleadoData> topEmpleadosData = [];
-
-  bool isLoading = true;
-  bool esLinea = true;
-  DateTime? fechaIni;
-  DateTime? fechaFin;
+  late final ApiGraphicsService _graphicsService;
+  DateTimeRange? _dateRange;
+  double _eficiencia = 0;
+  int _currentGraphIndex = 0; // 0: Eficiencia, 1: Embudo, 2: Donut
+  double _productivas = 0;
+  double _noProductivas = 0;
+  List<FunnelData> _funnelData = [];
+  bool _isLoading = false;
+  String? _error;
+  List<DatosActividad> _distribucionActividad = [];
+  List<String> _picosLabels = [];
+  List<double> _picosValores = [];
+  Map<String, dynamic> _actividadDiaria = {}; 
+  List<TopEmpleadoData> _topEmpleadosData = [];
+  final int totalGraficos = 9; // Total de gráficos disponibles
+  
 
   @override
   void initState() {
     super.initState();
-    final hoy = DateTime.now();
-    fechaIni = DateTime(hoy.year, hoy.month, hoy.day);
-    fechaFin = DateTime(hoy.year, hoy.month, hoy.day);
-    fetchDatosEficiencia();
+    _graphicsService = ApiGraphicsService(token: widget.token);
+    // Establecer rango inicial (últimos 7 días)
+    final now = DateTime.now();
+    _dateRange = DateTimeRange(
+      start: now.subtract(const Duration(days: 7)),
+      end: now,
+    );
+    _loadData();
   }
-
-  Future<void> fetchDatosEficiencia() async {                                     //FUNCION PARA BUSCAR LOS DATOS
-    if (fechaIni == null || fechaFin == null) return;
-
-    final formato = DateFormat('yyyy-MM-dd');
-    final url = Uri.parse('https://rhnube.com.pe/api/v5/graficsLumina');
-
-    setState(() {
-      isLoading = true;
-      eficiencia = null;
-      cumplimientoLaboralData = null;
-      horasProductivas = null;
-      horasNoProductivas = null;
-    });
-
-    try {
-      final token = widget.token;
-      if (token.isEmpty) return;                                            //SI NO TENGO EL TOKEN NO SE PODRA VER DATOS
-
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': token,
-        },
-        body: jsonEncode({
-          'fecha_ini': formato.format(fechaIni!),
-          'fecha_fin': formato.format(fechaFin!),
-          'organi_id': widget.organiId,
-        }),
-      );
-
-      final body = jsonDecode(response.body);                                     //CONVIERTE JSON EN UN MAPA DE DATOS PARA PODER BUSCAR
-      final resultado = body['eficiencia']?['resultado'];
-      final comparativo = body['eficiencia']?['comparativo_horas'] ?? body['comparativo_horas'];
-      final tendencia = body['tendencia_por_hora'];
-      final actividad = body['actividad_ultimos_dias'];
-
-      if (comparativo != null) {
-        cumplimientoLaboralData = [                                               //COMPARARTIVO EN HORAS
-          FunnelData('Horas programadas', (comparativo['programadas'] ?? 0).toDouble(), Color(0xFF0868FB)),
-          FunnelData('Horas de presencia', (comparativo['presencia'] ?? 0).toDouble(), Color(0xFF2BCA07)),
-          FunnelData('Horas productivas', (comparativo['productivas'] ?? 0).toDouble(), Color(0xFFFF1A15)),
-          FunnelData('Horas no productivas', (comparativo['no_productivas'] ?? 0).toDouble(), Color(0xFFFDF807)),
-        ];
-
-        horasProductivas = (comparativo['productivas'] ?? 0).toDouble();
-        horasNoProductivas = (comparativo['no_productivas'] ?? 0).toDouble();
-        programadas = (comparativo['programadas'] ?? 0).toDouble();
-        presencia = (comparativo['presencia'] ?? 0).toDouble();
-        productivas = (comparativo['productivas'] ?? 0).toDouble();                   //SI VIENE NULL SE USA 0
-      }
-
-      if (tendencia != null) {
-        final horas = tendencia['labels'] ?? [];
-        final valores = tendencia['series'] ?? [];
-        tendenciaHoras = List.generate(
-          horas.length,
-          (i) => TendenciaHoraData(horas[i], (valores[i] ?? 0).toDouble()),
-        );
-      }
-
-      if (actividad != null) {
-        final dias = List<String>.from(actividad['labels'] ?? []);
-        final series = actividad['series']?['Total'] ?? [];
-
-        final int totalDias = dias.length;
-        final int desde = totalDias >= 6 ? totalDias - 6 : 0;
-        final ultimosDias = dias.sublist(desde);
-        final ultimosValores = series.sublist(desde).map((v) {
-          if (v == null) return 0.0;
-          return double.tryParse(v.toString()) ?? 0.0;
-        }).toList();
-
-        setState(() {
-          actividadData = List.generate(ultimosDias.length,
-              (i) => ActividadDiariaData(ultimosDias[i], ultimosValores[i]));
-        });
-      }
-
-      final labels = body['top_empleados']['labels'] as List<dynamic>;
-      final List<dynamic> positiva = body['top_empleados']['series']['Actividad positiva'];
-      final List<dynamic> negativa = body['top_empleados']['series']['Actividad negativa'];
-
-      topEmpleadosData.clear();
-      for (int i = 0; i < labels.length; i++) {
-        final nombre = labels[i].toString().trim();
-        final pos = (i < positiva.length) ? double.tryParse(positiva[i].toString()) ?? 0 : 0;
-        final neg = (i < negativa.length) ? double.tryParse(negativa[i].toString()) ?? 0 : 0;
-        final porcentajeFinal = pos != 0 ? pos : -neg;
-        topEmpleadosData.add(TopEmpleadoData(nombre: nombre, porcentaje: porcentajeFinal.toDouble()),);
-      }
-
-      setState(() {
-        eficiencia = double.tryParse(resultado.toString()) ?? 0;
-        isLoading = false;
-      });
-    } catch (e) {
-      print('Error al cargar datos: $e');
-    }
-  }
-
 
   @override
   Widget build(BuildContext context) {
-    final formato = DateFormat('yyyy-MM-dd');
     return Scaffold(
-      backgroundColor:  Colors.grey[800],
-      appBar: AppBar(title: const Text('Dashboard de Organización')),
-      body :isLoading
-      ? const Center(
-          child: CircularProgressIndicator(color: Color(0xFFFBB347)),
-        )
-      : Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.center,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.date_range),
-                  label: Text(
-                    (fechaIni == null || fechaFin == null)
-                      ? 'Seleccionar rango de fechas'
-                      : 'Rango: ${formato.format(fechaIni!)} - ${formato.format(fechaFin!)}',
-                  ),
-                  onPressed: () async {
-                    final DateTimeRange? picked = await showDateRangePicker(
-                      context: context,
-                      firstDate: DateTime(2023),
-                      lastDate: DateTime.now(),
-                      initialDateRange: DateTimeRange(
-                        start: fechaIni ?? DateTime.now(),
-                        end: fechaFin ?? DateTime.now(),  
-                      ),
-                    );
+      appBar: AppBar(
+        title: const Text('Dashboard Gráficos'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _dateRange != null ? _loadData : null,
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Selector de fechas (usando tu widget)
+          SelectorFechas(
+            range: _dateRange!,
+            onRangeSelected: (newRange) {
+              if (newRange != null) {
+                setState(() => _dateRange = newRange);
+                _loadData();
+              }
+            },
+          ),
 
-                    if (picked != null) {
-                      setState(() {
-                        fechaIni = picked.start;
-                        fechaFin = picked.end;
-                      });
-                      fetchDatosEficiencia();
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Color(0xFFF3B83C),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-                  ),
+          // Mensajes de estado
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                _error!,
+                style: TextStyle(color: Colors.red[700]),
+              ),
+            ),
+          if (_isLoading)
+            const LinearProgressIndicator(),
+
+          // Gráfico actual
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SizedBox(
+                    height: constraints.maxHeight * 0.8, // Usa el 80% del espacio disponible
+                    child: _buildCurrentGraph(),
+                  );
+                },
+              ),
+            ),
+          ),
+
+          // Botón para cambiar de gráfico
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 50),
+                backgroundColor: Colors.blue[700],
+              ),
+              onPressed: _nextGraph,
+              child: Text(
+                _getNextButtonText(),
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
                 ),
               ),
-
-
-              const SizedBox(height: 30),
-              CardEficiencia(eficiencia: eficiencia),
-              const SizedBox(height: 30),
-              
-              CardEmbudo(cumplimientoLaboralData: cumplimientoLaboralData,isLoading: isLoading,),
-              const SizedBox(height: 30),
-
-              
-              CardDonut(horasProductivas: horasProductivas, horasNoProductivas: horasNoProductivas, isLoading: isLoading),
-              const SizedBox(height: 20),
-
-              if (programadas != null && presencia != null && productivas != null)
-                CardBarrasHoras(programadas: programadas, presencia: presencia, productivas: productivas),
-              const SizedBox(height: 20),
-
-              if (tendenciaHoras != null && tendenciaHoras!.isNotEmpty)
-                CardTendenciaHora(tendenciaHoras: tendenciaHoras!),
-              const SizedBox(height: 20),
-
-              if (actividadData.isNotEmpty)
-                Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.view_week, color: Colors.green),
-                            const SizedBox(width: 8),
-                            const Expanded(
-                              child: Text(
-                                'Actividad Diaria Últimos 7 Días',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: Colors.white),
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(esLinea ? Icons.show_chart : Icons.bar_chart, color: Colors.orange,),
-                              onPressed: () => setState(() => esLinea = !esLinea),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        GraficoActividadDiaria(data: actividadData, esLinea: esLinea),
-                      ],
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 30),
-              if (topEmpleadosData.isNotEmpty)
-                Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: const [
-                            Icon(Icons.leaderboard, color: Colors.blue),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Top empleados con más y menos actividad',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        GraficoTopEmpleados(data: topEmpleadosData),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 30)
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
-}
 
+   Widget _buildCurrentGraph() {
+    switch (_currentGraphIndex) {
+      case 0:
+        return GraficoEficiencia(eficiencia: _eficiencia);
+      case 1:
+        return GraficoEmbudo(data: _funnelData);
+      case 2:
+        return GraficoDonut(
+          productivas: _productivas,
+          noProductivas: _noProductivas,
+        );
+      case 3:
+        return GraficoBarrasHoras(
+          programadas: _funnelData[0].value,
+          presencia: _funnelData[1].value,
+          productivas: _funnelData[2].value,
+        );
+      case 4:
+        return GraficoDistribucionActividad(datos: _distribucionActividad);
+
+      case 5:
+        return GraficoPicosActividad(
+          labels: _picosLabels,
+          valores: _picosValores,
+        );
+      case 6:
+        // Filtrar y convertir a porcentaje
+        final filteredData = <HoraActividadPorcentajeData>[];
+        
+        for (int i = 0; i < _picosLabels.length; i++) {
+          final hour = int.parse(_picosLabels[i].split(':')[0]);
+          if (hour >= 8 && hour <= 18) {
+            filteredData.add(HoraActividadPorcentajeData(
+              hora: _picosLabels[i],
+              porcentaje: _picosValores[i], // Asume que ya son porcentajes
+            ));
+          }
+        }
+        return GraficoPicosPorcentaje(datos: filteredData);
+
+      case 7: // Ajusta el índice según tu secuencia
+        return GraficoActividadDiaria(
+        apiResponse: _actividadDiaria, // Asegura manejar null
+      );
+      case 8:
+        return GraficoTopEmpleados(data: _topEmpleadosData);
+            
+      default:
+        return const Center(child: Text('Gráfico no disponible'));
+    }
+  }
+
+  String _getNextButtonText() {
+    switch (_currentGraphIndex) {
+      case 0:
+        return 'Ver Gráfico de Embudo';
+      case 1:
+        return 'Ver Gráfico Donut';
+      case 2:
+        return 'Ver Gráfico de Barras Horas';
+      case 3:
+        return 'Ver Gráfico de Distribución de Actividad';
+      case 4:
+        return 'Ver Gráfico de Picos de Actividad';
+      case 5:
+        return 'Ver Gráfico de Picos de Porcentaje';    
+      case 6:
+        return 'Ver Gráfico de Actividad Diaria';
+      case 7:
+        return 'Ver Gráfico de Top Empleados';
+      case 8:
+        return 'Ver Gráfico de Eficiencia';
+      default:
+        return 'Siguiente Gráfico';
+    }
+  }
+
+  void _nextGraph() {
+    setState(() {
+      _currentGraphIndex = (_currentGraphIndex + 1) % totalGraficos; // Cicla entre 0, 1 y 2
+    });
+  }
+
+  Future<void> _loadData() async {
+    if (_dateRange == null) return;
+
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    debugPrint('Fecha inicio: ${_dateRange!.start.toIso8601String()}');
+    debugPrint('Fecha fin: ${_dateRange!.end.toIso8601String()}');
+
+    try {
+      
+      final data = await _graphicsService.fetchGraphicsData(
+        fechaIni: _dateRange!.start,
+        fechaFin: _dateRange!.end,
+        organiId: widget.organiId,
+      );
+
+      // AGREGAR ESTOS DEBUGPRINT PARA VER LOS DATOS ESPECÍFICOS
+      debugPrint('✅ Datos completos de actividad_ultimos_dias: ${data['actividad_ultimos_dias']}');
+      debugPrint('✅ Estructura completa de top_empleados: ${data['actividad_ultimos_dias']['top_empleados']}');
+      debugPrint('-----------------------------------------------');
+
+      setState(() {
+        // Procesar datos de eficiencia
+        _eficiencia = double.parse(data['eficiencia']['resultado'].replaceAll(',', ''));
+        
+        // 2. Procesar datos comparativos
+        final comparativo = data['comparativo_horas'] ?? {};
+        _productivas = (comparativo['productivas'] ?? 0).toDouble();
+        _noProductivas = (comparativo['no_productivas'] ?? 0).toDouble();
+
+        // Procesar datos para el embudo (adaptado a tu modelo FunnelData)
+        _funnelData = [
+          FunnelData(
+            'Horas programadas', 
+            (comparativo['programadas'] ?? 0).toDouble(), 
+            const Color(0xFF0868FB)
+          ),
+          FunnelData(
+            'Horas de presencia', 
+            (comparativo['presencia'] ?? 0).toDouble(), 
+            const Color(0xFF2BCA07)
+          ),
+          FunnelData(
+            'Horas productivas', 
+            (comparativo['productivas'] ?? 0).toDouble(), 
+            const Color(0xFFFF1A15)
+          ),
+          FunnelData(
+            'Horas no productivas', 
+            (comparativo['no_productivas'] ?? 0).toDouble(), 
+            const Color(0xFFFDF807)
+          ),
+        ];
+
+        // 5. Procesar datos de distribución de actividad registrada
+        final actividad = data['sStackUltimos7Dias'];
+        final labelsDias = List<String>.from(actividad['labels'] ?? []);
+        final horasCon = List<double>.from(actividad['horas_productivas'].map((e) => e.toDouble()));
+        final horasSin = List<double>.from(actividad['horas_no_productivas'].map((e) => e.toDouble()));
+
+        _distribucionActividad = List.generate(labelsDias.length, (i) {
+          return DatosActividad(
+            dia: labelsDias[i],
+            conActividad: i < horasCon.length ? horasCon[i] : 0,
+            sinActividad: i < horasSin.length ? horasSin[i] : 0,
+          );
+        });
+
+        // 6. Procesar datos de picos de actividad (si es necesario)
+        final tendenciaHora = data['tendencia_por_hora'] ?? {};
+        _picosLabels = List<String>.from(tendenciaHora['labelsGraficoHoras'] ?? []);
+        _picosValores = List<double>.from(
+          (tendenciaHora['seriesGraficoHora'] ?? []).map((e) => e.toDouble()));
+
+        debugPrint('Labels picos: $_picosLabels');
+        debugPrint('Valores picos: $_picosValores');
+
+        //8. Procesar datos de actividad diaria
+
+        _actividadDiaria = data['actividad_ultimos_dias'] ?? {};
+        debugPrint('📊 actividad_ultimos_dias desglosado:');
+        debugPrint('Labels: ${_actividadDiaria['labels']}');
+        debugPrint('Series - Total: ${_actividadDiaria['series']?['Total']}');
+
+        // 9. Procesar datos de top empleados
+        final topEmpleados = data['top_empleados'] ?? {
+          'labels': [],
+          'series': {
+            'Actividad positiva': [],
+            'Actividad negativa': []
+          }
+        };
+
+        debugPrint('Estructura de top_empleados: $topEmpleados');
+
+        final labels = (topEmpleados['labels'] as List<dynamic>? ?? []).map((e) => e.toString()).toList();
+        final positiva = (topEmpleados['series']['Actividad positiva'] as List<dynamic>? ?? []).map((e) => double.tryParse(e.toString()) ?? 0.0).toList();
+        final negativa = (topEmpleados['series']['Actividad negativa'] as List<dynamic>? ?? []).map((e) => double.tryParse(e.toString()) ?? 0.0).toList();
+
+        debugPrint('🏆 top_empleados desglosado:');
+        debugPrint('Labels: ${topEmpleados['labels']}');
+        debugPrint('Series - Actividad positiva: ${topEmpleados['series']?['Actividad positiva']}');
+        debugPrint('Series - Actividad negativa: ${topEmpleados['series']?['Actividad negativa']}');
+        debugPrint('-----------------------------------------------');
+
+        _topEmpleadosData = [];
+
+        for (int i = 0; i < labels.length; i++) {
+          final nombre = labels[i].trim();
+          
+          // Conversión segura a double
+          final pos = (i < positiva.length ? positiva[i] : 0).toDouble();
+          final neg = (i < negativa.length ? negativa[i] : 0).toDouble();
+          
+          final porcentajeFinal = pos != 0 ? pos : -neg;
+                
+          _topEmpleadosData.add(TopEmpleadoData(
+            nombre: nombre,
+            porcentaje: porcentajeFinal,
+          ));
+        }
+        debugPrint('Datos procesados: ${_topEmpleadosData.length} empleados');
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'Error al cargar datos: ${e.toString()}';
+      });
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+}

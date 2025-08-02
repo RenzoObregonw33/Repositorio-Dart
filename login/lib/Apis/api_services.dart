@@ -4,15 +4,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 // Función asíncrona que intenta iniciar sesión con email, contraseña y lumina
-Future<Map<String, dynamic>> loginUser({                      //Future<> devuelve un valor en el futuro (peticion)
-  required String email,                                      
+Future<Map<String, dynamic>> loginUser({
+  required String email,
   required String password,
   required int lumina,
-}) async {                                            //función va a ejecutar operaciones que toman tiempo (como esperar una respuesta del servidor) 
-  final url = Uri.parse('https://rhnube.com.pe/api/web_services/login');  //combierte el string en URI
+}) async {
+  final url = Uri.parse('https://rhnube.com.pe/api/web_services/login');
 
   try {
-    final response = await http.post(    //http.post(...) es una función que hace una solicitud HTTP al servidor. Como esta operación puede tardar (por la red), se usa await para decirle a Dart:
+    final response = await http.post(
       url,
       headers: {
         'Content-Type': 'application/json',
@@ -25,39 +25,44 @@ Future<Map<String, dynamic>> loginUser({                      //Future<> devuelv
       }),
     );
 
-    // Imprime el código de estado y el cuerpo de la respuesta para depuración
-    print(response.statusCode);
-    print(response.body);
+    print('════════════════ RESPONSE ════════════════');
+    print('Status Code: ${response.statusCode}');
+    print('Body: ${response.body}');
 
-    // Si la respuesta es exitosa (200), se decodifica el JSON y se retorna
+    final Map<String, dynamic> responseData = {
+      'success': false,
+      'message': 'Error desconocido'
+    };
+
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);                 //convierte Json en un objeto
-      final token = data['token']; // <-- extrae el token
-
-      // Guardarlo localmente
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', token); // Guarda con la clave 'auth_token'
-      
-      return {'success': true, 'data': data};
-
-    // Si el usuario no está autorizado (401)
+      try {
+        final data = jsonDecode(response.body);
+        final token = data['token'];
+        
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', token);
+        
+        responseData['success'] = true;
+        responseData['data'] = data;
+        responseData['message'] = 'Login exitoso';
+      } catch (e) {
+        responseData['message'] = 'Error al procesar respuesta: $e';
+      }
     } else if (response.statusCode == 401) {
-      return {
-        'success': false,
-        'message': 'Contraseña Incorrecta'
-      };
-
-    // Si faltan campos requeridos (422)
+      responseData['message'] = 'Contraseña Incorrecta';
     } else if (response.statusCode == 422) {
-      return {
-        'success': false,
-        'message': 'Debe ingresar correo y contraseña'
-      };
-    } else {                                // Otros errores
-      return {'success': false, 'message': 'Error: ${response.statusCode}'};
+      responseData['message'] = 'Debe ingresar correo y contraseña';
+    } else {
+      responseData['message'] = 'Error: ${response.statusCode}';
     }
-  } catch (e) {                             // Si ocurre un error de red o excepción
-    return {'success': false, 'message': 'Error de conexión: $e'};
+
+    return responseData;
+
+  } catch (e) {
+    return {
+      'success': false,
+      'message': 'Error de conexión: $e'
+    };
   }
 }
 
@@ -107,3 +112,4 @@ Future<Map<String, dynamic>> resetPassword({required String email}) async {
     return {'success': false, 'message': 'Error de conexión: $e'};
   }
 }
+

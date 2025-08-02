@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -15,62 +17,74 @@ class GraficoTendenciaHoras extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Filtrar solo las horas entre 08:00 y 18:00
-    final dataFiltrada = data.where((d) {
-      final partes = d.hora.split(':');
-      final horaNum = int.tryParse(partes[0]) ?? -1;
-      return horaNum >= 8 && horaNum <= 18;
-    }).toList();
+    // Verificar si hay datos válidos (mayores a 0)
+    final hasValidData = data.isNotEmpty && data.any((d) => d.valor > 0);
 
-    // Si no hay datos útiles, no retorna nada
-    if (dataFiltrada.isEmpty) return const SizedBox.shrink();
-
-    final List<Color> colores = [
-      Color(0xFF0868FB), // Azul
-      Color(0xFF2DC70D), // Verde
-      Color(0xFFFF1A15), // Rojo
-      Color(0xFF7AD6D5), // Cian
-      Color(0xFFDC32F3), // Morado
-      Color(0xFFFE9717), // Naranja
-      Color(0xFFFFA2CD), // Rosa
-      Colors.teal, // Verde azulado
-      Colors.indigo, // Índigo
-      Color(0xFFFDF807), // Ámbar
-      Colors.brown, // Marron
-    ];
-    return SizedBox(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(
-        width: dataFiltrada.length * 30, // ancho proporcional a la cantidad de datos
+    if (!hasValidData) {
+      return Container(
         height: 300,
-        child: SfCartesianChart(
-            tooltipBehavior: TooltipBehavior(enable: true),
-            primaryXAxis: CategoryAxis(),
-            primaryYAxis: NumericAxis(
-              title: AxisTitle(text: 'Tiempo de actividad (horas)'),
-              minimum: 0,
-            ),
-            series: <ColumnSeries<TendenciaHoraData, String>>[
-              ColumnSeries<TendenciaHoraData, String>(
-                dataSource: dataFiltrada,
-                xValueMapper: (TendenciaHoraData d, _) => d.hora,
-                yValueMapper: (TendenciaHoraData d, _) => d.valor,
-                dataLabelSettings: const DataLabelSettings(
-                  isVisible: true,
-                  labelAlignment: ChartDataLabelAlignment.top,
-                  //textStyle: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                pointColorMapper: (TendenciaHoraData d, int index) {
-                  // Asignar colores cíclicamente
-                  return colores[index % colores.length];
-                },
-                borderRadius: BorderRadius.vertical(top: Radius.circular(6)),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.bar_chart, size: 48, color: Colors.grey),
+              const SizedBox(height: 16),
+              Text(
+                data.isEmpty ? 'No hay datos disponibles' : 'Todos los valores son cero',
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
             ],
           ),
         ),
-        
+      );
+    }
+
+    return Container(
+      height: 300,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: SfCartesianChart(
+        primaryXAxis: CategoryAxis(
+          labelRotation: -45,
+          labelStyle: const TextStyle(fontSize: 10),
+        ),
+        primaryYAxis: NumericAxis(
+          minimum: 0,
+          maximum: data.map((e) => e.valor).reduce(max) * 1.2,
+        ),
+        series: <CartesianSeries<TendenciaHoraData, String>>[
+          ColumnSeries<TendenciaHoraData, String>(
+            dataSource: data,
+            xValueMapper: (d, _) => d.hora,
+            yValueMapper: (d, _) => d.valor,
+            color: Colors.blue[400],
+            width: 0.6,
+            dataLabelSettings: const DataLabelSettings(
+              isVisible: true,
+              labelAlignment: ChartDataLabelAlignment.top,
+              textStyle: TextStyle(fontSize: 10),
+            ),
+          ),
+        ],
+        tooltipBehavior: TooltipBehavior(
+          enable: true,
+          format: 'point.x : point.y hrs',
+        ),
       ),
     );
   }

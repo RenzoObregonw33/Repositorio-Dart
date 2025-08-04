@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:login/Apis/api_graphics_services.dart';
 import 'package:login/Models/datos_actividad.dart';
 import 'package:login/Models/datos_embudo.dart';
+import 'package:login/Models/filtro_data.dart';
 import 'package:login/widgets/grafico_actividad_diaria.dart';
 import 'package:login/widgets/grafico_barras_horas.dart';
 import 'package:login/widgets/grafico_distribucion_actividad.dart';
@@ -11,7 +12,9 @@ import 'package:login/widgets/grafico_embudo.dart';
 import 'package:login/widgets/grafico_picos_actividad.dart';
 import 'package:login/widgets/grafico_picos_porcentaje.dart';
 import 'package:login/widgets/grafico_top_empleados.dart';
+import 'package:login/widgets/selector_empleados.dart';
 import 'package:login/widgets/selector_fechas.dart';
+import 'package:login/widgets/selector_filtros.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String token;
@@ -30,6 +33,10 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   late final ApiGraphicsService _graphicsService;
+  List<GrupoFiltros> _filtrosEmpresariales = [];
+  bool _mostrarFiltros = false;
+  bool _mostrarEmpleados = false;
+  List<int> _empleadosSeleccionados = [];
   DateTimeRange? _dateRange;
   double _eficiencia = 0;
   int _currentGraphIndex = 0; // 0: Eficiencia, 1: Embudo, 2: Donut
@@ -49,7 +56,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _graphicsService = ApiGraphicsService(token: widget.token);
+    _graphicsService = ApiGraphicsService(token: widget.token, organiId: widget.organiId);
     // Establecer rango inicial (últimos 7 días)
     final now = DateTime.now();
     _dateRange = DateTimeRange(
@@ -84,6 +91,93 @@ class _DashboardScreenState extends State<DashboardScreen> {
             },
           ),
 
+          // Botones para mostrar filtros y empleados
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              children: [
+                // Botón de Datos Empresariales
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[700],
+                      minimumSize: const Size(double.infinity, 50),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _mostrarFiltros = !_mostrarFiltros;
+                        _mostrarEmpleados = false;
+                      });
+                    },
+                    child: const Text(
+                      'Datos Empresariales',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                
+                // Botón de Empleados
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[700],
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _mostrarEmpleados = !_mostrarEmpleados;
+                      _mostrarFiltros = false;
+                    });
+                  },
+                  child: const Text(
+                    'Empleados',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          
+          // --- PANEL DE FILTROS (SE MUESTRA CONDICIONALMENTE) ---
+          if (_mostrarFiltros)
+            SizedBox(
+              height: 300, // Altura fija para el panel de filtros
+              child: Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: SelectorFiltros(
+                  graphicsService: _graphicsService,
+                  onFiltrosChanged: (filtros) {
+                    setState(() => _filtrosEmpresariales = filtros);
+                    _loadData(); // Opcional: Recargar datos automáticamente
+                  },
+                ),
+              ),
+          ),
+
+          // --- PANEL DE EMPLEADOS (SE MUESTRA CONDICIONALMENTE) ---
+          if (_mostrarEmpleados)
+            SizedBox(
+              height: 400, // Aumenté un poco la altura para mejor visualización
+              child: Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: SelectorEmpleado(
+                  graphicsService: _graphicsService,
+                  filtrosEmpresariales: _filtrosEmpresariales,
+                  onError: (error) => setState(() => _error = error),
+                  onEmpleadosSeleccionados: (empleadosIds) {
+                    setState(() => _empleadosSeleccionados = empleadosIds);
+                    _loadData(); // Recargar datos con los empleados seleccionados
+                  },
+                ),
+              ),
+            ),
           // Mensajes de estado
           if (_error != null)
             Padding(
@@ -229,11 +323,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     debugPrint('Fecha fin: ${_dateRange!.end.toIso8601String()}');
 
     try {
+      // Obtener IDs de filtros seleccionados
+      final filtrosSeleccionados = _filtrosEmpresariales
+          .expand((g) => g.filtros)
+          .where((f) => f.seleccionado)
+          .map((f) => f.id)
+          .toList();
       
       final data = await _graphicsService.fetchGraphicsData(
         fechaIni: _dateRange!.start,
         fechaFin: _dateRange!.end,
         organiId: widget.organiId,
+        empleadosIds: _empleadosSeleccionados.isNotEmpty ? _empleadosSeleccionados : null,
       );
 
       // AGREGAR ESTOS DEBUGPRINT PARA VER LOS DATOS ESPECÍFICOS

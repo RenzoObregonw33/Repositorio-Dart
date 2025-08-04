@@ -39,131 +39,109 @@ class GraficoPicosActividad extends StatelessWidget {
       labels.length,
       (index) => HoraActividadData(hora: labels[index], valor: valores[index]),
     ).where((data) {
-      // Extraer la hora como número entero (ej: "08:00" → 8)
       int hour = int.parse(data.hora.split(':')[0]);
-      return hour >= 8 && hour <= 18; // Solo horas entre 8 y 18
+      return hour >= 8 && hour <= 18;
     }).toList();
 
     return Container(
-      margin: const EdgeInsets.all(16), // Margen movido aquí
+      margin: const EdgeInsets.all(16),
       child: Card(
         elevation: 8,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
+        color: const Color(0xFF1E293B),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                '📊 Picos de Actividad por Hora',
-                style: TextStyle(
-                  fontSize: 18, 
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              // Título centrado
+              Center(
+                child: const Text(
+                  '📊 Picos de Actividad por Hora',
+                  style: TextStyle(
+                    fontSize: 18, 
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
               const SizedBox(height: 16),
-              SizedBox(
-                height: 300,
-                child: SfCartesianChart(
-                  plotAreaBorderWidth: 0,
-                  primaryXAxis: CategoryAxis(
-                    labelRotation: -45,
-                    title: AxisTitle(
-                      text: 'Horario del día',
-                      textStyle: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    majorGridLines: const MajorGridLines(width: 0),
-                    axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
-                    labelStyle: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
-                  ),
-                  primaryYAxis: NumericAxis(
-                    title: AxisTitle(
-                      text: 'Horas de actividad',
-                      textStyle: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
-                    majorGridLines: MajorGridLines(
-                      width: 1,
-                      color: Colors.grey[200]!,
-                    ),
-                    labelStyle: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  tooltipBehavior: TooltipBehavior(
-                    enable: true,
-                    header: 'Actividad',
-                    format: 'point.x\npoint.y hrs',
-                    color: Colors.blueGrey[800],
-                    textStyle: const TextStyle(color: Colors.white),
-                    borderWidth: 0,
-                  ),
-                  series: <CartesianSeries>[
-                    ColumnSeries<HoraActividadData, String>(
-                      dataSource: filteredData, 
-                      xValueMapper: (d, _) => d.hora,
-                      yValueMapper: (d, _) => d.valor,
-                      name: 'Actividad',
-                      pointColorMapper: (HoraActividadData d, int index) {
-                        return colorPalette[index % colorPalette.length].withOpacity(0.9); // Más opacidad
-                      },
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                      width: 0.7,
-                      spacing: 0.2,
-                      borderWidth: 1,
-                      //borderColor: Colors.white, Borde blanco para mejor contraste
-                      animationDuration: 2000,
-                      enableTooltip: true,
-                      dataLabelSettings: DataLabelSettings(
-                        isVisible: true,
+              
+              // Gráfico centrado
+              Center(
+                child: SizedBox(
+                  height: 300,
+                  width: MediaQuery.of(context).size.width * 0.9, // Ajuste de ancho
+                  child: SfCartesianChart(
+                    plotAreaBorderWidth: 0,
+                    primaryXAxis: CategoryAxis(
+                      labelRotation: -45,
+                      title: AxisTitle(
+                        text: 'Horario del día',
                         textStyle: TextStyle(
-                          color: Colors.black, // Texto negro para mejor legibilidad
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        labelAlignment: ChartDataLabelAlignment.top,
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 12,
-                children: List.generate(
-                  colorPalette.length,
-                  (index) => Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: colorPalette[index],
-                          borderRadius: BorderRadius.circular(3),
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Nivel ${index + 1}',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey[700],
+                      majorGridLines: const MajorGridLines(width: 0),
+                      axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
+                      labelStyle: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                    primaryYAxis: NumericAxis(
+                      title: AxisTitle(
+                        text: 'Horas de actividad',
+                        textStyle: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
+                      axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
+                      majorGridLines: MajorGridLines(
+                        width: 1,
+                        color: Colors.grey[200]!,
+                      ),
+                      labelStyle: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    tooltipBehavior: TooltipBehavior(
+                      enable: true,
+                      header: 'Actividad',
+                      format: 'point.x\npoint.y hrs',
+                      color: Colors.blueGrey[800],
+                      textStyle: const TextStyle(color: Colors.white),
+                      borderWidth: 0,
+                    ),
+                    series: <CartesianSeries>[
+                      ColumnSeries<HoraActividadData, String>(
+                        dataSource: filteredData, 
+                        xValueMapper: (d, _) => d.hora,
+                        yValueMapper: (d, _) => d.valor,
+                        name: 'Actividad',
+                        pointColorMapper: (HoraActividadData d, int index) {
+                          return colorPalette[index % colorPalette.length].withOpacity(0.9);
+                        },
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                        width: 0.7,
+                        spacing: 0.2,
+                        borderWidth: 1,
+                        animationDuration: 2000,
+                        enableTooltip: true,
+                        dataLabelSettings: DataLabelSettings(
+                          isVisible: true,
+                          textStyle: TextStyle(
+                            color: Colors.black,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          labelAlignment: ChartDataLabelAlignment.top,
+                        ),
+                      )
                     ],
                   ),
                 ),

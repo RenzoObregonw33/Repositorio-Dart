@@ -90,8 +90,9 @@ class LoginButton extends StatelessWidget {
             final apellido = user['perso_apPaterno'] ?? '';
             final organizaciones = user['organizaciones'] ?? [];
             final token = (data['token'] ?? '').toString().trim(); // ✅ con .trim() y .toString() por seguridad
+            final fotoUrl = user['foto_url'] ?? 'https://rhnube.com.pe/fotosUser/default.png'; // URL de la foto del usuario
+
             print('🟢 Token recibido: $token');
-      
             print("🟢 Nombre: $nombre");
             print("🟢 Apellido: $apellido");
             print("🟢 Organizaciones: $organizaciones");
@@ -104,7 +105,7 @@ class LoginButton extends StatelessWidget {
                 'ruc': org['organi_ruc'] ?? 'Sin RUC',
                 'id': org['organi_id']?.toString() ?? '0', // Convertir a String seguro
                 'tipo': org['organi_tipo'] ?? 'No especificado',
-                'cantidadEmpleadosLumina': (user['cantidad_empleados_lumina'] ?? 0).toString(),
+                'cantidad_empleados_lumina': org['cantidad_empleados_lumina'] ?? 0, // Aseguramos que sea un entero
               };
             }).toList();
       
@@ -119,7 +120,7 @@ class LoginButton extends StatelessWidget {
                   token: token,
                   rolNombre: data['user']['rol_nombre'], // Nuevo parámetro
                   rolId: data['user']['rol_id'], // Nuevo parámetro
-                  empleadosLumina: (data['user'] ?? {})['cantidad_empleados_lumina'] ?? 0,
+                  fotoUrl: fotoUrl, 
                 ),
               ),
             );

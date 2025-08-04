@@ -7,6 +7,7 @@ class ActividadDiariaData {
 
   ActividadDiariaData(this.dia, this.porcentaje);
 }
+
 class GraficoActividadDiaria extends StatefulWidget {
   final Map<String, dynamic> apiResponse;
 
@@ -19,19 +20,18 @@ class GraficoActividadDiaria extends StatefulWidget {
 class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
   bool _esLinea = false;
   final List<Color> _coloresBarras = [
-    Color(0xFF0868FB), // Azul
-    Color(0xFF2DC70D), // Verde
-    Color(0xFFFF1A15), // Rojo
-    Color(0xFF7AD6D5), // Cian
-    Color(0xFFFE9717), // Naranja
-    Color(0xFFDC32F3), // Morado   
+    const Color(0xFF0868FB), // Azul
+    const Color(0xFF2DC70D), // Verde
+    const Color(0xFFFF1A15), // Rojo
+    const Color(0xFF7AD6D5), // Cian
+    const Color(0xFFFE9717), // Naranja
+    const Color(0xFFDC32F3), // Morado   
   ];
 
   final List<Color> _coloresLineas = [
-    
-    Color(0xFFFF1A15), // Rojo
-    Color(0xFF2DC70D), // Verde
-    Color(0xFF0868FB), // Azul
+    const Color(0xFFFF1A15), // Rojo
+    const Color(0xFF2DC70D), // Verde
+    const Color(0xFF0868FB), // Azul
   ];
 
   List<ActividadDiariaData> _procesarDatos() {
@@ -57,18 +57,20 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
   Widget build(BuildContext context) {
     final datos = _procesarDatos();
 
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Card(
-        elevation: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.all(12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      color: const Color(0xFF1E293B),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SizedBox(
+          height: 280, // Misma altura que los otros gráficos
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Título manteniendo tu formato original
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -90,7 +92,9 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
+              
+              // Gráfico con Expanded
               Expanded(
                 child: datos.isEmpty
                     ? const Center(
@@ -112,6 +116,7 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
         labelRotation: -45,
         labelStyle: const TextStyle(color: Colors.white),
         majorGridLines: const MajorGridLines(width: 0),
+        axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
       ),
       primaryYAxis: NumericAxis(
         minimum: 0,
@@ -119,7 +124,11 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
         interval: _calcularIntervalo(datos),
         labelFormat: '{value}%',
         labelStyle: const TextStyle(color: Colors.white),
-        axisLine: const AxisLine(width: 0),
+        axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
+        majorGridLines: MajorGridLines(
+          width: 1,
+          color: Colors.grey.withOpacity(0.3),
+        ),
       ),
       tooltipBehavior: TooltipBehavior(
         enable: true,
@@ -194,4 +203,3 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
     ];
   }
 }
-

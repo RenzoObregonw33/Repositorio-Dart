@@ -12,7 +12,7 @@ class HomeScreem extends StatelessWidget {
   final List<Map<String, dynamic>> organizaciones;
   final String rolNombre; // Nuevo
   final int rolId; // Nuevo
-  final int empleadosLumina; // Nuevo
+  final String fotoUrl; // Nuevo
 
 //Constructor
   const HomeScreem({  
@@ -23,7 +23,7 @@ class HomeScreem extends StatelessWidget {
     required this.token, 
     required this.rolNombre, 
     required this.rolId, 
-    required this.empleadosLumina,
+    required this.fotoUrl,
   });
 
 //Metodo que construye el UI widget
@@ -52,8 +52,37 @@ class HomeScreem extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 30,
-                      backgroundColor: Colors.transparent,
-                      backgroundImage: AssetImage('assets/MG.jpeg'),
+                      backgroundColor: Colors.grey[300], // Color de fondo si no hay imagen
+                      child: fotoUrl != null && fotoUrl.isNotEmpty && fotoUrl != 'null'
+                          ? ClipOval(
+                              child: Image.network(
+                                fotoUrl,
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Icon(
+                                    Icons.person,
+                                    size: 30,
+                                    color: Colors.white,
+                                  );
+                                },
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress.cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                        : null,
+                                  );
+                                },
+                              ),
+                            )
+                          : Icon(
+                              Icons.person,
+                              size: 30,
+                              color: Colors.white,
+                            ),
                     ),
                     Positioned(
                       bottom: 2,
@@ -109,7 +138,7 @@ class HomeScreem extends StatelessWidget {
                   final razonSocial = org['razonSocial'];
                   final ruc = org['ruc'];
                   final tipo = org['tipo'];
-                  final cantEmpleados = org['cantEmpleados'];
+
 
                   //final id = org['id'];
                   
@@ -188,7 +217,7 @@ class HomeScreem extends StatelessWidget {
                               ),
                               SizedBox(height: 2), // Espacio reducido
                               Text(
-                                'Cantidad de empleados: $cantEmpleados',
+                                'Cantidad de empleados: ${org['cantidad_empleados_lumina'] ?? '0'}',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,

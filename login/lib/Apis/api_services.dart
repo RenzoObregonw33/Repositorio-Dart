@@ -38,9 +38,11 @@ Future<Map<String, dynamic>> loginUser({
       try {
         final data = jsonDecode(response.body);
         final token = data['token'];
+        final fotoUrl = data['user']['foto_url'];
         
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('auth_token', token);
+        await prefs.setString('user_photo_url', fotoUrl);
         
         responseData['success'] = true;
         responseData['data'] = data;

@@ -18,7 +18,7 @@ class GraficoPicosPorcentaje extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Paleta de colores vibrantes (misma que en GraficoPicosActividad)
+    // Paleta de colores consistente
     final List<Color> colorPalette = [
       const Color(0xFF0868FB), // Azul
       const Color(0xFF2DC70D), // Verde
@@ -29,46 +29,49 @@ class GraficoPicosPorcentaje extends StatelessWidget {
       const Color(0xFFFFA2CD), // Rosa
     ];
 
-    // Filtrar datos para mostrar solo de 8:00 a 18:00
+    // Filtrar datos (8:00 a 18:00)
     final filteredData = datos.where((data) {
       final hour = int.parse(data.hora.split(':')[0]);
       return hour >= 8 && hour <= 18;
     }).toList();
 
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Card(
-        elevation: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.all(12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      color: const Color(0xFF1E293B),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SizedBox(
+          height: 300, // Misma altura que los otros gráficos
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                '📊 Picos de Actividad por Hora (%)',
-                style: TextStyle(
-                  fontSize: 18, 
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+              // Título con icono como los otros gráficos
+              const Row(
+                children: [
+                  Icon(Icons.pie_chart, color: Colors.blueAccent),
+                  SizedBox(width: 8),
+                  Text(
+                    'ACTIVIDAD POR HORA (%)',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 24), // Espacio consistente
-              SizedBox(
-                height: 300, // Mismo tamaño que el otro gráfico
+              const SizedBox(height: 30),
+              
+              // Gráfico con Expanded
+              Expanded(
                 child: SfCartesianChart(
+                  margin: EdgeInsets.zero,
                   plotAreaBorderWidth: 0,
                   primaryXAxis: CategoryAxis(
                     labelRotation: -45,
-                    title: AxisTitle(
-                      text: 'Horario del día (8:00-18:00)',
-                      textStyle: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
                     majorGridLines: const MajorGridLines(width: 0),
                     axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
                     labelStyle: const TextStyle(
@@ -77,13 +80,6 @@ class GraficoPicosPorcentaje extends StatelessWidget {
                     ),
                   ),
                   primaryYAxis: NumericAxis(
-                    title: AxisTitle(
-                      text: 'Porcentaje de actividad',
-                      textStyle: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
                     minimum: 0,
                     maximum: 100,
                     interval: 20,
@@ -109,7 +105,6 @@ class GraficoPicosPorcentaje extends StatelessWidget {
                       dataSource: filteredData,
                       xValueMapper: (d, _) => d.hora,
                       yValueMapper: (d, _) => d.porcentaje,
-                      name: 'Porcentaje',
                       pointColorMapper: (d, index) => 
                           colorPalette[index % colorPalette.length],
                       borderRadius: BorderRadius.vertical(
@@ -132,7 +127,6 @@ class GraficoPicosPorcentaje extends StatelessWidget {
                   ],
                 ),
               ),
-              // Se eliminó la leyenda como solicitaste
             ],
           ),
         ),

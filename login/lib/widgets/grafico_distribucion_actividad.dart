@@ -34,15 +34,23 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Título del gráfico
-            const Text(
-              'DISTRIBUCIÓN DE ACTIVIDAD',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+            // Título del gráfico con icono en la misma línea
+            Row(
+              children: [
+                Icon(Icons.bar_chart, color: Colors.blueAccent),
+                const SizedBox(width: 8),
+                Text(
+                  'DISTRIBUCIÓN DE ACTIVIDAD',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            
+            const SizedBox(height: 20),
             
             // Leyenda interactiva (ya centrada)
             Center(

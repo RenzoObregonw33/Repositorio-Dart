@@ -18,9 +18,20 @@ class GraficoTopEmpleados extends StatelessWidget {
   Widget build(BuildContext context) {
     // Verificar si hay datos
     if (data.isEmpty) {
-      return const Center(
-        child: Text('No hay datos disponibles', 
-               style: TextStyle(color: Colors.grey)),
+      return Card(
+        elevation: 4,
+        margin: const EdgeInsets.all(12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        color: const Color(0xFF1E293B),
+        child: const Padding(
+          padding: EdgeInsets.all(16),
+          child: Center(
+            child: Text('No hay datos disponibles',
+                   style: TextStyle(color: Colors.grey)),
+          ),
+        ),
       );
     }
 
@@ -54,7 +65,7 @@ class GraficoTopEmpleados extends StatelessWidget {
         'formatter': '{b}: {c} %',
       },
       'grid': {
-        'left': '3%', // Más espacio para labels largos
+        'left': '2%',
         'right': '5%',
         'bottom': '5%',
         'top': '5%',
@@ -106,27 +117,37 @@ class GraficoTopEmpleados extends StatelessWidget {
       ]
     };
 
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Card(
-        elevation: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.all(12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      color: const Color(0xFF1E293B),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SizedBox(
+          height: 280, // Misma altura que los otros gráficos
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                '🏆 Top Empleados',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+              // Título con icono como los otros gráficos
+              const Row(
+                children: [
+                  Icon(Icons.emoji_events, color: Colors.blueAccent),
+                  SizedBox(width: 8),
+                  Text(
+                    'TOP EMPLEADOS',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
+              
+              // Gráfico con Expanded
               Expanded(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,

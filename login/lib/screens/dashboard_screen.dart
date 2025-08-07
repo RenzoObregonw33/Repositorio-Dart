@@ -48,6 +48,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<DatosActividad> _distribucionActividad = [];
   List<String> _picosLabels = [];
   List<double> _picosValores = [];
+  List<HoraActividadPorcentajeData> _picosPorcentajeData = []; 
   Map<String, dynamic> _actividadDiaria = {}; 
   List<TopEmpleadoData> _topEmpleadosData = [];
   final int totalGraficos = 9; // Total de gráficos disponibles
@@ -164,12 +165,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           // --- PANEL DE EMPLEADOS (SE MUESTRA CONDICIONALMENTE) ---
           if (_mostrarEmpleados)
             SizedBox(
-              height: 400, // Aumenté un poco la altura para mejor visualización
+              height: 400,
               child: Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: SelectorEmpleado(
                   graphicsService: _graphicsService,
                   filtrosEmpresariales: _filtrosEmpresariales,
+                  empleadosSeleccionadosIniciales: _empleadosSeleccionados,
                   onError: (error) => setState(() => _error = error),
                   onEmpleadosSeleccionados: (empleadosIds) {
                     setState(() => _empleadosSeleccionados = empleadosIds);
@@ -266,7 +268,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ));
           }
         }
-        return GraficoPicosPorcentaje(datos: filteredData);
+        return GraficoPicosPorcentaje(datos: _picosPorcentajeData);
 
       case 7: // Ajusta el índice según tu secuencia
         return GraficoActividadDiaria(
@@ -354,24 +356,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
         // Procesar datos para el embudo (adaptado a tu modelo FunnelData)
         _funnelData = [
           FunnelData(
-            'Horas programadas', 
-            (comparativo['programadas'] ?? 0).toDouble(), 
-            const Color(0xFF0868FB)
-          ),
-          FunnelData(
-            'Horas de presencia', 
-            (comparativo['presencia'] ?? 0).toDouble(), 
-            const Color(0xFF2BCA07)
-          ),
-          FunnelData(
             'Horas productivas', 
             (comparativo['productivas'] ?? 0).toDouble(), 
-            const Color(0xFFFF1A15)
+            const Color(0xFF0868FB)
           ),
           FunnelData(
             'Horas no productivas', 
             (comparativo['no_productivas'] ?? 0).toDouble(), 
             const Color(0xFFFDF807)
+          ),
+          FunnelData(
+            'Horas programadas', 
+            (comparativo['programadas'] ?? 0).toDouble(), 
+            const Color(0xFFFF1A15)
+          ),
+          FunnelData(
+            'Horas de presencia', 
+            (comparativo['presencia'] ?? 0).toDouble(), 
+            const Color(0xFF2BCA07)
           ),
         ];
 
@@ -389,14 +391,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
           );
         });
 
-        // 6. Procesar datos de picos de actividad (si es necesario)
+        // Procesar datos de horas absolutas (para GraficoPicosActividad)
         final tendenciaHora = data['tendencia_por_hora'] ?? {};
         _picosLabels = List<String>.from(tendenciaHora['labelsGraficoHoras'] ?? []);
-        _picosValores = List<double>.from(
-          (tendenciaHora['seriesGraficoHora'] ?? []).map((e) => e.toDouble()));
+        _picosValores = List<double>.from((tendenciaHora['seriesGraficoHora'] ?? []).map((e) => e.toDouble()));
 
-        debugPrint('Labels picos: $_picosLabels');
-        debugPrint('Valores picos: $_picosValores');
+        // Crear lista de datos para el gráfico de porcentaje
+        _picosPorcentajeData = List.generate(
+        tendenciaHora['labelsGraficoPorcentajeHora']?.length ?? 0,
+        (index) => HoraActividadPorcentajeData(
+          hora: tendenciaHora['labelsGraficoPorcentajeHora'][index],
+          porcentaje: tendenciaHora['seriesGraficoPorcentajeHora'][index].toDouble(),
+        ),
+      );
+
+        // Debug para verificar datos
+        debugPrint('Datos horas absolutas:');
+        debugPrint('Labels: $_picosLabels');
+        debugPrint('Valores: $_picosValores');
+
+        debugPrint('\nDatos porcentaje:');
 
         //8. Procesar datos de actividad diaria
 

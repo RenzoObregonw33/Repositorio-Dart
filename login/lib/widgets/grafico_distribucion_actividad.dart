@@ -160,14 +160,24 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
                     barTouchData: BarTouchData(
                       enabled: true,
                       touchTooltipData: BarTouchTooltipData(
-                        tooltipBgColor: Colors.black87,
+                        tooltipBgColor: Colors.blueGrey[800]!,
+                        tooltipPadding: const EdgeInsets.all(8),
                         getTooltipItem: (group, groupIndex, rod, rodIndex) {
                           final d = datos[groupIndex];
+                          final conActividad = mostrarConActividad ? d.conActividad : 0;
+                          final sinActividad = mostrarSinActividad ? d.sinActividad : 0;
+                          final total = conActividad + sinActividad;
+                          
                           return BarTooltipItem(
-                            '${d.dia}\n'
-                            '${mostrarConActividad ? 'Con actividad: ${d.conActividad.toStringAsFixed(1)} h\n' : ''}'
-                            '${mostrarSinActividad ? 'Sin actividad: ${d.sinActividad.toStringAsFixed(1)} h' : ''}',
-                            const TextStyle(color: Colors.white),
+                            'Actividad\n\n'  // Cambiado de d.dia a "Actividad"
+                            '${mostrarConActividad ? 'Con actividad: ${d.conActividad.toStringAsFixed(1)} hrs\n' : ''}'
+                            '${mostrarSinActividad ? 'Sin actividad: ${d.sinActividad.toStringAsFixed(1)} hrs\n' : ''}'
+                            'Total: ${total.toStringAsFixed(1)} hrs',
+                            const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                            textAlign: TextAlign.left,
                           );
                         },
                       ),

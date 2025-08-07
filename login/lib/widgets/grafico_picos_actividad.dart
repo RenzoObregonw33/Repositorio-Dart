@@ -123,11 +123,22 @@ class GraficoPicosActividad extends StatelessWidget {
                       dataLabelSettings: DataLabelSettings(
                         isVisible: true,
                         textStyle: TextStyle(
-                          color: Colors.black,
+                          color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
                         labelAlignment: ChartDataLabelAlignment.top,
+                        // Añade esta propiedad para formatear con 1 decimal
+                        builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+                          return Text(
+                            '${point.y.toStringAsFixed(1)}', // Muestra con 1 decimal
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        },
                       ),
                     )
                   ],

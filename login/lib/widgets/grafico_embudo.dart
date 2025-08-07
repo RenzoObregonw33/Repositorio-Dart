@@ -41,7 +41,10 @@ class GraficoEmbudo extends StatelessWidget {
             // Gráfico de embudo
             Expanded(
               child: SfFunnelChart(
-                tooltipBehavior: TooltipBehavior(enable: true),
+                tooltipBehavior: TooltipBehavior(
+                  enable: true,
+                  format: 'point.x : point.y h',
+                ),
                 series: FunnelSeries<FunnelData, String>(
                   dataSource: data,
                   xValueMapper: (FunnelData d, _) => d.label,
@@ -52,14 +55,25 @@ class GraficoEmbudo extends StatelessWidget {
                   neckHeight: '15%',
                   explode: true,
                   explodeOffset: '5%',
-                  dataLabelSettings: const DataLabelSettings(
+                  dataLabelSettings: DataLabelSettings(
                     isVisible: true,
                     labelPosition: ChartDataLabelPosition.inside,
-                    textStyle: TextStyle(
+                    textStyle: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
+                    // Formato personalizado para mostrar el valor con 1 decimal y 'h'
+                    builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+                      return Text(
+                        '${point.y.toStringAsFixed(1)}h',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),

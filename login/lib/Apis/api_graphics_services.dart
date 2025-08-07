@@ -26,6 +26,18 @@ class ApiGraphicsService {
     print('URL: $_baseUrl/api/v5/graficsLumina');
     print('Authorization: $authHeader');
 
+    // Crear el cuerpo de la petición
+    final body = {
+      'fecha_ini': _formatDate(fechaIni),
+      'fecha_fin': _formatDate(fechaFin),
+      'organi_id': organiId,
+      if (empleadosIds != null && empleadosIds.isNotEmpty) 
+      'empleados': empleadosIds,
+    };
+
+    // AÑADE AQUÍ EL debugPrint PARA VER LOS DATOS QUE SE ENVIARÁN
+    debugPrint('📤 Enviando a la API: ${jsonEncode(body)}');
+
     final response = await http.post(
       Uri.parse('$_baseUrl/api/v5/graficsLumina'),
       headers: {
@@ -33,13 +45,9 @@ class ApiGraphicsService {
         'Accept': 'application/json',
         'Authorization': token, // Usamos el header formateado
       },
-      body: jsonEncode({
-        'fecha_ini': _formatDate(fechaIni),
-        'fecha_fin': _formatDate(fechaFin),
-        'organi_id': organiId,
-      }),
+      body: jsonEncode(body), // Usamos el body que ya creamos
     );
-
+    
     print('✅ Response: ${response.statusCode}');
     
     return _processResponse(response);
@@ -91,7 +99,8 @@ class ApiGraphicsService {
       'estado': 1,
       'combinar': false,
       'organi_id': organiId,
-      if (filtrosIds != null && filtrosIds.isNotEmpty) 'query': filtrosIds,
+      if (filtrosIds != null && filtrosIds.isNotEmpty) 
+      'query': filtrosIds,
     };
 
     final response = await http.post(

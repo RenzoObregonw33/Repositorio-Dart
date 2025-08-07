@@ -18,7 +18,7 @@ class GraficoPicosPorcentaje extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Paleta de colores consistente
+    // Paleta de colores original (igual que tu versión)
     final List<Color> colorPalette = [
       const Color(0xFF0868FB), // Azul
       const Color(0xFF2DC70D), // Verde
@@ -29,7 +29,7 @@ class GraficoPicosPorcentaje extends StatelessWidget {
       const Color(0xFFFFA2CD), // Rosa
     ];
 
-    // Filtrar datos (8:00 a 18:00)
+    // Filtramos solo horas de 8:00 a 18:00 como en tu versión original
     final filteredData = datos.where((data) {
       final hour = int.parse(data.hora.split(':')[0]);
       return hour >= 8 && hour <= 18;
@@ -45,10 +45,10 @@ class GraficoPicosPorcentaje extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: SizedBox(
-          height: 300, // Misma altura que los otros gráficos
+          height: 300,
           child: Column(
             children: [
-              // Título con icono como los otros gráficos
+              // Título con icono (idéntico a tu versión)
               const Row(
                 children: [
                   Icon(Icons.pie_chart, color: Colors.blueAccent),
@@ -65,7 +65,7 @@ class GraficoPicosPorcentaje extends StatelessWidget {
               ),
               const SizedBox(height: 30),
               
-              // Gráfico con Expanded
+              // Gráfico (configuración original sin cambios)
               Expanded(
                 child: SfCartesianChart(
                   margin: EdgeInsets.zero,
@@ -81,7 +81,7 @@ class GraficoPicosPorcentaje extends StatelessWidget {
                   ),
                   primaryYAxis: NumericAxis(
                     minimum: 0,
-                    maximum: 100,
+                    maximum: 100, // Máximo 100% para porcentajes
                     interval: 20,
                     axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
                     majorGridLines: MajorGridLines(
@@ -117,7 +117,7 @@ class GraficoPicosPorcentaje extends StatelessWidget {
                       dataLabelSettings: const DataLabelSettings(
                         isVisible: true,
                         textStyle: TextStyle(
-                          color: Colors.black,
+                          color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),

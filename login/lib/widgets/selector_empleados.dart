@@ -24,14 +24,15 @@ class SelectorEmpleado extends StatefulWidget {
 
 class _SelectorEmpleadoState extends State<SelectorEmpleado> {
   List<Map<String, dynamic>> _empleados = [];
+  List<int> _empleadosFiltrados = [];
   List<int> _empleadosSeleccionados = [];
   bool _loading = false;
   String? _error;
+  bool _mostrarTodos = false; // Nuevo estado para controlar qué mostrar
 
   @override
   void initState() {
     super.initState();
-    // Inicializar con los empleados pre-seleccionados si existen
     _empleadosSeleccionados = widget.empleadosSeleccionadosIniciales ?? [];
     _cargarEmpleados();
   }
@@ -40,30 +41,28 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
     setState(() {
       _loading = true;
       _error = null;
+      _mostrarTodos = false; // Resetear a solo mostrar filtrados al recargar
     });
 
     try {
-      // Obtener los IDs de los filtros empresariales seleccionados
       final filtrosIds = widget.filtrosEmpresariales
           .expand((g) => g.filtros)
           .where((f) => f.seleccionado)
           .map((f) => f.id.toString())
           .toList();
 
-      // Llamar al servicio para obtener empleados
       final response = await widget.graphicsService.fetchEmpleados(
         filtrosIds: filtrosIds.isNotEmpty ? filtrosIds : null,
       );
 
       setState(() {
         _empleados = List<Map<String, dynamic>>.from(response['empleado'] ?? []);
+        _empleadosFiltrados = List<int>.from(response['select'] ?? []);
         
-        // Mantener selección existente si los empleados siguen disponibles
         _empleadosSeleccionados = _empleadosSeleccionados
             .where((id) => _empleados.any((e) => e['emple_id'] == id))
             .toList();
         
-        // Notificar la selección actual
         _notificarSeleccion();
       });
     } catch (e) {
@@ -92,7 +91,12 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
 
   void _seleccionarTodos() {
     setState(() {
-      _empleadosSeleccionados = _empleados.map((e) => e['emple_id'] as int).toList();
+      // Solo seleccionar los empleados visibles
+      final empleadosVisibles = _mostrarTodos 
+          ? _empleados 
+          : _empleados.where((e) => _empleadosFiltrados.contains(e['emple_id'])).toList();
+          
+      _empleadosSeleccionados = empleadosVisibles.map((e) => e['emple_id'] as int).toList();
       _notificarSeleccion();
     });
   }
@@ -104,11 +108,25 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
     });
   }
 
+  void _toggleMostrarTodos() {
+    setState(() {
+      _mostrarTodos = !_mostrarTodos;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_error != null) return Center(child: Text('Error: $_error'));
+    if (_empleados.isEmpty) return const Center(child: Text('No hay empleados disponibles'));
+
+    // Filtrar empleados a mostrar según el estado
+    final empleadosAMostrar = _mostrarTodos
+        ? _empleados
+        : _empleados.where((e) => _empleadosFiltrados.contains(e['emple_id'])).toList();
+
     return Column(
       children: [
-        // Barra de acciones
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
@@ -119,88 +137,69 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
                   IconButton(
                     icon: const Icon(Icons.refresh),
                     onPressed: _cargarEmpleados,
-                    tooltip: 'Recargar empleados',
+                    tooltip: 'Recargar',
                   ),
                   IconButton(
                     icon: const Icon(Icons.select_all),
                     onPressed: _seleccionarTodos,
-                    tooltip: 'Seleccionar todos',
+                    tooltip: 'Seleccionar',
                   ),
                   IconButton(
                     icon: const Icon(Icons.deselect),
                     onPressed: _deseleccionarTodos,
-                    tooltip: 'Deseleccionar todos',
+                    tooltip: 'Deseleccionar',
+                  ),
+                  IconButton(
+                    icon: Icon(_mostrarTodos ? Icons.visibility_off : Icons.visibility),
+                    onPressed: _toggleMostrarTodos,
+                    tooltip: _mostrarTodos ? 'Ocultar no filtrados' : 'Mostrar todos',
                   ),
                 ],
               ),
               Text(
-                '${_empleadosSeleccionados.length}/${_empleados.length}',
+                'Mostrando: ${empleadosAMostrar.length}/${_empleados.length}',  //| ' 'Selección: ${_empleadosSeleccionados.length}',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
           ),
         ),
         
-        // Indicador de carga o error
-        if (_loading) const LinearProgressIndicator(),
-        if (_error != null) 
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              _error!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-          ),
-        
-        // Lista de empleados
         Expanded(
-          child: _empleados.isEmpty
-              ? const Center(child: Text('No hay empleados disponibles'))
-              : _buildListaEmpleados(),
-        ),
-        
-        // Botón para aplicar
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ElevatedButton(
-            onPressed: () {
-              _notificarSeleccion();
-              Navigator.of(context).pop();
-            },
-            child: const Text('Aplicar Filtros'),
+          child: RefreshIndicator(
+            onRefresh: _cargarEmpleados,
+            child: ListView.builder(
+              itemCount: empleadosAMostrar.length,
+              itemBuilder: (context, index) {
+                final empleado = empleadosAMostrar[index];
+                final empleadoId = empleado['emple_id'] as int;
+                final nombreCompleto = '${empleado['perso_nombre']} '
+                    '${empleado['perso_apPaterno']} '
+                    '${empleado['perso_apMaterno']}'.trim();
+                final estaFiltrado = _empleadosFiltrados.contains(empleadoId);
+                final estaSeleccionado = _empleadosSeleccionados.contains(empleadoId);
+
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                  color: estaSeleccionado 
+                      ? Colors.blue[300] 
+                      : estaFiltrado 
+                          ? Colors.green[500] 
+                          : null,
+                  child: ListTile(
+                    title: Text(nombreCompleto),
+                    subtitle: Text('ID: $empleadoId'),
+                    trailing: Checkbox(
+                      value: estaSeleccionado,
+                      onChanged: (_) => _toggleSeleccionEmpleado(empleadoId),
+                    ),
+                    onTap: () => _toggleSeleccionEmpleado(empleadoId),
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildListaEmpleados() {
-    return ListView.builder(
-      itemCount: _empleados.length,
-      itemBuilder: (context, index) {
-        final empleado = _empleados[index];
-        final empleadoId = empleado['emple_id'] as int;
-        final nombreCompleto = '${empleado['perso_nombre']} '
-            '${empleado['perso_apPaterno']} '
-            '${empleado['perso_apMaterno']}'.trim();
-        final estaSeleccionado = _empleadosSeleccionados.contains(empleadoId);
-
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-          color: estaSeleccionado 
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-              : null,
-          child: ListTile(
-            title: Text(nombreCompleto),
-            subtitle: Text('ID: $empleadoId'),
-            trailing: Checkbox(
-              value: estaSeleccionado,
-              onChanged: (_) => _toggleSeleccionEmpleado(empleadoId),
-            ),
-            onTap: () => _toggleSeleccionEmpleado(empleadoId),
-          ),
-        );
-      },
     );
   }
 }

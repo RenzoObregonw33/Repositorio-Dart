@@ -196,7 +196,7 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
           isVisible: true,
           textStyle: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
       )

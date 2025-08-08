@@ -17,10 +17,16 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
 
   @override
   Widget build(BuildContext context) {
-    final datos = widget.datos;
-    final cantidadDias = datos.length;
+    // Tomar máximo 7 días
+    final datosMostrar = widget.datos.length > 7 
+        ? widget.datos.sublist(0, 7) 
+        : widget.datos;
+    
+    final cantidadDias = datosMostrar.length;
     final anchoDisponible = MediaQuery.of(context).size.width - 40;
-    final anchoBarra = cantidadDias <= 2 ? (anchoDisponible / cantidadDias * 0.4).clamp(20.0, 80.0) : 22.0;
+    final anchoBarra = cantidadDias <= 3 
+        ? (anchoDisponible / cantidadDias * 0.5).clamp(20.0, 80.0) 
+        : 22.0;
 
     return Card(
       elevation: 4,
@@ -34,7 +40,6 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Título del gráfico con icono en la misma línea
             Row(
               children: [
                 Icon(Icons.bar_chart, color: Colors.blueAccent),
@@ -52,7 +57,6 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
             
             const SizedBox(height: 20),
             
-            // Leyenda interactiva (ya centrada)
             Center(
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
@@ -77,14 +81,13 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
               ),
             ),
             
-            // Gráfico de barras con ajustes para centrado
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(top: 8.0), // Ajuste fino de espacio superior
+                padding: const EdgeInsets.only(top: 8.0),
                 child: BarChart(
                   BarChartData(
-                    alignment: BarChartAlignment.center, // Cambiado a center para mejor centrado
-                    barGroups: datos.asMap().entries.map((entry) {
+                    alignment: BarChartAlignment.center,
+                    barGroups: datosMostrar.asMap().entries.map((entry) {
                       final index = entry.key;
                       final dato = entry.value;
 
@@ -126,11 +129,11 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
                       leftTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
-                          reservedSize: 28, // Reducido para optimizar espacio
+                          reservedSize: 28,
                           getTitlesWidget: (value, meta) {
                             return Text(
                               value.toInt().toString(),
-                              style: const TextStyle(fontSize: 10), // Tamaño reducido
+                              style: const TextStyle(fontSize: 10),
                             );
                           },
                         ),
@@ -138,15 +141,15 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
                       bottomTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
-                          reservedSize: 20, // Reducido para optimizar espacio
+                          reservedSize: 20,
                           getTitlesWidget: (value, _) {
                             final index = value.toInt();
-                            if (index >= 0 && index < datos.length) {
+                            if (index >= 0 && index < datosMostrar.length) {
                               return Padding(
-                                padding: const EdgeInsets.only(top: 4.0), // Padding reducido
+                                padding: const EdgeInsets.only(top: 4.0),
                                 child: Text(
-                                  datos[index].dia,
-                                  style: const TextStyle(fontSize: 10), // Tamaño reducido
+                                  datosMostrar[index].dia,
+                                  style: const TextStyle(fontSize: 10),
                                 ),
                               );
                             }
@@ -163,13 +166,13 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
                         tooltipBgColor: Colors.blueGrey[800]!,
                         tooltipPadding: const EdgeInsets.all(8),
                         getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                          final d = datos[groupIndex];
+                          final d = datosMostrar[groupIndex];
                           final conActividad = mostrarConActividad ? d.conActividad : 0;
                           final sinActividad = mostrarSinActividad ? d.sinActividad : 0;
                           final total = conActividad + sinActividad;
                           
                           return BarTooltipItem(
-                            'Actividad\n\n'  // Cambiado de d.dia a "Actividad"
+                            'Actividad\n\n'
                             '${mostrarConActividad ? 'Con actividad: ${d.conActividad.toStringAsFixed(1)} hrs\n' : ''}'
                             '${mostrarSinActividad ? 'Sin actividad: ${d.sinActividad.toStringAsFixed(1)} hrs\n' : ''}'
                             'Total: ${total.toStringAsFixed(1)} hrs',
@@ -186,13 +189,13 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
                       show: true,
                       drawVerticalLine: false,
                       getDrawingHorizontalLine: (value) => FlLine(
-                        color: Colors.grey.withOpacity(0.3),
+                        color: Colors.grey.withValues(alpha:  0.3),
                         strokeWidth: 1,
                       ),
                     ),
                     borderData: FlBorderData(
                       show: true,
-                      border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                      border: Border.all(color: Colors.grey.withValues(alpha:  0.3)),
                     ),
                   ),
                 ),
@@ -236,3 +239,6 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
     );
   }
 }
+  
+
+  

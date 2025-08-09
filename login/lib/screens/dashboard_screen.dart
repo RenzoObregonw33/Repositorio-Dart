@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:login/Apis/api_graphics_services.dart';
 import 'package:login/Models/datos_actividad.dart';
@@ -164,28 +165,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
           if (_isLoading)
             const LinearProgressIndicator(),
 
+          SizedBox(height: 8),
+
           // Gráfico reducido
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Container(
-                height: 250, // Altura reducida del gráfico
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8),
+              child: SizedBox( // Widget SizedBox para mantener el tamaño fijo
+                height: 500, // Altura original exacta
+                child: Stack(
+                  clipBehavior: Clip.none, // Importante: permite que los hijos se dibujen fuera de los límites
+                  children: [
+                    // Contenedor del gráfico (EXACTAMENTE igual que antes)
+                    Container(
+                      width: double.infinity, // Ocupa todo el ancho disponible
+                      height: 500, // Altura fija idéntica a la original
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: _buildCurrentGraph(), // Gráfico sin modificaciones
+                    ),
+                    
+                    // Botón flotante ABSOLUTO que no afecta el espacio del gráfico
+                    Positioned(
+                      bottom: 5, // Posición ligeramente fuera para no comprimir el gráfico
+                      right: -12,  // Posición ligeramente fuera para no comprimir el gráfico
+                      child: FloatingActionButton(
+                        mini: true,
+                        backgroundColor: Color(0xFFFBB347),
+                        elevation: 2,
+                        onPressed: _nextGraph,
+                        child: Icon(Icons.arrow_forward, color: Colors.black),
+                      ),
+                    ),
+                  ],
                 ),
-                child: _buildCurrentGraph(),
               ),
-            ),
-          ),
-
-          // Botón de cambio de gráfico con nuevo estilo
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: _buildCustomButton(
-              text: _getNextButtonText(),
-              onPressed: _nextGraph,
-              fullWidth: true,
             ),
           ),
         ],
@@ -202,11 +218,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       height: 50,
       width: fullWidth ? double.infinity : null,
       decoration: BoxDecoration(
-        color: Color(0xFFFBB347), // Amarillo medio
+        gradient: LinearGradient(
+            colors: [ Color(0xFFFFA528), Color(0xFFF77B09),],
+            stops: [0.1, 0.9],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ), // Amarillo medio
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha:  0.1),
             blurRadius: 2,
             offset: const Offset(0, 2),
           ),
@@ -263,7 +284,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  String _getNextButtonText() {
+  /*String _getNextButtonText() {
     final texts = [
       'Ver Gráfico de Embudo',
       'Ver Gráfico Donut',
@@ -276,7 +297,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'Ver Eficiencia'
     ];
     return texts[_currentGraphIndex % totalGraficos];
-  }
+  }*/
 
   void _nextGraph() {
     setState(() {

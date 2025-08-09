@@ -119,6 +119,52 @@ class ApiGraphicsService {
     }
   }
 
+  Future<Map<String, dynamic>> fetchDetalleDiarioEmpleados({
+    required DateTime fecha,
+    required int start,
+    required int limite,
+    required String orderColumn,
+    required String orderDir,
+    required String tipo,
+    String busq = "",
+    List<String>? datoEmpresarial, // opcional
+  }) async {
+
+    final body = {
+      'fecha': _formatDate(fecha),
+      'organi_id': organiId,
+      'start': start,
+      'limite': limite,
+      'order': [
+        {
+          'column': orderColumn,
+          'dir': orderDir,
+        }
+      ],
+      'tipo': tipo,
+      'busq': busq,
+      if (datoEmpresarial != null && datoEmpresarial.isNotEmpty)
+        'dato_empresarial': datoEmpresarial,
+    };
+
+    debugPrint('📤 Enviando Detalle Diario: ${jsonEncode(body)}');
+
+    final response = await http.post(
+      Uri.parse('$_baseUrl/api/dtel/detalleDiarioEmpleadosLumina'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': token,
+      },
+      body: jsonEncode(body),
+    );
+
+    print('✅ Response Detalle Diario: ${response.statusCode}');
+
+    return _processResponse(response);
+  }
+
+
   String _formatDate(DateTime date) {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }

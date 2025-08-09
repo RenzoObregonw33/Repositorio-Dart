@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:login/screens/dashboard_screen.dart';
+import 'package:login/screens/tabs_dashboard_screen.dart';
 //import 'package:login/screens/dashboard_screen.dart';  //Importa el paquete principal de Flutter con todos los widgets visuales.
 
 
@@ -148,7 +149,7 @@ class HomeScreem extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => DashboardScreen(
+                          builder: (context) => TabsDashboardScreen(
                             organiId: int.parse(org['id'].toString()),
                             token: token,
                           ),

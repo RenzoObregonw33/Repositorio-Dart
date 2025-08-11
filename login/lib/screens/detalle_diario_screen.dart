@@ -227,7 +227,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
               child: Text(
                 '${division.toStringAsFixed(1)}% completado',
                 style: TextStyle(
-                  color: Colors.grey[600],
+                  color: Colors.white,
                   fontSize: 12,
                 ),
               ),

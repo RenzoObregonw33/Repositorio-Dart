@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SelectorFechas extends StatelessWidget {
-  final DateTimeRange range;
+  final DateTimeRange? range;
   final Function(DateTimeRange?) onRangeSelected;
 
   const SelectorFechas({
@@ -14,29 +14,50 @@ class SelectorFechas extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 50),
-          backgroundColor: Color(0xFFFBB347), 
-          foregroundColor: Colors.black, // Texto negro
-          elevation: 1, // Sombra sutil
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-            side: BorderSide(
-              color: Colors.grey, // Borde gris claro
-              width: 1,
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFFFBB347), // Amarillo/naranja
+              Color(0xFFF77B09), // Rojo/naranja
+            ],
+            stops: [0.1, 0.9],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        onPressed: () => _selectDateRange(context),
-        child: Text(
-          range == null
-              ? 'Seleccionar rango de fechas'
-              : '${_formatDate(range.start)} - ${_formatDate(range.end)}',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(double.infinity, 50),
+            backgroundColor: Colors.transparent, // Fondo transparente
+            shadowColor: Colors.transparent, // Sin sombra del botón
+            foregroundColor: Colors.black, // Texto negro
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(
+                color: Colors.grey.withValues(alpha: 0.5), // Borde gris claro
+                width: 1,
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+          onPressed: () => _selectDateRange(context),
+          child: Text(
+            range == null
+                ? 'Seleccionar rango de fechas'
+                : '${_formatDate(range!.start)} - ${_formatDate(range!.end)}',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ),

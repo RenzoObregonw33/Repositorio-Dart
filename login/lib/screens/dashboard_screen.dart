@@ -1,11 +1,9 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:login/Apis/api_graphics_services.dart';
 import 'package:login/Models/datos_actividad.dart';
 import 'package:login/Models/datos_embudo.dart';
 import 'package:login/Models/filtro_data.dart';
 import 'package:login/widgets/grafico_actividad_diaria.dart';
-import 'package:login/widgets/grafico_barras_horas.dart';
 import 'package:login/widgets/grafico_distribucion_actividad.dart';
 import 'package:login/widgets/grafico_donut.dart';
 import 'package:login/widgets/grafico_eficiencia.dart';
@@ -38,10 +36,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _mostrarEmpleados = false;
   List<int> _empleadosSeleccionados = [];
   DateTimeRange? _dateRange;
-  double _eficiencia = 0;
+  double? _eficiencia;
   int _currentGraphIndex = 0;
-  double _productivas = 0;
-  double _noProductivas = 0;
+  double? _productivas;
+  double? _noProductivas;
   List<FunnelData> _funnelData = [];
   bool _isLoading = false;
   String? _error;
@@ -51,7 +49,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<HoraActividadPorcentajeData> _picosPorcentajeData = []; 
   Map<String, dynamic> _actividadDiaria = {}; 
   List<TopEmpleadoData> _topEmpleadosData = [];
-  final int totalGraficos = 9;
+  final int totalGraficos = 8;
 
   @override
   void initState() {
@@ -181,7 +179,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       width: double.infinity, // Ocupa todo el ancho disponible
                       height: 500, // Altura fija idéntica a la original
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade300),
+                        border: Border.all(color: Colors.transparent),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: _buildCurrentGraph(), // Gráfico sin modificaciones
@@ -193,7 +191,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       right: -12,  // Posición ligeramente fuera para no comprimir el gráfico
                       child: FloatingActionButton(
                         mini: true,
-                        backgroundColor: Color(0xFFFBB347),
+                        backgroundColor: Color(0xFFF77B09),
                         elevation: 2,
                         onPressed: _nextGraph,
                         child: Icon(Icons.arrow_forward, color: Colors.black),
@@ -256,17 +254,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildCurrentGraph() {
+    // Mostrar loading si aún no hay datos
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
     switch (_currentGraphIndex) {
-      case 0: return GraficoEficiencia(eficiencia: _eficiencia);
+      case 0: return GraficoEficiencia(eficiencia: _eficiencia!);
       case 1: return GraficoEmbudo(data: _funnelData);
-      case 2: return GraficoDonut(productivas: _productivas, noProductivas: _noProductivas);
-      case 3: return GraficoBarrasHoras(
-                programadas: _funnelData[0].value,
-                presencia: _funnelData[1].value,
-                productivas: _funnelData[2].value);
-      case 4: return GraficoDistribucionActividad(datos: _distribucionActividad);
-      case 5: return GraficoPicosActividad(labels: _picosLabels, valores: _picosValores);
-      case 6: 
+      case 2: return GraficoDonut(productivas: _productivas!, noProductivas: _noProductivas!);
+
+      case 3: return GraficoDistribucionActividad(datos: _distribucionActividad);
+      case 4: return GraficoPicosActividad(labels: _picosLabels, valores: _picosValores);
+      case 5: 
         final filteredData = <HoraActividadPorcentajeData>[];
         for (int i = 0; i < _picosLabels.length; i++) {
           final hour = int.parse(_picosLabels[i].split(':')[0]);
@@ -278,8 +277,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           }
         }
         return GraficoPicosPorcentaje(datos: _picosPorcentajeData);
-      case 7: return GraficoActividadDiaria(apiResponse: _actividadDiaria);
-      case 8: return GraficoTopEmpleados(data: _topEmpleadosData);
+      case 6: return GraficoActividadDiaria(apiResponse: _actividadDiaria);
+      case 7: return GraficoTopEmpleados(data: _topEmpleadosData);
       default: return const Center(child: Text('Gráfico no disponible'));
     }
   }

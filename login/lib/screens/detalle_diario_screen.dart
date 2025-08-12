@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:login/Apis/api_graphics_services.dart';
 import 'package:login/Models/filtro_data.dart';
-import 'package:login/widgets/selector_fechas.dart';
+import 'package:login/widgets/selector_fecha_simple.dart';
 import 'package:login/widgets/selector_filtros.dart';
 
 // Pantalla que muestra el detalle diario de empleados con filtros y búsqueda
@@ -26,7 +26,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
   List<dynamic> _empleados = []; // Lista de empleados
   String _errorMessage = ''; // Mensaje de error
   int _totalEmpleados = 0; // Total de empleados
-  DateTimeRange? _dateRange; // Rango de fechas seleccionado
+  DateTime _selectedDate = DateTime.now(); // Rango de fechas seleccionado
   bool _mostrarFiltros = false; // Mostrar/ocultar filtros
   List<GrupoFiltros> _filtrosEmpresariales = []; // Filtros aplicados
   String _tipoBusqueda = 'documento'; // Tipo de búsqueda (documento/nombre/apellido)
@@ -39,18 +39,11 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
   @override
   void initState() {
     super.initState();
-    // Inicializar servicio API con token y organización
     _apiService = ApiGraphicsService(
       token: widget.token,
       organiId: widget.organiId,
     );
-    // Establecer rango de fechas por defecto (desde inicio del día hasta ahora)
-    final now = DateTime.now();
-    _dateRange = DateTimeRange(
-      start: DateTime(now.year, now.month, now.day),
-      end: now,
-    );
-    // Cargar datos iniciales
+    _selectedDate = DateTime.now(); // Fecha actual por defecto
     _cargarDatos();
   }
 
@@ -64,7 +57,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     try {
       // Llamada a la API para obtener datos de empleados
       final response = await _apiService.fetchDetalleDiarioEmpleados(
-        fecha: _dateRange?.end ?? DateTime.now(),
+        fecha: _selectedDate, 
         start: _start,
         limite: _limite,
         orderColumn: _orderColumn,
@@ -135,16 +128,13 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
       body: Column(
         children: [
           // Selector de fechas
-          if (_dateRange != null)
-            SelectorFechas(
-              range: _dateRange!,
-              onRangeSelected: (newRange) {
-                if (newRange != null) {
-                  setState(() => _dateRange = newRange);
-                  _cargarDatos();
-                }
-              },
-            ),
+          SelectorFechaSimple(
+          selectedDate: _selectedDate,
+          onDateSelected: (newDate) {
+            setState(() => _selectedDate = newDate);
+            _cargarDatos();
+          },
+        ),
           
           // Botones de filtros
           Padding(

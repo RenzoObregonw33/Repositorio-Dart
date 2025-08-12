@@ -485,7 +485,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
           // Fila con nombre e ID
           Row(
             children: [
-              const Icon(Icons.person, color: Colors.white70, size: 20),
+              const Icon(Icons.person, color: Colors.white70, size: 24),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -496,16 +496,46 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                     fontSize: 16,
                   ),
                 ),
+                
               ),
             ],
           ),
+          const SizedBox(height: 6),
           
-          const Divider(color: Colors.white24), // Divisor
+          //Esta fila es provisional
+          Row(
+            children: [
+              Image.asset(
+                'assets/Icons/objetivo.png',
+                width: 16,
+                height: 16,
+                color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  "Ejecutivo Comercial",
+                  style: const TextStyle(
+                    color: Colors.white,    
+                    fontSize: 12,
+                  ),
+                ),
+                
+              ),
+            ],
+          ),
+
+          const Divider(color: Colors.white), // Divisor
 
           // Horario del empleado
           Row(
             children: [
-              const Icon(Icons.work_history, color: Colors.white70, size: 18),
+              Image.asset(
+                'assets/Icons/reloj.png',
+                width: 16,
+                height: 16,
+                color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+              ),
               const SizedBox(width: 8),
               Text(
                 horario,
@@ -513,35 +543,58 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
 
           // Horas de inicio y última actividad
           Row(
             children: [
-              const Icon(Icons.access_time, color: Colors.white70, size: 18),
+              Image.asset(
+                'assets/Icons/cronografo.png',
+                width: 16,
+                height: 16,
+                color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+              ),
               const SizedBox(width: 6),
               Text("Inicio: $inicio", style: const TextStyle(color: Colors.white)),
               const SizedBox(width: 12),
+              Image.asset(
+                'assets/Icons/cronografo.png',
+                width: 16,
+                height: 16,
+                color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+              ),
+              const SizedBox(width: 6),
               Text("Última: $ultima", style: const TextStyle(color: Colors.white)),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
 
           // Horas trabajadas
           Row(
             children: [
-              const Icon(Icons.timer, color: Colors.white70, size: 18),
+              Image.asset(
+                'assets/Icons/calendario.png',
+                width: 16,
+                height: 16,
+                color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+              ),
               const SizedBox(width: 6),
               Text("Horas trabajadas: $horasTrabajadas",
                   style: const TextStyle(color: Colors.white)),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
 
           // Barra de progreso de eficiencia
           Row(
             children: [
-              const Icon(Icons.bar_chart, color: Colors.white70, size: 18),
+              //const Icon(Icons.bar_chart, color: Colors.white70, size: 18),
+              Image.asset(
+                'assets/Icons/inversion.png',
+                width: 16,
+                height: 16,
+                color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+              ),
               const SizedBox(width: 6),
               Expanded(
                 child: ClipRRect(
@@ -561,7 +614,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           
           // Estado de productividad
           Row(

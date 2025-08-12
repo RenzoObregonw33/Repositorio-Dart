@@ -66,7 +66,11 @@ flutter:
 
   assets:
     - assets/Lumina2.png
-    - assets/MG.jpeg
+    - assets/Icons/inversion.png
+    - assets/Icons/cronografo.png
+    - assets/Icons/calendario.png
+    - assets/Icons/reloj.png
+    - assets/Icons/objetivo.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

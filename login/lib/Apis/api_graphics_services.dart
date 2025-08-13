@@ -17,6 +17,7 @@ class ApiGraphicsService {
     required DateTime fechaIni,
     required DateTime fechaFin,
     required int organiId,
+    String? filtroId,// ← Nuevo para cualquier tipo 2
     List<int>? empleadosIds, // Lista de IDs de empleados opcional
   }) async {
     // 1. Configuración automática del header
@@ -31,6 +32,8 @@ class ApiGraphicsService {
       'fecha_ini': _formatDate(fechaIni),
       'fecha_fin': _formatDate(fechaFin),
       'organi_id': organiId,
+      if (filtroId != null && filtroId.isNotEmpty)
+      'id': filtroId,
       if (empleadosIds != null && empleadosIds.isNotEmpty) 
       'empleados': empleadosIds,
     };
@@ -162,6 +165,50 @@ class ApiGraphicsService {
     print('✅ Response Detalle Diario: ${response.statusCode}');
 
     return _processResponse(response);
+  }
+
+  Future<Map<String, dynamic>> fetchData({
+    required DateTime fecha,
+    required int organiId,
+    required int idEmpleado,
+    int start = 0,
+    int limite = 10,
+    String orderColumn = 'inicioA',    // Nuevo parámetro con valor por defecto
+    String orderDir = 'asc',           // Nuevo parámetro con valor por defecto
+    String tipo = 'individual',
+  }) async {
+    
+      // Construir la URL con los parámetros requeridos
+    final url = Uri.parse('https://rhnube.com.pe/api/dtel/detalleDiarioEmpleado');
+    
+    // Realizar la petición POST con los parámetros en el body
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'fecha': _formatDate(fecha),
+        'organi_id': organiId,
+        'start': start,
+        'limite': limite,
+        'idEmpleado': idEmpleado,
+      }),
+    );
+    // Procesar la respuesta según el código de estado
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else if (response.statusCode == 401) {
+      throw Exception('Token inválido o ausente');
+    } else if (response.statusCode == 422) {
+      final errorData = json.decode(response.body);
+      throw Exception('Datos inválidos: ${errorData['message']}');
+    } else if (response.statusCode == 500) {
+      throw Exception('Error interno del servidor');
+    } else {
+      throw Exception('Error desconocido: ${response.statusCode}');
+    }
   }
 
 

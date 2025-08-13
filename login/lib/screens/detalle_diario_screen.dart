@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:login/Apis/api_graphics_services.dart';
 import 'package:login/Models/filtro_data.dart';
+import 'package:login/screens/diario_lista_screen.dart';
 import 'package:login/widgets/selector_fecha_simple.dart';
 import 'package:login/widgets/selector_filtros.dart';
 
@@ -121,6 +122,26 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     }
   }
 
+  void _navegarADetalleEmpleado(Map<String, dynamic> empleado) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Permite que la hoja ocupe casi toda la pantalla
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.9,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: DiarioEnListaScreen(
+          token: widget.token,
+          organiId: widget.organiId,
+          empleado: empleado,
+          fecha: _selectedDate,
+        ),
+      ),
+    );
+  }
    // Método para ejecutar la búsqueda
   void _ejecutarBusqueda() {
     if (!mounted) return; 
@@ -512,166 +533,171 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     }
 
     // Construir la tarjeta
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F2747), // Fondo azul oscuro
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white24, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Fila con nombre e ID
-          Row(
-            children: [
-              const Icon(Icons.person, color: Colors.white70, size: 24),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  nombreCompleto,
-                  style: const TextStyle(
-                    color: Colors.white,
+    return GestureDetector(
+      onTap: () {
+        _navegarADetalleEmpleado(empleado);
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F2747), // Fondo azul oscuro
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white24, width: 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Fila con nombre e ID
+            Row(
+              children: [
+                const Icon(Icons.person, color: Colors.white70, size: 24),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    nombreCompleto,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            
+            //Esta fila es provisional
+            Row(
+              children: [
+                Image.asset(
+                  'assets/Icons/objetivo.png',
+                  width: 16,
+                  height: 16,
+                  color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    "Ejecutivo Comercial",
+                    style: const TextStyle(
+                      color: Colors.white,    
+                      fontSize: 12,
+                    ),
+                  ),
+                  
+                ),
+              ],
+            ),
+      
+            const Divider(color: Colors.white), // Divisor
+      
+            // Horario del empleado
+            Row(
+              children: [
+                Image.asset(
+                  'assets/Icons/reloj.png',
+                  width: 16,
+                  height: 16,
+                  color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  horario,
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+      
+            // Horas de inicio y última actividad
+            Row(
+              children: [
+                Image.asset(
+                  'assets/Icons/cronografo.png',
+                  width: 16,
+                  height: 16,
+                  color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                ),
+                const SizedBox(width: 6),
+                Text("Inicio: $inicio", style: const TextStyle(color: Colors.white)),
+                const SizedBox(width: 12),
+                Image.asset(
+                  'assets/Icons/cronografo.png',
+                  width: 16,
+                  height: 16,
+                  color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                ),
+                const SizedBox(width: 6),
+                Text("Última: $ultima", style: const TextStyle(color: Colors.white)),
+              ],
+            ),
+            const SizedBox(height: 4),
+      
+            // Horas trabajadas
+            Row(
+              children: [
+                Image.asset(
+                  'assets/Icons/calendario.png',
+                  width: 16,
+                  height: 16,
+                  color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                ),
+                const SizedBox(width: 6),
+                Text("Horas trabajadas: $horasTrabajadas",
+                    style: const TextStyle(color: Colors.white)),
+              ],
+            ),
+            const SizedBox(height: 4),
+      
+            // Barra de progreso de eficiencia
+            Row(
+              children: [
+                //const Icon(Icons.bar_chart, color: Colors.white70, size: 18),
+                Image.asset(
+                  'assets/Icons/inversion.png',
+                  width: 16,
+                  height: 16,
+                  color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      value: division / 100,
+                      minHeight: 8,
+                      backgroundColor: Colors.white24,
+                      color: _getProgressColor(division),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "${division.toStringAsFixed(1)}%",
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            
+            // Estado de productividad
+            Row(
+              children: [
+                Icon(Icons.check_circle, color: colorEstado, size: 18),
+                const SizedBox(width: 6),
+                Text(
+                  "Estado: $estado",
+                  style: TextStyle(
+                    color: colorEstado,
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
                   ),
                 ),
-                
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          
-          //Esta fila es provisional
-          Row(
-            children: [
-              Image.asset(
-                'assets/Icons/objetivo.png',
-                width: 16,
-                height: 16,
-                color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  "Ejecutivo Comercial",
-                  style: const TextStyle(
-                    color: Colors.white,    
-                    fontSize: 12,
-                  ),
-                ),
-                
-              ),
-            ],
-          ),
-
-          const Divider(color: Colors.white), // Divisor
-
-          // Horario del empleado
-          Row(
-            children: [
-              Image.asset(
-                'assets/Icons/reloj.png',
-                width: 16,
-                height: 16,
-                color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
-              ),
-              const SizedBox(width: 8),
-              Text(
-                horario,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-
-          // Horas de inicio y última actividad
-          Row(
-            children: [
-              Image.asset(
-                'assets/Icons/cronografo.png',
-                width: 16,
-                height: 16,
-                color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
-              ),
-              const SizedBox(width: 6),
-              Text("Inicio: $inicio", style: const TextStyle(color: Colors.white)),
-              const SizedBox(width: 12),
-              Image.asset(
-                'assets/Icons/cronografo.png',
-                width: 16,
-                height: 16,
-                color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
-              ),
-              const SizedBox(width: 6),
-              Text("Última: $ultima", style: const TextStyle(color: Colors.white)),
-            ],
-          ),
-          const SizedBox(height: 4),
-
-          // Horas trabajadas
-          Row(
-            children: [
-              Image.asset(
-                'assets/Icons/calendario.png',
-                width: 16,
-                height: 16,
-                color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
-              ),
-              const SizedBox(width: 6),
-              Text("Horas trabajadas: $horasTrabajadas",
-                  style: const TextStyle(color: Colors.white)),
-            ],
-          ),
-          const SizedBox(height: 4),
-
-          // Barra de progreso de eficiencia
-          Row(
-            children: [
-              //const Icon(Icons.bar_chart, color: Colors.white70, size: 18),
-              Image.asset(
-                'assets/Icons/inversion.png',
-                width: 16,
-                height: 16,
-                color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: division / 100,
-                    minHeight: 8,
-                    backgroundColor: Colors.white24,
-                    color: _getProgressColor(division),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                "${division.toStringAsFixed(1)}%",
-                style: const TextStyle(color: Colors.white),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          
-          // Estado de productividad
-          Row(
-            children: [
-              Icon(Icons.check_circle, color: colorEstado, size: 18),
-              const SizedBox(width: 6),
-              Text(
-                "Estado: $estado",
-                style: TextStyle(
-                  color: colorEstado,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -691,3 +717,4 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     return Color(0xFFFF1A15); // Rojo
   }
 }
+

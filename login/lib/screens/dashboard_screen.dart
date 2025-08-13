@@ -319,6 +319,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           .map((f) => f.id)
           .toList();
       
+      debugPrint('Filtros seleccionados: $filtrosSeleccionados');
+      
       final data = await _graphicsService.fetchGraphicsData(
         fechaIni: _dateRange!.start,
         fechaFin: _dateRange!.end,

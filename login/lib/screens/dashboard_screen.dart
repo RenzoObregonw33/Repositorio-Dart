@@ -49,6 +49,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<HoraActividadPorcentajeData> _picosPorcentajeData = []; 
   Map<String, dynamic> _actividadDiaria = {}; 
   List<TopEmpleadoData> _topEmpleadosData = [];
+  bool _isDisposed = false;
   final int totalGraficos = 8;
 
   @override
@@ -64,6 +65,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -71,7 +78,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _dateRange != null ? _loadData : null,
+            onPressed: _dateRange != null ? () {
+              if (!mounted) return; // <-- Añadir aquí
+              _loadData();
+            } : null,
           ),
         ],
       ),
@@ -81,6 +91,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             range: _dateRange!,
             onRangeSelected: (newRange) {
               if (newRange != null) {
+                if (!mounted) return;
                 setState(() => _dateRange = newRange);
                 _loadData();
               }
@@ -126,7 +137,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: SelectorFiltros(
                   graphicsService: _graphicsService,
-                  onFiltrosChanged: (filtros) {
+                  onFiltrosChanged: (filtros) { 
+                    if (!mounted) return;
                     setState(() => _filtrosEmpresariales = filtros);
                     _loadData();
                   },
@@ -145,6 +157,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   empleadosSeleccionadosIniciales: _empleadosSeleccionados,
                   onError: (error) => setState(() => _error = error),
                   onEmpleadosSeleccionados: (empleadosIds) {
+                    if (!mounted) return;
                     setState(() => _empleadosSeleccionados = empleadosIds);
                     _loadData();
                   },
@@ -283,29 +296,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  /*String _getNextButtonText() {
-    final texts = [
-      'Ver Gráfico de Embudo',
-      'Ver Gráfico Donut',
-      'Ver Gráfico de Barras Horas',
-      'Ver Gráfico de Distribución',
-      'Ver Gráfico de Picos',
-      'Ver Gráfico de Porcentaje',    
-      'Ver Gráfico Diario',
-      'Ver Top Empleados',
-      'Ver Eficiencia'
-    ];
-    return texts[_currentGraphIndex % totalGraficos];
-  }*/
 
   void _nextGraph() {
+    if (!mounted) return;
     setState(() {
       _currentGraphIndex = (_currentGraphIndex + 1) % totalGraficos;
     });
   }
 
   Future<void> _loadData() async {
-    if (_dateRange == null) return;
+    if (_isDisposed || !mounted) return; 
 
     setState(() {
       _isLoading = true;
@@ -325,6 +325,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         organiId: widget.organiId,
         empleadosIds: _empleadosSeleccionados.isNotEmpty ? _empleadosSeleccionados : null,
       );
+
+      if (_isDisposed || !mounted) return; 
 
       setState(() {
         _eficiencia = double.parse(data['eficiencia']['resultado'].replaceAll(',', ''));
@@ -390,11 +392,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
       });
     } catch (e) {
-      setState(() {
-        _error = 'Error al cargar datos: ${e.toString()}';
-      });
+        if (!_isDisposed && mounted) { // <-- Verificación para errores
+        setState(() {
+          _error = 'Error al cargar datos: ${e.toString()}';
+        });
+      }
     } finally {
-      setState(() => _isLoading = false);
+        if (!_isDisposed && mounted) { // <-- Verificación final
+        setState(() => _isLoading = false);
+      }
     }
   }
 }

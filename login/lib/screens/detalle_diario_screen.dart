@@ -29,12 +29,14 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
   DateTime _selectedDate = DateTime.now(); // Rango de fechas seleccionado
   bool _mostrarFiltros = false; // Mostrar/ocultar filtros
   List<GrupoFiltros> _filtrosEmpresariales = []; // Filtros aplicados
-  String _tipoBusqueda = 'documento'; // Tipo de búsqueda (documento/nombre/apellido)
+  String _tipoBusqueda = 'emple_nDoc'; // Tipo de búsqueda (documento/nombre/apellido)
   String _textoBusqueda = ''; // Texto de búsqueda
+  final TextEditingController _busquedaController = TextEditingController(); // Controlador para el campo de búsqueda
   int _start = 0; // Índice de inicio para paginación
   final int _limite = 20; // Límite de resultados por página
-  String _orderColumn = 'nombre'; // Columna para ordenar
-  String _orderDir = 'asc'; // Dirección de orden (asc/desc)
+  final String _orderColumn = 'nombre'; // Columna para ordenar
+  final String _orderDir = 'asc'; // Dirección de orden (asc/desc)
+  bool _isDisposed = false;
 
   @override
   void initState() {
@@ -47,8 +49,16 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     _cargarDatos();
   }
 
+  @override
+    void dispose() {
+      _isDisposed = true;
+      _busquedaController.dispose(); // Importante: limpiar el controlador
+      super.dispose();
+    }
   // Método para cargar datos de empleados desde la API
   Future<void> _cargarDatos() async {
+    if (_isDisposed) return;
+
     setState(() {
       _cargando = true;
       _errorMessage = '';
@@ -66,10 +76,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
         busq: _textoBusqueda.trim().toUpperCase(),
       );
 
-      // Validar respuesta
-      if (response == null) {
-        throw Exception('Respuesta nula del servidor');
-      }
+      if (_isDisposed) return; 
 
       // Manejar errores de la API
       if (response['error'] != null) {
@@ -91,25 +98,49 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
       }
 
       // Actualizar estado con los datos recibidos
-      setState(() {
-        _empleados = response['data'] ?? [];
-        _totalEmpleados = response['recordsTotal'] ?? 0;
-        _cargando = false;
-      });
+      if (mounted) { // <-- Verificar si el widget está montado antes de setState
+        setState(() {
+          _empleados = response['data'] ?? [];
+          _totalEmpleados = response['recordsTotal'] ?? 0;
+          _cargando = false;
+        });
+      }
     } catch (e) {
-      // Manejar errores
-      setState(() {
-        _cargando = false;
-        if (e.toString().contains('500') && _textoBusqueda.isNotEmpty) {
-          _empleados = [];
-          _errorMessage = '';
-        } else {
-          _errorMessage = 'Error al cargar datos: ${e.toString().replaceAll('Exception: ', '')}';
-        }
-      });
+      //Manejo de errores
+      if (!_isDisposed && mounted) { // <-- Verificar antes de manejar errores
+        setState(() {
+          _cargando = false;
+          if (e.toString().contains('500') && _textoBusqueda.isNotEmpty) {
+            _empleados = [];
+            _errorMessage = '';
+          } else {
+            _errorMessage = 'Error al cargar datos: ${e.toString().replaceAll('Exception: ', '')}';
+          }
+        });
+      }
     }
   }
 
+   // Método para ejecutar la búsqueda
+  void _ejecutarBusqueda() {
+    if (!mounted) return; 
+    setState(() {
+      _textoBusqueda = _busquedaController.text;
+      _start = 0; // Reiniciar paginación al hacer nueva búsqueda
+    });
+    _cargarDatos();
+  }
+
+  // Método para limpiar la búsqueda
+  void _limpiarBusqueda() {
+    if (!mounted) return;
+    _busquedaController.clear();
+    setState(() {
+      _textoBusqueda = '';
+      _start = 0;
+    });
+    _cargarDatos();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,6 +162,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
           SelectorFechaSimple(
           selectedDate: _selectedDate,
           onDateSelected: (newDate) {
+            if (!mounted) return;
             setState(() => _selectedDate = newDate);
             _cargarDatos();
           },
@@ -178,18 +210,35 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
               children: [
                 Expanded(
                   child: TextField(
+                    controller: _busquedaController, // Usamos el controlador
                     decoration: InputDecoration(
                       hintText: 'Buscar empleados...',
                       prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      suffixIcon: _textoBusqueda.isNotEmpty 
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: _limpiarBusqueda,
+                            )
+                          : null,
                     ),
-                    onChanged: (value) {
-                      _textoBusqueda = value;
-                      _cargarDatos();
-                    },
+                    onSubmitted: (_) => _ejecutarBusqueda(), // Buscar al presionar enter
                   ),
+                ),
+                const SizedBox(width: 8),
+                // Botón de búsqueda
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                  ),
+                  onPressed: _ejecutarBusqueda,
+                  child: Text('Buscar', style: TextStyle(color: Colors.black),),
                 ),
                 const SizedBox(width: 8),
                 // Selector de tipo de búsqueda
@@ -197,11 +246,11 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   value: _tipoBusqueda,
                   items: const [
                     DropdownMenuItem(
-                      value: 'documento',
+                      value: 'emple_nDoc',
                       child: Text('Documento'),
                     ),
                     DropdownMenuItem(
-                      value: 'nombre',
+                      value: 'perso_nombre',
                       child: Text('Nombre'),
                     ),
                     DropdownMenuItem(
@@ -210,9 +259,11 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                     ),
                   ],
                   onChanged: (value) {
-                    if (value != null) {
+                    if (value != null && mounted) {
                       setState(() => _tipoBusqueda = value);
-                      _cargarDatos();
+                      if (_textoBusqueda.isNotEmpty) {
+                        _ejecutarBusqueda();
+                      }
                     }
                   },
                 ),
@@ -222,7 +273,14 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
 
           // Contenido principal (lista de empleados)
           Expanded(
-            child: _buildBody(),
+            child: Column(
+              children: [
+                _buildLeyendaProductividad(),
+                Expanded(
+                  child: _buildBody(),
+                ),
+              ],
+            ),
           ),
 
           // Controles de paginación
@@ -344,12 +402,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
             // Botón para limpiar búsqueda
             if (_textoBusqueda.isNotEmpty)
               TextButton(
-                onPressed: () {
-                  setState(() {
-                    _textoBusqueda = '';
-                  });
-                  _cargarDatos();
-                },
+                onPressed: _limpiarBusqueda,        
                 child: const Text('Limpiar búsqueda'),
               ),
           ],
@@ -360,7 +413,6 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     // Mostrar lista de empleados
     return Column(
       children: [
-        _buildResumen(), // Resumen de resultados
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.all(8),
@@ -375,58 +427,57 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     );
   }
 
-  // Widget para el resumen de resultados
-  Widget _buildResumen() {
+  // Agrega este nuevo método para construir la leyenda
+  Widget _buildLeyendaProductividad() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: BorderSide.strokeAlignCenter, vertical: 4),
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F2747), // Color de fondo azul oscuro
+        color: const Color(0xFF0F2747),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey[600]!),
+        border: Border.all(color: Colors.white24),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildResumenItem('Total', _totalEmpleados.toString()),
-          _buildResumenItem('Mostrando', '${_start + 1}-${_start + _empleados.length}'),
-          _buildResumenItem('Búsqueda por', _getTipoBusquedaText()),
+          _buildItemLeyenda(
+            color: const Color(0xFF2DC70D),
+            texto: 'Alta',
+          ),
+          const SizedBox(width: 16),
+          _buildItemLeyenda(
+            color: const Color(0xFFFE9717),
+            texto: 'Media',
+          ),
+          const SizedBox(width: 16),
+          _buildItemLeyenda(
+            color: const Color(0xFFFF1A15),
+            texto: 'Baja',
+          ),
         ],
       ),
     );
   }
 
-  // Obtener texto descriptivo del tipo de búsqueda
-  String _getTipoBusquedaText() {
-    switch (_tipoBusqueda) {
-      case 'documento':
-        return 'Documento';
-      case 'nombre':
-        return 'Nombre';
-      case 'apellido':
-        return 'Apellido';
-      default:
-        return _tipoBusqueda;
-    }
-  }
-
-  // Widget para ítems del resumen
-  Widget _buildResumenItem(String label, String value) {
-    return Column(
+  // Método auxiliar simplificado
+  Widget _buildItemLeyenda({required Color color, required String texto}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.white,
+        Container(
+          width: 20,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
+        const SizedBox(width: 6),
         Text(
-          value,
+          texto,
           style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: 14,
           ),
         ),
       ],
@@ -622,37 +673,6 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  // Método auxiliar para construir filas de información
-  Widget _buildInfoRow(IconData icon, String label, String value, Color color) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, size: 16, color: color),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
     );
   }
 

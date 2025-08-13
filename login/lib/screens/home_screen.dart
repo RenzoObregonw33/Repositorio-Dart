@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:login/screens/dashboard_screen.dart';
 import 'package:login/screens/tabs_dashboard_screen.dart';
 //import 'package:login/screens/dashboard_screen.dart';  //Importa el paquete principal de Flutter con todos los widgets visuales.
 

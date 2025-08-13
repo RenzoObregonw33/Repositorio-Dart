@@ -129,7 +129,7 @@ class ApiGraphicsService {
     String busq = "",
     List<String>? datoEmpresarial, // opcional
   }) async {
-
+    
     final body = {
       'fecha': _formatDate(fecha),
       'organi_id': organiId,

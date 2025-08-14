@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:login/Apis/api_graphics_services.dart';
+import 'package:login/widgets/grafico_diario_extend.dart';
 
 class DiarioEnListaScreen extends StatefulWidget {
   final String token;
@@ -223,7 +223,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
 
   Widget _buildResumenTab() {
     final lista = _responseData!['lista']['data'];
-    final grafico = _responseData!['grafico']['actividad_ultimos_dias'];
+    //final grafico = _responseData!['grafico']['actividad_ultimos_dias'];
 
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
@@ -278,55 +278,10 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
               SizedBox(height: 20),
 
               // Gráfico de líneas
-              Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Color(0xFF1E2A38),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                height: 200,
-                child: LineChart(
-                  LineChartData(
-                    gridData: FlGridData(show: false),
-                    titlesData: FlTitlesData(
-                      leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, meta) {
-                            final index = value.toInt();
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 4.0),
-                              child: Text(
-                                grafico['labels'][index],
-                                style: TextStyle(color: Colors.white, fontSize: 10),
-                              ),
-                            );
-                          },
-                          interval: 1,
-                        ),
-                      ),
-                    ),
-                    borderData: FlBorderData(show: false),
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: List.generate(
-                          grafico['labels'].length,
-                          (i) => FlSpot(
-                            i.toDouble(), 
-                            double.parse(grafico['series']['Total'][i])
-                          ),
-                        ),
-                        isCurved: true,
-                        color: Colors.blueAccent,
-                        barWidth: 3,
-                        dotData: FlDotData(show: false),
-                        belowBarData: BarAreaData(show: false),
-                      ),
-                    ],
-                  ),
-                ),
+              GraficoDiarioExtend(
+                graficoData: _responseData!['grafico'],
               ),
+              
               SizedBox(height: 20),
 
               // Lista de actividades
@@ -381,33 +336,52 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
         children: [
           Text(
             item['nombre_actividad'],
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'inter'),
           ),
           SizedBox(height: 5),
           Row(
             children: [
-              Icon(Icons.play_arrow, size: 16, color: Colors.green),
-              Text(item['inicioA'], style: TextStyle(fontSize: 12, color: Colors.black)),
-              SizedBox(width: 10),
-              Icon(Icons.stop, size: 16, color: Colors.red),
-              Text(item['ultimaA'], style: TextStyle(fontSize: 12, color: Colors.black)),
-              SizedBox(width: 10),
-              Icon(Icons.access_time, size: 16, color: Colors.purple ,),
-              Text(item['tiempoTranscurrido'], style: TextStyle(fontSize: 12, color: Colors.black)),
+              Icon(Icons.door_front_door_rounded, size: 20, color: Colors.green),
+              Text(item['inicioA'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)),
+              SizedBox(width: 30),
+              Icon(Icons.door_back_door_rounded, size: 20, color: Colors.red),
+              Text(item['ultimaA'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)),            
             ],
           ),
-          SizedBox(height: 8),
-          LinearProgressIndicator(
-            value: porcentaje / 100,
-            color: _getColorEficiencia(porcentaje),
-            backgroundColor: Colors.grey[300],
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              "${porcentaje.toStringAsFixed(1)}%",
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.timer, size: 20, color: Colors.blue[900],),
+                  Text(item['tiempoTranscurrido'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)),
+                ]
+              ),
+              Container(
+                width: 200,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      "${porcentaje.toStringAsFixed(1)}%",
+                      style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black, fontSize: 20),
+                    ),
+                    Container(
+                      width: 200,
+                      height: 18,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: LinearProgressIndicator(
+                          value: porcentaje / 100,
+                          color: _getColorEficiencia(porcentaje),
+                          backgroundColor: Colors.grey[300],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -464,6 +438,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontFamily: 'inter'
             ),
           ),
           if (evento['imagen'] != null && evento['imagen'].isNotEmpty) ...[
@@ -520,9 +495,10 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
   }
 
   Color _getColorEficiencia(double eficiencia) {
-    if (eficiencia >= 50) return Colors.green;
+    if (eficiencia >= 90) return Color(0xFF0868FB);
+    if (eficiencia >= 50) return Color(0xFF2BCA07);
     if (eficiencia >= 30) return Colors.orange;
-    return Colors.red;
+    return Color(0xFFFF1A15);
   }
 
   String _getMonthName(int month) {

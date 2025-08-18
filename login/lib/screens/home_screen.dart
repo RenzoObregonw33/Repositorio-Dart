@@ -53,7 +53,7 @@ class HomeScreem extends StatelessWidget {
                     CircleAvatar(
                       radius: 30,
                       backgroundColor: Colors.grey[300], // Color de fondo si no hay imagen
-                      child: fotoUrl != null && fotoUrl.isNotEmpty && fotoUrl != 'null'
+                      child: fotoUrl.isNotEmpty && fotoUrl != 'null'
                           ? ClipOval(
                               child: Image.network(
                                 fotoUrl,

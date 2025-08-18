@@ -14,6 +14,7 @@ import 'package:login/widgets/grafico_top_empleados.dart';
 import 'package:login/widgets/selector_empleados.dart';
 import 'package:login/widgets/selector_fechas.dart';
 import 'package:login/widgets/selector_filtros.dart';
+import 'package:login/widgets/lumina.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String token;
@@ -269,7 +270,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildCurrentGraph() {
     // Mostrar loading si aún no hay datos
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Lumina(
+              assetPath: 'assets/imagen/lumina.png',
+              duracion: const Duration(milliseconds: 1500),
+              size: 300,
+            ),
+          ],
+        ),
+      );
     }
     switch (_currentGraphIndex) {
       case 0: return GraficoEficiencia(eficiencia: _eficiencia!);
@@ -332,6 +344,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       setState(() {
         _eficiencia = double.parse(data['eficiencia']['resultado'].replaceAll(',', ''));
+
+        final embudoProcesos = data['embudo_procesos'] ?? {};
+        _productivas = (embudoProcesos['productivas'] ?? 0).toDouble();
+        _noProductivas = (embudoProcesos['no_productivas'] ?? 0).toDouble();
         
         final comparativo = data['comparativo_horas'] ?? {};
         _productivas = (comparativo['productivas'] ?? 0).toDouble();

@@ -4,6 +4,7 @@ import 'package:login/Models/filtro_data.dart';
 import 'package:login/screens/diario_lista_screen.dart';
 import 'package:login/widgets/selector_fecha_simple.dart';
 import 'package:login/widgets/selector_filtros.dart';
+import 'package:login/widgets/lumina.dart';
 
 // Pantalla que muestra el detalle diario de empleados con filtros y búsqueda
 class DetalleDiarioScreen extends StatefulWidget {
@@ -393,7 +394,18 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
   Widget _buildBody() {
     // Mostrar indicador de carga
     if (_cargando) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Lumina(
+              assetPath: 'assets/imagen/lumina.png', // Ruta a tu imagen de carga
+              duracion: const Duration(milliseconds: 1500),
+              size: 300,
+            ),
+          ],
+        ),
+      );
     }
 
     // Mostrar mensaje de error si existe
@@ -544,6 +556,14 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
           color: const Color(0xFF0F2747), // Fondo azul oscuro
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.white24, width: 1),
+          boxShadow: [
+            BoxShadow(
+            color: Colors.white,
+            blurRadius: 2,
+            spreadRadius: 2,
+            offset: Offset(0, 2)
+            )
+          ]
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

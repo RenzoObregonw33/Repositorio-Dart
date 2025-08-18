@@ -71,7 +71,7 @@ flutter:
     - assets/Icons/calendario.png
     - assets/Icons/reloj.png
     - assets/Icons/objetivo.png
-
+    - assets/imagen/lumina.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

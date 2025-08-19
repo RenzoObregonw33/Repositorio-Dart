@@ -37,6 +37,10 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
   int _totalRecords = 0;
   bool _hasMoreData = true;
   ScrollController _scrollController = ScrollController();
+  // NUEVAS VARIABLES PARA TIMELINE (AGREGA ESTAS 3)
+  List<dynamic> _timelineCompleta = [];
+  bool _cargandoTimeline = false;
+  String _errorTimeline = '';
 
   @override
   void initState() {
@@ -107,6 +111,43 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
     }
   }
 
+  // NUEVO MÉTODO - AGREGA ESTO EN CUALQUIER PARTE DE LA CLASE
+  Future<void> _cargarTimelineCompleta() async {
+    if (_cargandoTimeline) return;
+    
+    setState(() {
+      _cargandoTimeline = true;
+      _errorTimeline = '';
+    });
+
+    try {
+      final response = await _apiService.fetchData(
+        fecha: widget.fecha,
+        organiId: widget.organiId,
+        start: 0,
+        limite: 500, // Número grande para obtener TODOS los registros
+        orderColumn: 'inicioA',
+        orderDir: 'asc',
+        tipo: 'individual',
+        idEmpleado: widget.empleado['idEmpleado'],
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _timelineCompleta = response['data']['linea_tiempo']['data'] ?? [];
+        _cargandoTimeline = false;
+        print('✅ Timeline cargada: ${_timelineCompleta.length} eventos');
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _cargandoTimeline = false;
+        _errorTimeline = 'Error al cargar timeline: ${e.toString()}';
+      });
+    }
+  }
+
   Future<void> _cargarMasDatos() async {
     if (!_hasMoreData) return;
 
@@ -152,6 +193,8 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
   }
 
   Widget _buildPaginationControls() {
+    
+
     if (_responseData == null || _totalRecords <= _limite) {
       return SizedBox.shrink();
     }
@@ -403,8 +446,64 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
   }
 
   Widget _buildLineaTiempoTab() {
-    return LineaTiempoWidget(
+    if (_responseData == null || 
+        _responseData!['linea_tiempo'] == null || 
+        _responseData!['linea_tiempo']['data'] == null) {
+      return const Center(
+        child: Text(
+          'No hay datos de línea de tiempo disponibles',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+    if (_timelineCompleta.isEmpty && !_cargandoTimeline && _errorTimeline.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _cargarTimelineCompleta();
+      });
+    
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(color: Colors.white),
+            SizedBox(height: 10),
+            Text('Cargando línea de tiempo...', style: TextStyle(color: Colors.white)),
+          ],
+        ),
+      );
+    }
+
+    if (_cargandoTimeline) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(color: Colors.white),
+            SizedBox(height: 10),
+            Text('Cargando línea de tiempo...', 
+                style: TextStyle(color: Colors.white)),
+          ],
+        ),
+      );
+    }
+    
+    if (_errorTimeline.isNotEmpty) {
+      return Center(
+        child: Text(_errorTimeline, style: TextStyle(color: Colors.red)),
+      );
+    }
+
+    if (_timelineCompleta.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay datos de línea de tiempo',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+    return TimelineScreen(
       eventos: _responseData!['linea_tiempo']['data'],
+      baseImageUrl: 'https://https://rhnube.com.pe/mostrarMiniatura', // Reemplaza con tu URL base real
     );
   }
 

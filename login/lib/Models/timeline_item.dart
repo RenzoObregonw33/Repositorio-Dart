@@ -31,17 +31,19 @@ class TimelineItem {
 
   factory TimelineItem.fromJson(Map<String, dynamic> json) {
     return TimelineItem(
-      idEmpleado: json['idEmpleado'],
-      nombre: json['nombre'],
-      apPaterno: json['apPaterno'],
-      apMaterno: json['apMaterno'],
-      nombreActividad: json['nombre_actividad'],
-      tiempoT: json['tiempoT'],
-      division: json['division'],
-      ultimaA: json['ultimaA'],
-      inicioA: json['inicioA'],
-      totalActividad: json['totalActividad'],
-      imagenes: (json['imagen'] as List).map((i) => Imagen.fromJson(i)).toList(),
+      idEmpleado: json['idEmpleado'] ?? 0,
+      nombre: json['nombre'] ?? '',
+      apPaterno: json['apPaterno'] ?? '',
+      apMaterno: json['apMaterno'] ?? '',
+      nombreActividad: json['nombre_actividad'] ?? '',
+      tiempoT: json['tiempoT'] ?? 0,
+      division: json['division']?.toString() ?? '0.00',
+      ultimaA: json['ultimaA'] ?? '',
+      inicioA: json['inicioA'] ?? '',
+      totalActividad: json['totalActividad'] ?? 0,
+      imagenes: (json['imagen'] as List<dynamic>?)
+          ?.map((i) => Imagen.fromJson(i))
+          .toList() ?? [],
       color: _getRandomColor(),
     );
   }
@@ -70,9 +72,72 @@ class Imagen {
 
   factory Imagen.fromJson(Map<String, dynamic> json) {
     return Imagen(
-      idImagen: json['idImagen'],
-      miniatura: json['miniatura'],
-      imagenGrande: json['imagen_grande'],
+      idImagen: json['idImagen'] ?? 0,
+      miniatura: json['miniatura'] ?? '',
+      imagenGrande: json['imagen_grande'] ?? '',
     );
   }
+}
+
+enum ItemPosition { left, right }
+
+class EnhancedChainTimelinePainter extends CustomPainter {
+  final int itemCount;
+  final double itemHeight;
+
+  EnhancedChainTimelinePainter({
+    required this.itemCount,
+    required this.itemHeight,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..strokeWidth = 4.0
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    const double centerX = 200.0;
+    const double curveIntensity = 200.0;
+
+    for (int i = 0; i < itemCount - 1; i++) {
+      final double y = i * itemHeight + itemHeight / 2;
+      final double nextY = (i + 1) * itemHeight + itemHeight / 2;
+      
+      final gradient = LinearGradient(
+        colors: [
+          Colors.blueAccent.withOpacity(0.8),
+          const Color(0xFF1F3A5F).withOpacity(0.8),
+          Colors.blue.withOpacity(0.8),
+        ],
+        stops: const [0.0, 0.5, 1.0],
+      );
+      
+      paint.shader = gradient.createShader(
+        Rect.fromLTWH(0, y, size.width, nextY - y),
+      );
+      
+      final path = Path();
+      path.moveTo(centerX, y);
+      
+      if (i % 2 == 0) {
+        path.cubicTo(
+          centerX + curveIntensity, y + (nextY - y) * 0.01,
+          centerX + curveIntensity, y + (nextY - y) * 1,
+          centerX, nextY,
+        );
+      } else {
+        path.cubicTo(
+          centerX - curveIntensity, y + (nextY - y) * 0.01,
+          centerX - curveIntensity, y + (nextY - y) * 1,
+          centerX, nextY,
+        );
+      }
+      
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

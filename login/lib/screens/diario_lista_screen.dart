@@ -1,15 +1,16 @@
+import 'dart:math' as Math;
 import 'package:flutter/material.dart';
 import 'package:login/Apis/api_graphics_services.dart';
 import 'package:login/widgets/grafico_diario_extend.dart';
 import 'package:login/widgets/linea_de_tiempo.dart';
 import 'package:login/widgets/lumina.dart';
 
-
+// Clase principal para la pantalla de Diario en Lista
 class DiarioEnListaScreen extends StatefulWidget {
-  final String token;
-  final int organiId;
-  final Map<String, dynamic> empleado;
-  final DateTime fecha;
+  final String token; // Token de autenticación
+  final int organiId; // ID de la organización
+  final Map<String, dynamic> empleado; // Información del empleado
+  final DateTime fecha; // Fecha para la consulta
 
   const DiarioEnListaScreen({
     Key? key,
@@ -26,56 +27,63 @@ class DiarioEnListaScreen extends StatefulWidget {
 class _DiarioEnListaScreenState extends State<DiarioEnListaScreen> 
     with SingleTickerProviderStateMixin {
   
-  late ApiGraphicsService _apiService;
-  late TabController _tabController;
-  bool _cargando = true;
-  Map<String, dynamic>? _responseData;
-  String _errorMessage = '';
-  final int _limite = 10;
-  int _start = 0;
-  int _currentPage = 1;
-  int _totalRecords = 0;
-  bool _hasMoreData = true;
-  ScrollController _scrollController = ScrollController();
-  // NUEVAS VARIABLES PARA TIMELINE (AGREGA ESTAS 3)
-  List<dynamic> _timelineCompleta = [];
-  bool _cargandoTimeline = false;
-  String _errorTimeline = '';
+  late ApiGraphicsService _apiService; // Servicio para la API
+  late TabController _tabController; // Controlador para las pestañas
+  bool _cargando = true; // Estado de carga
+  Map<String, dynamic>? _responseData; // Datos de respuesta de la API
+  String _errorMessage = ''; // Mensaje de error
+  final int _limite = 10; // Límite de registros por página
+  int _start = 0; // Índice de inicio para la paginación
+  int _currentPage = 1; // Página actual
+  int _totalRecords = 0; // Total de registros disponibles
+  bool _hasMoreData = true; // Indica si hay más datos para cargar
+  ScrollController _scrollController = ScrollController(); // Controlador de desplazamiento
 
   @override
   void initState() {
     super.initState();
+    // Inicializa el servicio de API con el token y el ID de la organización
     _apiService = ApiGraphicsService(
       token: widget.token,
       organiId: widget.organiId,
     );
+    // Inicializa el controlador de pestañas
     _tabController = TabController(length: 2, vsync: this);
+    // Agrega un listener al controlador de desplazamiento
     _scrollController.addListener(_scrollListener);
+    // Carga los datos iniciales
     _cargarDatos();
   }
 
+  // Listener para el desplazamiento
   void _scrollListener() {
+    // Verifica si se ha llegado al final de la lista
     if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
+      // Carga más datos si hay más disponibles y no se está cargando
       if (_hasMoreData && !_cargando) {
         _cargarMasDatos();
       }
     }
   }
 
+  // Método para cargar datos desde la API
   Future<void> _cargarDatos({bool reset = false}) async {
     if (reset) {
+      // Reinicia la paginación si se solicita
       _start = 0;
       _currentPage = 1;
       _hasMoreData = true;
+      _responseData = null; // Resetea los datos de respuesta
     }
 
     setState(() {
-      _cargando = true;
-      _errorMessage = '';
+      _cargando = true; // Indica que se está cargando
+      _errorMessage = ''; // Resetea el mensaje de error
     });
 
     try {
+      // Realiza la llamada a la API para obtener datos
       final response = await _apiService.fetchData(
         fecha: widget.fecha,
         organiId: widget.organiId,
@@ -87,144 +95,113 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
         idEmpleado: widget.empleado['idEmpleado'],
       );
 
-      if (!mounted) return;
+      if (!mounted) return; // Verifica si el widget sigue montado
 
       setState(() {
+        // SIEMPRE reemplaza los datos en lugar de concatenarlos
         if (reset || _responseData == null) {
           _responseData = response['data'];
         } else {
-          // Concatenar los nuevos datos con los existentes
-          _responseData!['lista']['data'].addAll(response['data']['lista']['data']);
-          _responseData!['linea_tiempo']['data'].addAll(response['data']['linea_tiempo']['data']);
+          // Para navegación con botones: REEMPLAZA los datos
+          _responseData = response['data'];
         }
-
+        
         _totalRecords = response['data']['lista']['recordsTotal'] ?? 0;
-        _hasMoreData = _responseData!['lista']['data'].length < _totalRecords;
+        _hasMoreData = _start + _limite < _totalRecords; // ← Corrección importante
         _cargando = false;
       });
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted) return; // Verifica si el widget sigue montado
       setState(() {
-        _cargando = false;
-        _errorMessage = 'Error al cargar datos: ${e.toString()}';
+        _cargando = false; // Finaliza la carga
+        _errorMessage = 'Error al cargar datos: ${e.toString()}'; // Asigna el mensaje de error
       });
     }
   }
 
-  // NUEVO MÉTODO - AGREGA ESTO EN CUALQUIER PARTE DE LA CLASE
-  Future<void> _cargarTimelineCompleta() async {
-    if (_cargandoTimeline) return;
-    
-    setState(() {
-      _cargandoTimeline = true;
-      _errorTimeline = '';
-    });
-
-    try {
-      final response = await _apiService.fetchData(
-        fecha: widget.fecha,
-        organiId: widget.organiId,
-        start: 0,
-        limite: 500, // Número grande para obtener TODOS los registros
-        orderColumn: 'inicioA',
-        orderDir: 'asc',
-        tipo: 'individual',
-        idEmpleado: widget.empleado['idEmpleado'],
-      );
-
-      if (!mounted) return;
-
-      setState(() {
-        _timelineCompleta = response['data']['linea_tiempo']['data'] ?? [];
-        _cargandoTimeline = false;
-        print('✅ Timeline cargada: ${_timelineCompleta.length} eventos');
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _cargandoTimeline = false;
-        _errorTimeline = 'Error al cargar timeline: ${e.toString()}';
-      });
-    }
-  }
-
+  // Método para cargar más datos
   Future<void> _cargarMasDatos() async {
-    if (!_hasMoreData) return;
+    if (!_hasMoreData) return; // Si no hay más datos, no hace nada
 
     setState(() {
-      _start += _limite;
-      _currentPage++;
+      _start += _limite; // Incrementa el índice de inicio
+      _currentPage++; // Incrementa la página actual
     });
 
-    await _cargarDatos();
+    await _cargarDatos(); // Carga los nuevos datos
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
-    _scrollController.dispose();
+    _tabController.dispose(); // Libera el controlador de pestañas
+    _scrollController.dispose(); // Libera el controlador de desplazamiento
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.black, // Color de fondo
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.black, // Color de fondo de la AppBar
         title: Text(
           'Diario en Lista',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white), // Color del texto
         ),
         bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.blueAccent,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.grey,
+          controller: _tabController, // Controlador de pestañas
+          indicatorColor: Colors.blueAccent, // Color del indicador
+          labelColor: Colors.white, // Color de la etiqueta seleccionada
+          unselectedLabelColor: Colors.grey, // Color de la etiqueta no seleccionada
           tabs: const [
-            Tab(text: 'Diario en Línea'),
-            Tab(text: 'Línea de Tiempo'),
+            Tab(text: 'Diario en Línea'), // Primera pestaña
+            Tab(text: 'Línea de Tiempo'), // Segunda pestaña
           ],
         ),
       ),
-      body: _buildBody(),
-      bottomNavigationBar: _buildPaginationControls(),
+      body: _buildBody(), // Cuerpo de la pantalla
+      bottomNavigationBar: _buildPaginationControls(), // Controles de paginación
     );
   }
 
+  // Método para construir los controles de paginación
   Widget _buildPaginationControls() {
-    
-
     if (_responseData == null || _totalRecords <= _limite) {
-      return SizedBox.shrink();
+      return SizedBox.shrink(); // Si no hay datos, no muestra controles
     }
 
     return Container(
-      color: Colors.black,
-      padding: EdgeInsets.symmetric(vertical: 8),
+      color: Colors.black, // Color de fondo
+      padding: EdgeInsets.symmetric(vertical: 8), // Espaciado vertical
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center, // Centra los controles
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: Icon(Icons.arrow_back, color: Colors.white), // Botón de retroceso
             onPressed: _currentPage > 1
-                ? () {
-                    setState(() {
-                      _start = (_currentPage - 2) * _limite;
-                      _currentPage--;
-                    });
-                    _cargarDatos(reset: true);
-                  }
-                : null,
-          ),
+                ? () async {
+                  setState(() {
+                    _start = Math.max(0, _start - _limite); // Retrocede correctamente
+                    _currentPage--;
+                  });
+                  await _cargarDatos(); // Llama sin reset: true
+                }
+              : null,
+        ),
           Text(
-            'Página $_currentPage de ${(_totalRecords / _limite).ceil()}',
-            style: TextStyle(color: Colors.white),
+            'Página $_currentPage de ${(_totalRecords / _limite).ceil()}', // Muestra la página actual
+            style: TextStyle(color: Colors.white), // Color del texto
           ),
           IconButton(
             icon: Icon(Icons.arrow_forward, color: Colors.white),
             onPressed: _hasMoreData
-                ? () => _cargarMasDatos()
+                ? () async {
+                    setState(() {
+                      _start += _limite; // Avanza correctamente
+                      _currentPage++;
+                    });
+                    await _cargarDatos(); // Llama sin reset: true
+                  }
                 : null,
           ),
         ],
@@ -232,6 +209,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
     );
   }
 
+  // Método para construir el cuerpo de la pantalla
   Widget _buildBody() {
     if (_cargando && _responseData == null) {
       return Center(
@@ -240,8 +218,8 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
           children: [
             Lumina(
               assetPath: 'assets/imagen/lumina.png', // Ruta a tu imagen de carga
-              duracion: const Duration(milliseconds: 1500),
-              size: 300,
+              duracion: const Duration(milliseconds: 1500), // Duración de la animación
+              size: 300, // Tamaño de la imagen
             ),
           ],
         ),
@@ -251,8 +229,8 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
     if (_errorMessage.isNotEmpty) {
       return Center(
         child: Text(
-          _errorMessage,
-          style: TextStyle(color: Colors.red),
+          _errorMessage, // Muestra el mensaje de error
+          style: TextStyle(color: Colors.red), // Color del texto
         ),
       );
     }
@@ -260,14 +238,14 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
     if (_responseData == null) {
       return Center(
         child: Text(
-          'No hay datos disponibles',
-          style: TextStyle(color: Colors.white),
+          'No hay datos disponibles', // Mensaje cuando no hay datos
+          style: TextStyle(color: Colors.white), // Color del texto
         ),
       );
     }
 
     return TabBarView(
-      controller: _tabController,
+      controller: _tabController, // Controlador de pestañas
       children: [
         // Primer Tab: Resumen (Gráfico + Lista)
         _buildResumenTab(),
@@ -278,42 +256,43 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
     );
   }
 
+  // Método para construir la pestaña de resumen
   Widget _buildResumenTab() {
-    final lista = _responseData!['lista']['data'];
-    //final grafico = _responseData!['grafico']['actividad_ultimos_dias'];
+    final lista = _responseData!['lista']['data']; // Obtiene la lista de actividades
 
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
+        // Verifica si se ha llegado al final de la lista
         if (scrollNotification is ScrollEndNotification &&
             _scrollController.position.pixels ==
                 _scrollController.position.maxScrollExtent) {
           if (_hasMoreData && !_cargando) {
-            _cargarMasDatos();
+            _cargarMasDatos(); // Carga más datos
           }
         }
         return false;
       },
       child: SingleChildScrollView(
-        controller: _scrollController,
+        controller: _scrollController, // Asigna el controlador de desplazamiento
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(12.0), // Espaciado
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start, // Alineación a la izquierda
             children: [
               // Header con información del empleado
               Row(
                 children: [
                   CircleAvatar(
                     radius: 25,
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.person, size: 30, color: Colors.black),
+                    backgroundColor: Colors.white, // Color de fondo del avatar
+                    child: Icon(Icons.person, size: 30, color: Colors.black), // Icono del avatar
                   ),
-                  SizedBox(width: 10),
+                  SizedBox(width: 10), // Espaciado
                   Expanded(
                     child: Text(
-                      "${widget.empleado['nombre']} ${widget.empleado['apPaterno']} ${widget.empleado['apMaterno']}",
+                      "${widget.empleado['nombre']} ${widget.empleado['apPaterno']} ${widget.empleado['apMaterno']}", // Nombre del empleado
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.white, // Color del texto
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -321,43 +300,43 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
                   ),
                 ],
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 10), // Espaciado
               Row(
                 children: [
-                  Icon(Icons.calendar_today, color: Colors.white, size: 18),
-                  SizedBox(width: 5),
+                  Icon(Icons.calendar_today, color: Colors.white, size: 18), // Icono de calendario
+                  SizedBox(width: 5), // Espaciado
                   Text(
-                    "${widget.fecha.day} de ${_getMonthName(widget.fecha.month)} del ${widget.fecha.year}",
-                    style: TextStyle(color: Colors.white),
+                    "${widget.fecha.day} de ${_getMonthName(widget.fecha.month)} del ${widget.fecha.year}", // Fecha formateada
+                    style: TextStyle(color: Colors.white), // Color del texto
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 20), // Espaciado
 
               // Gráfico de líneas
               GraficoDiarioExtend(
-                graficoData: _responseData!['grafico'],
+                graficoData: _responseData!['grafico'], // Datos del gráfico
               ),
               
-              SizedBox(height: 20),
+              SizedBox(height: 20), // Espaciado
 
               // Lista de actividades
               Text(
                 'Actividades del día',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.white, // Color del texto
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 10),
-              ...lista.map((item) => _buildItemLista(item)).toList(),
+              SizedBox(height: 10), // Espaciado
+              ...lista.map((item) => _buildItemLista(item)).toList(), // Muestra la lista de actividades
               
               // Indicador de carga al final
               if (_cargando && _responseData != null)
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Center(child: CircularProgressIndicator(color: Colors.white)),
+                  child: Center(child: CircularProgressIndicator(color: Colors.white)), // Indicador de carga
                 ),
               
               // Mensaje cuando no hay más datos
@@ -366,8 +345,8 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Center(
                     child: Text(
-                      'No hay más actividades para mostrar',
-                      style: TextStyle(color: Colors.white54),
+                      'No hay más actividades para mostrar', // Mensaje de fin de datos
+                      style: TextStyle(color: Colors.white54), // Color del texto
                     ),
                   ),
                 ),
@@ -378,60 +357,61 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
     );
   }
 
+  // Método para construir un elemento de la lista
   Widget _buildItemLista(dynamic item) {
-    final porcentaje = double.tryParse(item['division'].toString()) ?? 0.0;
+    final porcentaje = double.tryParse(item['division'].toString()) ?? 0.0; // Porcentaje de división
     
     return Container(
-      margin: EdgeInsets.only(bottom: 10),
-      padding: EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: 10), // Margen inferior
+      padding: EdgeInsets.all(12), // Espaciado interno
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white, // Color de fondo
+        borderRadius: BorderRadius.circular(12), // Bordes redondeados
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start, // Alineación a la izquierda
         children: [
           Text(
-            item['nombre_actividad'],
+            item['nombre_actividad'], // Nombre de la actividad
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'inter'),
           ),
-          SizedBox(height: 5),
+          SizedBox(height: 5), // Espaciado
           Row(
             children: [
-              Icon(Icons.door_front_door_rounded, size: 20, color: Colors.green),
-              Text(item['inicioA'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)),
-              SizedBox(width: 30),
-              Icon(Icons.door_back_door_rounded, size: 20, color: Colors.red),
-              Text(item['ultimaA'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)),            
+              Icon(Icons.door_front_door_rounded, size: 20, color: Colors.green), // Icono de entrada
+              Text(item['inicioA'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Hora de inicio
+              SizedBox(width: 30), // Espaciado
+              Icon(Icons.door_back_door_rounded, size: 20, color: Colors.red), // Icono de salida
+              Text(item['ultimaA'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Hora de salida
             ],
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween, // Espaciado entre elementos
             children: [
               Row(
                 children: [
-                  Icon(Icons.timer, size: 20, color: Colors.blue[900],),
-                  Text(item['tiempoTranscurrido'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)),
+                  Icon(Icons.timer, size: 20, color: Colors.blue[900]), // Icono de tiempo transcurrido
+                  Text(item['tiempoTranscurrido'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Tiempo transcurrido
                 ]
               ),
               Container(
-                width: 200,
+                width: 200, // Ancho del contenedor
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end, // Alineación a la derecha
                   children: [
                     Text(
-                      "${porcentaje.toStringAsFixed(1)}%",
+                      "${porcentaje.toStringAsFixed(1)}%", // Porcentaje formateado
                       style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black, fontSize: 20),
                     ),
                     Container(
-                      width: 200,
-                      height: 18,
+                      width: 200, // Ancho del contenedor del indicador
+                      height: 18, // Altura del indicador
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10), // Bordes redondeados
                         child: LinearProgressIndicator(
-                          value: porcentaje / 100,
-                          color: _getColorEficiencia(porcentaje),
-                          backgroundColor: Colors.grey[300],
+                          value: porcentaje / 100, // Valor del indicador
+                          color: _getColorEficiencia(porcentaje), // Color del indicador
+                          backgroundColor: Colors.grey[300], // Color de fondo del indicador
                         ),
                       ),
                     ),
@@ -445,79 +425,45 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
     );
   }
 
+  // Método para construir la pestaña de línea de tiempo
   Widget _buildLineaTiempoTab() {
     if (_responseData == null || 
         _responseData!['linea_tiempo'] == null || 
         _responseData!['linea_tiempo']['data'] == null) {
       return const Center(
         child: Text(
-          'No hay datos de línea de tiempo disponibles',
-          style: TextStyle(color: Colors.white),
-        ),
-      );
-    }
-    if (_timelineCompleta.isEmpty && !_cargandoTimeline && _errorTimeline.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _cargarTimelineCompleta();
-      });
-    
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(color: Colors.white),
-            SizedBox(height: 10),
-            Text('Cargando línea de tiempo...', style: TextStyle(color: Colors.white)),
-          ],
+          'No hay datos de línea de tiempo disponibles', // Mensaje cuando no hay datos
+          style: TextStyle(color: Colors.white), // Color del texto
         ),
       );
     }
 
-    if (_cargandoTimeline) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(color: Colors.white),
-            SizedBox(height: 10),
-            Text('Cargando línea de tiempo...', 
-                style: TextStyle(color: Colors.white)),
-          ],
-        ),
-      );
-    }
-    
-    if (_errorTimeline.isNotEmpty) {
-      return Center(
-        child: Text(_errorTimeline, style: TextStyle(color: Colors.red)),
-      );
-    }
+    final timelineData = _responseData!['linea_tiempo']['data'] ?? []; // Obtiene los datos de la línea de tiempo
+    final totalTimelineRecords = _responseData!['linea_tiempo']['recordsTotal'] ?? 0; // Total de registros de la línea de tiempo
+    final tieneMasDatosTimeline = timelineData.length < totalTimelineRecords; // Verifica si hay más datos
 
-    if (_timelineCompleta.isEmpty) {
-      return Center(
-        child: Text(
-          'No hay datos de línea de tiempo',
-          style: TextStyle(color: Colors.white),
-        ),
-      );
-    }
     return TimelineScreen(
-      eventos: _responseData!['linea_tiempo']['data'],
-      baseImageUrl: 'https://https://rhnube.com.pe/mostrarMiniatura', // Reemplaza con tu URL base real
+      eventos: _responseData!['linea_tiempo']['data'], // Pasa los eventos a la pantalla de línea de tiempo
+      tieneMasDatos: tieneMasDatosTimeline, // Indica si hay más datos
+      cargandoMas: _cargando, // Indica si se está cargando más
+      onCargarMas: _cargarMasDatos, // Método para cargar más datos
+      authToken: widget.token, // Pasa el token de autenticación
     );
   }
 
+  // Método para obtener el color según la eficiencia
   Color _getColorEficiencia(double eficiencia) {
-    if (eficiencia >= 50) return Color(0xFF2BCA07);
-    if (eficiencia >= 30) return Colors.orange;
-    return Color(0xFFFF1A15);
+    if (eficiencia >= 50) return Color(0xFF2BCA07); // Verde
+    if (eficiencia >= 30) return Colors.orange; // Naranja
+    return Color(0xFFFF1A15); // Rojo
   }
 
+  // Método para obtener el nombre del mes
   String _getMonthName(int month) {
     const months = [
       'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
       'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
     ];
-    return months[month - 1];
+    return months[month - 1]; // Retorna el nombre del mes correspondiente
   }
 }

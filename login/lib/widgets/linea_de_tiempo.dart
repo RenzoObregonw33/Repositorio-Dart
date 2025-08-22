@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:login/Models/timeline_item.dart';
 
 // Clase principal de la pantalla de la línea de tiempo
 class TimelineScreen extends StatefulWidget {
   final List<dynamic> eventos; // Lista de eventos recibidos de la API
-  final String baseImageUrl; // URL base para las imágenes
-
+  final bool tieneMasDatos; // Indica si hay más datos por cargar
+  final Function() onCargarMas; // Función para cargar más datos
+  final bool cargandoMas; // Indica si se están cargando más datos
+  final String authToken; 
+  
   const TimelineScreen({
     Key? key,
     required this.eventos,
-    required this.baseImageUrl,
+    required this.tieneMasDatos,
+    required this.onCargarMas,
+    required this.cargandoMas, 
+    required this.authToken,
   }) : super(key: key);
 
   @override
@@ -20,10 +25,28 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
   late AnimationController _animationController; // Controlador de animación
   late Animation<double> _fadeAnimation; // Animación de desvanecimiento
   late List<TimelineItem> items; // Lista de TimelineItem
+  final ScrollController _scrollController = ScrollController();
+  bool _isLoadingMore = false; // Control interno de carga
 
   @override
   void initState() {
     super.initState();
+    // Debug: Verificar las URLs recibidas
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.eventos.isNotEmpty) {
+        for (var event in widget.eventos) {
+          if (event['imagen'] != null && 
+              event['imagen'] is List && 
+              event['imagen'].isNotEmpty) {
+            
+            final imageUrl = event['imagen'][0]['imagen_grande'];
+            debugPrint('=== DEBUG IMAGE URL ===');
+            debugPrint('URL completa: $imageUrl');
+            debugPrint('========================');
+          }
+        }
+      }
+    });
     // Inicializa el controlador de animación
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
@@ -39,49 +62,44 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
     ));
     _animationController.forward(); // Inicia la animación
 
+    // Configurar listener para scroll infinito
+    _scrollController.addListener(_onScroll);
+
     // Convertir los datos de la API en TimelineItem
-    items = widget.eventos.map((event) {
-      print('Respuesta del event: $event');
-      // Verifica y debuguea la estructura de las imágenes
-      print('Estructura de imagen: ${event['imagen']}');
-      print('Tipo de imagen: ${event['imagen']?.runtimeType}');
-      
-      // Obtener el valor de tiempoT y convertirlo a un entero
-      int tiempoEnSegundos = event['tiempoT'];
-
-      // Convertir tiempoT a un formato legible (HH:MM:SS)
-      String tiempo = _convertirSegundosATiempo(tiempoEnSegundos);
-
-      // CONSTRUCCIÓN SEGURA DE LA URL - PARTE MODIFICADA
-      String imageUrl = '';
-      if (event['imagen'] != null && 
-          event['imagen'] is List && 
-          event['imagen'].isNotEmpty &&
-          event['imagen'][0]['imagen_grande'] != null) {
-        
-        String imagePath = event['imagen'][0]['imagen_grande'];
-        // Asegurar que la URL se construya correctamente
-        if (imagePath.startsWith('/')) {
-          imageUrl = '${widget.baseImageUrl}$imagePath';
-        } else {
-          imageUrl = '${widget.baseImageUrl}/$imagePath';
-        }
-        
-        print('URL de imagen construida: $imageUrl');
-      } else {
-        print('No se pudo construir la URL de la imagen');
-      }
-
-      return TimelineItem(
-        title: event['nombre_actividad'], // Título de la actividad
-        time: '${event['inicioA']} - ${event['ultimaA']}', // Formato de tiempo
-        images: imageUrl.isNotEmpty ? [imageUrl] : [],
-        color: Colors.blue, // Color de la tarjeta
-        tiempo: tiempo,
-        porcentaje: event['division']?.toString() ?? '0',
-      );
-    }).toList();
+    _processItems();
   }
+
+// En el _processItems, modifica la obtención de la URL:
+// _processItems corregido
+void _processItems() {
+  if (!mounted) return;
+
+  items = widget.eventos.map((event) {
+    int tiempoEnSegundos = event['tiempoT'];
+    String tiempo = _convertirSegundosATiempo(tiempoEnSegundos);
+
+    String imageUrl = '';
+    if (event['imagen'] != null && 
+        event['imagen'] is List && 
+        event['imagen'].isNotEmpty &&
+        event['imagen'][0]['imagen_grande'] != null) {
+      
+      // USA LA URL DIRECTAMENTE - NO LA DECODIFIQUES
+      imageUrl = event['imagen'][0]['imagen_grande'];
+      
+      debugPrint('🖼️ URL de imagen: $imageUrl');
+    }
+
+    return TimelineItem(
+      title: event['nombre_actividad'],
+      time: '${event['inicioA']} - ${event['ultimaA']}',
+      images: imageUrl.isNotEmpty ? [imageUrl] : [],
+      color: Colors.blue,
+      tiempo: tiempo,
+      porcentaje: event['division']?.toString() ?? '0',
+    );
+  }).toList();
+}
 
   String _convertirSegundosATiempo(int segundos) {
     int horas = segundos ~/ 3600;
@@ -90,14 +108,53 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
     return '${horas.toString().padLeft(2, '0')}:${minutos.toString().padLeft(2, '0')}:${seg.toString().padLeft(2, '0')}';
   }
 
+  void _onScroll() {
+    if (!mounted) return;
+
+    // Verificar si llegamos al final del scroll y hay más datos
+    if (_scrollController.position.pixels >= 
+        _scrollController.position.maxScrollExtent - 100) {
+      if (widget.tieneMasDatos && !widget.cargandoMas && !_isLoadingMore) {
+        setState(() {
+          _isLoadingMore = true;
+        });
+        widget.onCargarMas();
+        
+        // Resetear el estado después de un tiempo para evitar llamadas múltiples
+        Future.delayed(Duration(seconds: 2), () {
+          if (mounted) {
+            setState(() {
+              _isLoadingMore = false;
+            });
+          }
+        });
+      }
+    }
+  }
+
+  @override
+  void didUpdateWidget(TimelineScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (!mounted) return;
+    
+    // Si los eventos han cambiado, reprocesar los items
+    if (oldWidget.eventos != widget.eventos) {
+      _processItems();
+    }
+  }
+
   @override
   void dispose() {
     _animationController.dispose(); // Libera el controlador de animación
+    _scrollController.dispose(); // Libera el controlador de scroll
     super.dispose();
   }
 
   // Método para mostrar la imagen en pantalla completa
   void _showFullScreenImage(BuildContext context, String imageUrl) {
+    if (!mounted) return;
+
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -109,7 +166,7 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
               backgroundColor: Colors.transparent,
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.pop(context), // Regresa a la pantalla anterior
+                onPressed: () => Navigator.pop(context),
               ),
             ),
             body: Center(
@@ -117,81 +174,172 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
                 panEnabled: true,
                 minScale: 0.5,
                 maxScale: 4.0,
-                child: Image.network(
-                  imageUrl, // URL de la imagen
-                  fit: BoxFit.contain,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child; // Muestra la imagen si ya se cargó
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes! // Progreso de carga
-                            : null,
-                      ),
-                    );
-                  },
+                child: ImageService.buildNetworkImage(
+                  imageUrl,
+                  loadingColor: Colors.white,
+                  errorColor: Colors.white,
                 ),
               ),
             ),
           ),
         ),
-        transitionDuration: const Duration(milliseconds: 300), // Duración de la transición
+        transitionDuration: const Duration(milliseconds: 300),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!mounted) return SizedBox.shrink();
     return Scaffold(
       body: FadeTransition(
         opacity: _fadeAnimation,
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              SizedBox(
-                height: items.length * 210.0, // Altura total calculada
-                child: Stack(
-                  children: [
-                    // Líneas conectoras
-                    Positioned.fill(
-                      child: CustomPaint(
-                        painter: EnhancedChainTimelinePainter(
-                          itemCount: items.length,
-                          itemHeight: 210.0,
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (scrollNotification) {
+            // Manejar notificaciones de scroll si es necesario
+            return false;
+          },
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: items.length * 210.0, // Altura total calculada
+                  child: Stack(
+                    children: [
+                      // Líneas conectoras
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: EnhancedChainTimelinePainter(
+                            itemCount: items.length,
+                            itemHeight: 210.0,
+                          ),
                         ),
                       ),
-                    ),
-                    
-                    // Tarjetas de la línea de tiempo
-                    Column(
-                      children: List.generate(items.length, (index) {
-                        return Column(
-                          children: [
-                            AnimatedTimelineCard(
-                              item: items[index],
-                              position: index % 2 == 0 
-                                  ? ItemPosition.left 
-                                  : ItemPosition.right,
-                              onImageTap: _showFullScreenImage,
-                              delay: Duration(milliseconds: index * 200),
-                              cardWidth: MediaQuery.of(context).size.width * 0.8,
-                            ),
-                            const SizedBox(height: 30),
-                          ],
-                        );
-                      }),
-                    ),
-                  ],
+                      
+                      // Tarjetas de la línea de tiempo
+                      Column(
+                        children: List.generate(items.length, (index) {
+                          if (!mounted) return SizedBox.shrink();
+                          return Column(
+                            children: [
+                              AnimatedTimelineCard(
+                                item: items[index],
+                                position: index % 2 == 0 
+                                    ? ItemPosition.left 
+                                    : ItemPosition.right,
+                                onImageTap: _showFullScreenImage,
+                                delay: Duration(milliseconds: index * 200),
+                                cardWidth: MediaQuery.of(context).size.width * 0.8,
+                              ),
+                              const SizedBox(height: 30),
+                            ],
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 40),
-            ],
+
+                // Indicador de carga
+                if (widget.cargandoMas || _isLoadingMore)
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: CircularProgressIndicator(color: Colors.white),
+                  ),
+                  
+                // Mensaje de no más datos
+                if (!widget.tieneMasDatos && items.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Text(
+                      'No hay más eventos',
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                  ),
+                const SizedBox(height: 40),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+}
+
+// image_service.dart - Versión corregida
+class ImageService {
+  static String prepareImageUrl(String apiUrl) {
+    try {
+      // Las URLs de la API ya vienen correctamente formateadas
+      // Solo necesitamos asegurarnos de que estén properly encoded
+      final uri = Uri.parse(apiUrl);
+      return uri.toString(); // Esto asegura encoding apropiado
+    } catch (e) {
+      debugPrint('Error preparando URL: $e');
+      return apiUrl;
+    }
+  }
+
+  static Widget buildNetworkImage(
+    String url, {
+    double? width,
+    double? height,
+    BoxFit fit = BoxFit.cover,
+    Color? loadingColor,
+    Color? errorColor = Colors.grey,
+  }) {
+    final preparedUrl = prepareImageUrl(url);
+    
+    debugPrint('🌐 Cargando imagen desde: $preparedUrl');
+    
+    return Image.network(
+      preparedUrl,
+      width: width,
+      height: height,
+      fit: fit,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Center(
+          child: CircularProgressIndicator(
+            value: loadingProgress.expectedTotalBytes != null
+                ? loadingProgress.cumulativeBytesLoaded /
+                    loadingProgress.expectedTotalBytes!
+                : null,
+            color: loadingColor,
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) {
+        debugPrint('❌ Error cargando imagen: $error');
+        debugPrint('URL: $preparedUrl');
+        
+        return Container(
+          width: width,
+          height: height,
+          color: Colors.grey[200],
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.image_not_supported,
+                color: errorColor,
+                size: 40,
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Error de imagen',
+                style: TextStyle(
+                  color: errorColor,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -241,9 +389,9 @@ class EnhancedChainTimelinePainter extends CustomPainter {
       
       final gradient = LinearGradient(
         colors: [
-          Colors.blueAccent.withValues(alpha: 0.8),
-          Color(0xFF1F3A5F).withValues(alpha: 0.8),
-          Colors.blue.withValues(alpha: 0.8),
+          Colors.blueAccent.withOpacity(0.8),
+          Color(0xFF1F3A5F).withOpacity(0.8),
+          Colors.blue.withOpacity(0.8),
         ],
         stops: const [0.0, 0.5, 1.0],
       );
@@ -275,7 +423,7 @@ class EnhancedChainTimelinePainter extends CustomPainter {
       
       // Sombra opcional para profundidad
       final shadowPaint = Paint()
-        ..color = Colors.black.withValues(alpha: 0.3)
+        ..color = Colors.black.withOpacity(0.3)
         ..strokeWidth = 6.0
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round;
@@ -304,6 +452,9 @@ class EnhancedChainTimelinePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false; // Indica si se debe volver a pintar
 }
+
+// Enum para la posición de la tarjeta
+enum ItemPosition { left, right }
 
 // Clase para la tarjeta de la línea de tiempo
 class AnimatedTimelineCard extends StatelessWidget {
@@ -346,17 +497,17 @@ class AnimatedTimelineCard extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: item.color.withValues(alpha: 0.5),
+                  color: item.color.withOpacity(0.5),
                   width: 2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: item.color.withValues(alpha: 0.3),
+                    color: item.color.withOpacity(0.3),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
+                    color: Colors.black.withOpacity(0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -394,10 +545,10 @@ class AnimatedTimelineCard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.brown.withValues(alpha: 0.2),
+                            color: Colors.brown.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Colors.brown.withValues(alpha: 0.5),
+                              color: Colors.brown.withOpacity(0.5),
                               width: 1,
                             ),
                           ),
@@ -419,6 +570,7 @@ class AnimatedTimelineCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           // Imagen (lado izquierdo)
+                          if (item.images.isNotEmpty)
                           GestureDetector(
                             onTap: () => onImageTap(context, item.images[0]),
                             child: Container(
@@ -428,42 +580,37 @@ class AnimatedTimelineCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: item.color.withValues(alpha: 0.3),
+                                  color: item.color.withOpacity(0.3),
                                   width: 1,
                                 ),
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(7),
-                                child: Image.network(
+                                child: ImageService.buildNetworkImage(
                                   item.images[0],
-                                  fit: BoxFit.cover,
-                                  loadingBuilder: (context, child, progress) {
-                                    if (progress == null) return child;
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        value: progress.expectedTotalBytes != null
-                                            ? progress.cumulativeBytesLoaded /
-                                                progress.expectedTotalBytes!
-                                            : null,
-                                        strokeWidth: 2,
-                                        color: item.color,
-                                      ),
-                                    );
-                                  },
-                                  errorBuilder: (context, error, stackTrace) {
-                                    // LOGS DE ERROR MEJORADOS
-                                    print('Error cargando imagen: $error');
-                                    print('Stack trace: $stackTrace');
-                                    print('URL intentada: ${item.images[0]}');
-                                    return Center(
-                                      child: Icon(
-                                        Icons.image_not_supported,
-                                        color: item.color,
-                                      ),
-                                    );
-                                  },
+                                  loadingColor: item.color,
+                                  errorColor: item.color,
                                 ),
                               ),
+                            ),
+                          )
+                          else
+                          Container(
+                            width: 130,
+                            height: 80,
+                            margin: const EdgeInsets.only(right: 12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: item.color.withOpacity(0.3),
+                                width: 1,
+                              ),
+                              color: Colors.grey[800],
+                            ),
+                            child: Icon(
+                              Icons.image_not_supported,
+                              color: item.color,
+                              size: 40,
                             ),
                           ),
                           

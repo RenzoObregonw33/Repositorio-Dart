@@ -12,10 +12,10 @@ class DetalleDiarioScreen extends StatefulWidget {
   final int organiId; // ID de organización
 
   const DetalleDiarioScreen({
-    Key? key,
+    super.key,
     required this.token,
     required this.organiId,
-  }) : super(key: key);
+  });
 
   @override
   State<DetalleDiarioScreen> createState() => _DetalleDiarioScreenState();

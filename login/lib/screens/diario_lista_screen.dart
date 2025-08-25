@@ -13,12 +13,12 @@ class DiarioEnListaScreen extends StatefulWidget {
   final DateTime fecha; // Fecha para la consulta
 
   const DiarioEnListaScreen({
-    Key? key,
+    super.key,
     required this.token,
     required this.organiId,
     required this.empleado,
     required this.fecha,
-  }) : super(key: key);
+  });
 
   @override
   State<DiarioEnListaScreen> createState() => _DiarioEnListaScreenState();

@@ -86,7 +86,7 @@ class GraficoPicosPorcentaje extends StatelessWidget {
                     axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
                     majorGridLines: MajorGridLines(
                       width: 1,
-                      color: Colors.grey.withOpacity(0.3),
+                      color: Colors.grey.withValues(alpha: 0.3),
                     ),
                     labelStyle: const TextStyle(
                       color: Colors.white,

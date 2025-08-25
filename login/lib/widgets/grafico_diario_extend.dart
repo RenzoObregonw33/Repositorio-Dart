@@ -78,7 +78,7 @@ class GraficoDiarioExtend extends StatelessWidget {
                   drawVerticalLine: false, // Oculta líneas verticales
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: Colors.white.withOpacity(0.1), // Líneas tenues
+                      color: Colors.white.withValues(alpha: 0.1), // Líneas tenues
                       strokeWidth: 1,
                     );
                   },
@@ -145,12 +145,12 @@ class GraficoDiarioExtend extends StatelessWidget {
                   border: Border(
                     // Borde inferior sutil
                     bottom: BorderSide(
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       width: 1,
                     ),
                     // Borde izquierdo sutil
                     left: BorderSide(
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       width: 1,
                     ),
                   ),
@@ -192,15 +192,15 @@ class GraficoDiarioExtend extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.blueAccent.withOpacity(0.3), // Más opaco arriba
-                          Colors.blueAccent.withOpacity(0.1), // Más transparente abajo
+                          Colors.blueAccent.withValues(alpha: 0.3), // Más opaco arriba
+                          Colors.blueAccent.withValues(alpha: 0.1), // Más transparente abajo
                         ],
                       ),
                     ),
                     
                     // Sombra para efecto de profundidad
                     shadow: Shadow(
-                      color: Colors.blueAccent.withOpacity(0.5),
+                      color: Colors.blueAccent.withValues(alpha: 0.5),
                       blurRadius: 8,
                       offset: Offset(0, 5),
                     ),

@@ -112,7 +112,7 @@ class GraficoPicosActividad extends StatelessWidget {
                       yValueMapper: (d, _) => d.valor,
                       name: 'Actividad',
                       pointColorMapper: (HoraActividadData d, int index) {
-                        return colorPalette[index % colorPalette.length].withOpacity(0.9);
+                        return colorPalette[index % colorPalette.length].withValues(alpha: 0.9);
                       },
                       borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
                       width: 0.7,

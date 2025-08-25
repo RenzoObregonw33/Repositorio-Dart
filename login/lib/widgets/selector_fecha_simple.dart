@@ -5,10 +5,10 @@ class SelectorFechaSimple extends StatelessWidget {
   final ValueChanged<DateTime> onDateSelected;
 
   const SelectorFechaSimple({
-    Key? key,
+    super.key,
     required this.selectedDate,
     required this.onDateSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class SelectorFechaSimple extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 2,
               offset: const Offset(0, 2),
             ),

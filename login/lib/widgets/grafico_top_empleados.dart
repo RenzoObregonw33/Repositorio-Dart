@@ -24,7 +24,7 @@ class GraficoTopEmpleados extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        color: const Color(0xFF1E293B),
+        color: const Color(0xFFF8F7FC),
         child: const Padding(
           padding: EdgeInsets.all(16),
           child: Center(
@@ -49,7 +49,7 @@ class GraficoTopEmpleados extends StatelessWidget {
       valoresConEstilo.add({
         'value': esTop ? porcentaje : -porcentaje,
         'itemStyle': {
-          'color': esTop ? '#0868FB' : '#2BCA07',
+          'color': esTop ? '#C4DEF9' : '#64D9C5',
           'borderRadius': esTop ? [0, 10, 10, 0] : [10, 0, 0, 10],
         },
         'name': nombre,
@@ -77,11 +77,12 @@ class GraficoTopEmpleados extends StatelessWidget {
         'max': 100,
         'axisLabel': {
           'formatter': '{value} %',
-          'color': '#FFFFFF',
+          'color': '#000000',
+          'fontWeight': 'bold',
         },
         'axisLine': {
           'lineStyle': {
-            'color': '#FFFFFF',
+            'color': '#000000',
           }
         },
         'splitLine': {
@@ -96,7 +97,7 @@ class GraficoTopEmpleados extends StatelessWidget {
         'axisTick': {'show': false},
         'axisLine': {'show': false},
         'axisLabel': {
-          'color': '#FFFFFF',
+          'color': '#000000',
           'fontWeight': 'bold',
         },
         'data': labels,
@@ -108,7 +109,7 @@ class GraficoTopEmpleados extends StatelessWidget {
             'show': true,
             'position': 'inside',
             'formatter': '{c} %',
-            'color': '#FFFFFF',
+            'color': '#000000',
             'fontWeight': 'bold',
           },
           'barWidth': '60%',
@@ -123,7 +124,7 @@ class GraficoTopEmpleados extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      color: const Color(0xFF1E293B),
+      color: const Color(0xFFF8F7FC),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: SizedBox(
@@ -133,14 +134,14 @@ class GraficoTopEmpleados extends StatelessWidget {
               // Título con icono como los otros gráficos
               const Row(
                 children: [
-                  Icon(Icons.emoji_events, color: Colors.blueAccent),
+                  Icon(Icons.emoji_events, color: Color(0xFF3E2B6B)),
                   SizedBox(width: 8),
                   Text(
                     'TOP EMPLEADOS',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Colors.black87,
                     ),
                   ),
                 ],

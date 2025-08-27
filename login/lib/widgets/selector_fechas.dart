@@ -16,34 +16,19 @@ class SelectorFechas extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFFFBB347), // Amarillo/naranja
-              Color(0xFFF77B09), // Rojo/naranja
-            ],
-            stops: [0.1, 0.9],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          color: Color(0xFF7775E2),
+          borderRadius: BorderRadius.circular(24),    
         ),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(double.infinity, 50),
             backgroundColor: Colors.transparent, // Fondo transparente
             shadowColor: Colors.transparent, // Sin sombra del botón
-            foregroundColor: Colors.black, // Texto negro
+            foregroundColor: Colors.white, // Texto negro
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(24),
               side: BorderSide(
-                color: Colors.grey.withValues(alpha: 0.5), // Borde gris claro
+                color: Color(0xFF7775E2), // Borde gris claro
                 width: 1,
               ),
             ),
@@ -79,8 +64,8 @@ class SelectorFechas extends StatelessWidget {
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
               primary: Colors.blue, // Color del header
-              onPrimary: Colors.white, // Texto del header
-              onSurface: Colors.white, // Texto de las fechas
+              onPrimary: Colors.black, // Texto del header
+              onSurface: Colors.black, // Texto de las fechas
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(

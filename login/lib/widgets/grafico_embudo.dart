@@ -15,7 +15,7 @@ class GraficoEmbudo extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      color: const Color(0xFF1E293B),
+      color: const Color(0xFFF8F7FC),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -24,14 +24,14 @@ class GraficoEmbudo extends StatelessWidget {
             // Título con icono
             const Row(
               children: [
-                Icon(Icons.filter_alt, color: Colors.blueAccent),
+                Icon(Icons.filter_alt, color: Color(0xFF3E2B6B)),
                 SizedBox(width: 8),
                 Text(
                   'CUMPLIMIENTO LABORAL',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Colors.black,
                   ),
                 ),
               ],

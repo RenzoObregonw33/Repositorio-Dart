@@ -36,47 +36,48 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
     try {
       final response = await widget.graphicsService.fetchFiltrosEmpresariales();
       
+      // Usar operadores seguros y valores por defecto
       setState(() {
         _filtros = [
           GrupoFiltros(
             categoria: 'Área',
-            filtros: (response['Area'] as List)
+            filtros: ((response['Area'] as List?) ?? [])
                 .map((e) => FiltroData.fromJson(e))
                 .toList(),
           ),
           GrupoFiltros(
             categoria: 'Cargo',
-            filtros: (response['Cargo'] as List)
+            filtros: ((response['Cargo'] as List?) ?? [])
                 .map((e) => FiltroData.fromJson(e))
                 .toList(),
           ),
           GrupoFiltros(
             categoria: 'Centro costo',
-            filtros: (response['Centro costo'] as List)
+            filtros: ((response['Centro costo'] as List?) ?? [])
                 .map((e) => FiltroData.fromJson(e))
                 .toList(),
           ),
           GrupoFiltros(
             categoria: 'Datos Familiares',
-            filtros: (response['Datos Familiares'] as List)
+            filtros: ((response['DATOS FAMILIARES'] as List?) ?? [])
                 .map((e) => FiltroData.fromJson(e))
                 .toList(),
           ),
           GrupoFiltros(
             categoria: 'Genero',
-            filtros: (response['Genero'] as List)
+            filtros: ((response['Genero'] as List?) ?? [])
                 .map((e) => FiltroData.fromJson(e))
                 .toList(),
           ),
           GrupoFiltros(
             categoria: 'Local',
-            filtros: (response['Local'] as List)
+            filtros: ((response['Local'] as List?) ?? [])
                 .map((e) => FiltroData.fromJson(e))
                 .toList(),
           ),
           GrupoFiltros(
             categoria: 'Nivel',
-            filtros: (response['Nivel'] as List)
+            filtros: ((response['Nivel'] as List?) ?? [])
                 .map((e) => FiltroData.fromJson(e))
                 .toList(),
           ),

@@ -66,9 +66,10 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
   // Método que construye la interfaz de usuario
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      
-      appBar: AppBar(title: Text('Recuperar contraseña', style: TextStyle(fontFamily: 'Inter'),)),          //Barra superior
+    return Scaffold(  
+      appBar: AppBar(backgroundColor: Color(0xFF3D2A6A), iconTheme: IconThemeData( color: Colors.white),         //Color de los iconos
+        title: Text('Recuperar contraseña', style: TextStyle(color: Colors.white, fontFamily: 'Inter'),)
+      ),          //Barra superior
       body: Padding(
         padding: const EdgeInsets.all(20.0),                        //Espacio interno
         child: Column(
@@ -80,27 +81,32 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
               controller: _emailController,                   //Control
               decoration: InputDecoration(
                 labelText: 'Correo electrónico',
-                labelStyle: TextStyle(fontFamily: '-apple-system',color: Colors.white),
-                prefixIcon: Icon(Icons.email_outlined, color: Color(0xFFF3B83C),),
+                labelStyle: TextStyle(fontFamily: '-apple-system',color: Colors.grey),
+                prefixIcon: Icon(Icons.email_outlined, color: Color(0xFF3D2A6A),),
                 errorText: _error,                            //Mustra un mensaje de error si no existe
               ),
               keyboardType: TextInputType.emailAddress,
             ),
             SizedBox(height: 20),
             // Botón para enviar la solicitud de recuperación
-            Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFF3B83C),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  )
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF7775E2),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      )
+                    ),
+                    onPressed: _enviarSolicitud,
+                    child: Text('Enviar Notificación', style: TextStyle(fontFamily: 'Inter'),),
+                  ),
                 ),
-                onPressed: _enviarSolicitud,
-                child: Text('Enviar', style: TextStyle(fontFamily: 'Inter'),),
-              ),
+              ],
             ),
           ],
         ),

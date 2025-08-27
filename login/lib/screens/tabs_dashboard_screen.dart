@@ -91,10 +91,10 @@ class _TabsDashboardScreenState extends State<TabsDashboardScreen> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
-          color: isSelected ? Color(0xFF0F2747) : Colors.transparent,
+          color: isSelected ? Color(0xFF7775E2) : Color(0xFFF8F7FC),
           borderRadius: BorderRadius.circular(10),
           border: isSelected
-              ? Border.all(color: Colors.grey.shade800, width: 1)
+              ? Border.all(color: Color(0xFF7775E2), width: 0.5)
               : null,
         ),
         padding: const EdgeInsets.symmetric(vertical: 6), // Reducido de 8 a 6
@@ -103,7 +103,7 @@ class _TabsDashboardScreenState extends State<TabsDashboardScreen> {
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : Color(0xFF0F2747),
+              color: isSelected ? Colors.white : Color(0xFF7775E2),
               size: 18, // Reducido de 20 a 18
             ),
             const SizedBox(height: 2), // Reducido de 4 a 2
@@ -111,7 +111,7 @@ class _TabsDashboardScreenState extends State<TabsDashboardScreen> {
               text,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: isSelected ? Colors.white : Color(0xFF1E293B),
+                color: isSelected ? Colors.white : Color(0xFF7775E2),
                 fontWeight: FontWeight.bold,
                 fontSize: 11, // Reducido de 12 a 11
               ),

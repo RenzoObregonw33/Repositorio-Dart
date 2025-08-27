@@ -14,7 +14,7 @@ class GraficoEficiencia extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      color: const Color(0xFF1E293B),
+      color: const Color(0xFFF8F7FC),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: SizedBox(
@@ -24,14 +24,14 @@ class GraficoEficiencia extends StatelessWidget {
               // Título (se mantiene igual)
               const Row(
                 children: [
-                  Icon(Icons.auto_graph, color: Colors.blueAccent),
+                  Icon(Icons.auto_graph, color: Color(0xFF3E2B6B)),
                   SizedBox(width: 8),
                   Text(
                     'EFICIENCIA GENERAL',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                   ),
                 ],
@@ -55,7 +55,7 @@ class GraficoEficiencia extends StatelessWidget {
                           GaugeRange(
                             startValue: 0,
                             endValue: 40,
-                            color: const Color(0xFFFF1A15),
+                            color: const Color(0xFFFF625C),
                             sizeUnit: GaugeSizeUnit.factor,
                             startWidth: 0.08,
                             endWidth: 0.08,
@@ -63,7 +63,7 @@ class GraficoEficiencia extends StatelessWidget {
                           GaugeRange(
                             startValue: 40,
                             endValue: 70,
-                            color: const Color(0xFFFDF807),
+                            color: const Color(0xFFFFC066),
                             sizeUnit: GaugeSizeUnit.factor,
                             startWidth: 0.08,
                             endWidth: 0.08,
@@ -71,7 +71,7 @@ class GraficoEficiencia extends StatelessWidget {
                           GaugeRange(
                             startValue: 70,
                             endValue: 100,
-                            color: const Color(0xFF2BCA07),
+                            color: const Color(0xFF64D9C5),
                             sizeUnit: GaugeSizeUnit.factor,
                             startWidth: 0.08,
                             endWidth: 0.08,
@@ -81,9 +81,9 @@ class GraficoEficiencia extends StatelessWidget {
                           NeedlePointer(
                             value: eficiencia,
                             needleLength: 0.9, // Aguja ligeramente más larga
-                            needleColor: Colors.white,
+                            needleColor: Colors.black,
                             knobStyle: const KnobStyle(
-                              color: Colors.blueAccent,
+                              color: Colors.black,
                               knobRadius: 0.08,
                             ),
                           ),
@@ -98,14 +98,14 @@ class GraficoEficiencia extends StatelessWidget {
                                   style: const TextStyle(
                                     fontSize: 26, // Texto un poco más grande
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: Colors.black,
                                   ),
                                 ),
                                 Text(
                                   _getEficienciaText(eficiencia),
                                   style: const TextStyle(
                                     fontSize: 14,
-                                    color: Colors.white70,
+                                    color: Colors.black,
                                   ),
                                 ),
                               ],

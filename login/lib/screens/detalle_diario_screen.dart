@@ -168,11 +168,13 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     return Scaffold(
       backgroundColor: Colors.black.withValues(alpha: 0.05),
       appBar: AppBar(
-        title: const Text("Detalle Diario de Empleados"),
-        backgroundColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text("Detalle Diario de Empleados", style: TextStyle(color: Colors.white),),
+        backgroundColor: Color(0xFF3E2B6A),
         actions: [
           // Botón para recargar datos
           IconButton(
+            color: Colors.white ,
             icon: const Icon(Icons.refresh),
             onPressed: _cargarDatos,
           ),
@@ -253,14 +255,14 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                 // Botón de búsqueda
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor: Color(0xFF7775E2),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                   ),
                   onPressed: _ejecutarBusqueda,
-                  child: Text('Buscar', style: TextStyle(color: Colors.black),),
+                  child: Text('Buscar', style: TextStyle(color: Colors.white),),
                 ),
                 const SizedBox(width: 8),
                 // Selector de tipo de búsqueda
@@ -353,13 +355,8 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     return Container(
       height: 50,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFFA528), Color(0xFFF77B09)],
-          stops: [0.1, 0.9],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(8),
+        color: Color(0xFF7775E2),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -381,8 +378,8 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
         child: Text(
           text,
           style: const TextStyle(
-            fontSize: 16,
-            color: Colors.black,
+            fontSize: 14,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -399,7 +396,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Lumina(
-              assetPath: 'assets/imagen/lumina.png', // Ruta a tu imagen de carga
+              assetPath: 'assets/imagen/luminaos.png', // Ruta a tu imagen de carga
               duracion: const Duration(milliseconds: 1500),
               size: 300,
             ),
@@ -465,26 +462,26 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
+      /*decoration: BoxDecoration(
         color: const Color(0xFF0F2747),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.white24),
-      ),
+      ),*/
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _buildItemLeyenda(
-            color: const Color(0xFF2DC70D),
+            color: const Color(0xFF64D9C5),
             texto: 'Alta',
           ),
           const SizedBox(width: 16),
           _buildItemLeyenda(
-            color: const Color(0xFFFE9717),
+            color: const Color(0xFFFFC066),
             texto: 'Media',
           ),
           const SizedBox(width: 16),
           _buildItemLeyenda(
-            color: const Color(0xFFFF1A15),
+            color: const Color(0xFFFF625C),
             texto: 'Baja',
           ),
         ],
@@ -509,7 +506,8 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
         Text(
           texto,
           style: const TextStyle(
-            color: Colors.white,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
             fontSize: 14,
           ),
         ),
@@ -535,13 +533,13 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     
     if (division >= 50) {
       estado = 'Alta productividad';
-      colorEstado = Colors.greenAccent;
+      colorEstado = Color(0xFF64D9C5);
     } else if (division >= 30) {
       estado = 'Media productividad';
-      colorEstado = Colors.orangeAccent;
+      colorEstado = Color(0xFFFFC066);
     } else {
       estado = 'Baja productividad';
-      colorEstado = Colors.redAccent;
+      colorEstado = Color(0xFFFF625C);
     }
 
     // Construir la tarjeta
@@ -553,12 +551,12 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFF0F2747), // Fondo azul oscuro
+          color: const Color(0xFFF8F7FC), // Fondo claro
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white24, width: 1),
+          border: Border.all(color: Color(0xFFF8F7FC), width: 1),
           boxShadow: [
             BoxShadow(
-            color: Colors.white,
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 2,
             spreadRadius: 2,
             offset: Offset(0, 2)
@@ -571,13 +569,13 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
             // Fila con nombre e ID
             Row(
               children: [
-                const Icon(Icons.person, color: Colors.white70, size: 24),
+                const Icon(Icons.person, color: Colors.black, size: 24),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     nombreCompleto,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -595,14 +593,14 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   'assets/Icons/objetivo.png',
                   width: 16,
                   height: 16,
-                  color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Colors.black, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     "Ejecutivo Comercial",
                     style: const TextStyle(
-                      color: Colors.white,    
+                      color: Colors.black,    
                       fontSize: 12,
                     ),
                   ),
@@ -611,7 +609,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
               ],
             ),
       
-            const Divider(color: Colors.white), // Divisor
+            const Divider(color: Colors.black), // Divisor
       
             // Horario del empleado
             Row(
@@ -620,12 +618,12 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   'assets/Icons/reloj.png',
                   width: 16,
                   height: 16,
-                  color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Colors.black, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 8),
                 Text(
                   horario,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: const TextStyle(color: Colors.black, fontSize: 14),
                 ),
               ],
             ),
@@ -638,19 +636,19 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   'assets/Icons/cronografo.png',
                   width: 16,
                   height: 16,
-                  color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Colors.green, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 6),
-                Text("Inicio: $inicio", style: const TextStyle(color: Colors.white)),
+                Text("Inicio: $inicio", style: const TextStyle(color: Colors.black)),
                 const SizedBox(width: 12),
                 Image.asset(
                   'assets/Icons/cronografo.png',
                   width: 16,
                   height: 16,
-                  color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Colors.red, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 6),
-                Text("Última: $ultima", style: const TextStyle(color: Colors.white)),
+                Text("Última: $ultima", style: const TextStyle(color: Colors.black)),
               ],
             ),
             const SizedBox(height: 4),
@@ -662,11 +660,11 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   'assets/Icons/calendario.png',
                   width: 16,
                   height: 16,
-                  color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Colors.black, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 6),
                 Text("Horas trabajadas: $horasTrabajadas",
-                    style: const TextStyle(color: Colors.white)),
+                    style: const TextStyle(color: Colors.black)),
               ],
             ),
             const SizedBox(height: 4),
@@ -679,7 +677,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   'assets/Icons/inversion.png',
                   width: 16,
                   height: 16,
-                  color: Colors.white, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Colors.black, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 6),
                 Expanded(
@@ -688,7 +686,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                     child: LinearProgressIndicator(
                       value: division / 100,
                       minHeight: 8,
-                      backgroundColor: Colors.white24,
+                      backgroundColor: Color(0xFFE7E7F3),
                       color: _getProgressColor(division),
                     ),
                   ),
@@ -696,7 +694,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                 const SizedBox(width: 8),
                 Text(
                   "${division.toStringAsFixed(1)}%",
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.black),
                 ),
               ],
             ),
@@ -732,9 +730,9 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
   // Obtener color para la barra de progreso según porcentaje
   Color _getProgressColor(double porcentaje) {
     if (porcentaje >= 80) return Colors.blue;
-    if (porcentaje >= 50) return Color(0xFF2DC70D); // Verde
-    if (porcentaje >= 30) return Color(0xFFFE9717); // Naranja
-    return Color(0xFFFF1A15); // Rojo
+    if (porcentaje >= 50) return Color(0xFF64D9C5); // Verde
+    if (porcentaje >= 30) return Color(0xFFFFC066); // Naranja
+    return Color(0xFFFF625C); // Rojo
   }
 }
 

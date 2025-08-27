@@ -87,7 +87,7 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
         title: event['nombre_actividad'],
         time: '${event['inicioA']} - ${event['ultimaA']}',
         imageBytesList: imageBytesList,
-        color: Colors.blue,
+        color: Color(0xFFF8F7FC),
         tiempo: tiempo,
         porcentaje: event['division']?.toString() ?? '0',
       );
@@ -159,13 +159,16 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
               ),
             ),
             body: Center(
-              child: InteractiveViewer(
-                panEnabled: true,
-                minScale: 0.5,
-                maxScale: 4.0,
-                child: Image.memory(
-                  imageBytes,
-                  fit: BoxFit.contain,
+              child: Hero(
+                tag: 'imageHero_${DateTime.now().millisecondsSinceEpoch}',
+                child: InteractiveViewer(
+                  panEnabled: true,
+                  minScale: 0.1,
+                  maxScale: 4.0,
+                  child: Image.memory(
+                    imageBytes,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
@@ -229,7 +232,7 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
                 if (widget.cargandoMas || _isLoadingMore)
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 20),
-                    child: CircularProgressIndicator(color: Colors.white),
+                    child: CircularProgressIndicator(color: Colors.black54),
                   ),
                   
                 if (!widget.tieneMasDatos && items.isNotEmpty)
@@ -295,9 +298,9 @@ class EnhancedChainTimelinePainter extends CustomPainter {
       
       final gradient = LinearGradient(
         colors: [
-          Colors.blueAccent.withValues(alpha: 0.8),
-          Color(0xFF1F3A5F).withValues(alpha: 0.8),
-          Colors.blue.withValues(alpha: 0.8),
+          Color(0xFF7956A8).withValues(alpha: 0.8),
+          Color(0xFF3E2B6B).withValues(alpha: 0.8),
+          Color(0xFF7876E1).withValues(alpha: 0.8),
         ],
         stops: const [0.0, 0.5, 1.0],
       );
@@ -326,7 +329,7 @@ class EnhancedChainTimelinePainter extends CustomPainter {
       canvas.drawPath(path, paint);
       
       final shadowPaint = Paint()
-        ..color = Colors.black.withValues(alpha: 0.3)
+        ..color = Colors.black.withValues(alpha: 0.1)
         ..strokeWidth = 6.0
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round;
@@ -390,14 +393,7 @@ class AnimatedTimelineCard extends StatelessWidget {
             Container(
               width: MediaQuery.of(context).size.width * 0.7, // ← AQUÍ se calcula el ancho
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    const Color(0xFF1F3A5F),
-                    const Color(0xFF2A4A6F),
-                  ],
-                ),
+                color: Color(0xFFF8F7FC),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: item.color.withValues(alpha: 0.5),
@@ -438,7 +434,7 @@ class AnimatedTimelineCard extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Colors.black,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -447,10 +443,10 @@ class AnimatedTimelineCard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.brown.withValues(alpha: 0.2),
+                            color: Color(0xFF3E2B6B).withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Colors.brown.withValues(alpha: 0.5),
+                              color: Color(0xFF3E2B6B).withValues(alpha: 0.5),
                               width: 1,
                             ),
                           ),
@@ -458,7 +454,7 @@ class AnimatedTimelineCard extends StatelessWidget {
                             '${item.porcentaje.isNotEmpty ? item.porcentaje : '0'}%',
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.white,
+                              color: Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -473,32 +469,35 @@ class AnimatedTimelineCard extends StatelessWidget {
                           if (item.imageBytesList.isNotEmpty)
                           GestureDetector(
                             onTap: () => onImageTap(context, item.imageBytesList[0]),
-                            child: Container(
-                              width: 130,
-                              height: 80,
-                              margin: const EdgeInsets.only(right: 12),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: item.color.withValues(alpha: 0.3),
-                                  width: 1,
+                            child: Hero(
+                              tag: 'imageHero_${item.title}',
+                              child: Container(
+                                width: 130,
+                                height: 80,
+                                margin: const EdgeInsets.only(right: 12),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: item.color.withValues(alpha: 0.3),
+                                    width: 1,
+                                  ),
                                 ),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(7),
-                                child: Image.memory(
-                                  item.imageBytesList[0],
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      color: Colors.grey[800],
-                                      child: Icon(
-                                        Icons.error,
-                                        color: item.color,
-                                        size: 40,
-                                      ),
-                                    );
-                                  },
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(7),
+                                  child: Image.memory(
+                                    item.imageBytesList[0],
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: Colors.grey[800],
+                                        child: Icon(
+                                          Icons.error,
+                                          color: item.color,
+                                          size: 40,
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                             ),
@@ -540,7 +539,7 @@ class AnimatedTimelineCard extends StatelessWidget {
                                       item.time.split(' - ')[0],
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: Colors.white,
+                                        color: Colors.black,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -559,7 +558,7 @@ class AnimatedTimelineCard extends StatelessWidget {
                                       item.time.split(' - ')[1],
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: Colors.white,
+                                        color: Colors.black,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -571,14 +570,14 @@ class AnimatedTimelineCard extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     Icon( Icons.timer, 
-                                        color: Colors.purple, 
+                                        color: Color(0xFF3E2B6B),
                                         size: 18),
                                     const SizedBox(width: 6),
                                     Text(
                                       '${item.tiempo.isNotEmpty ? item.tiempo : '0.00'}',
                                       style: const TextStyle(
                                         fontSize: 14,
-                                        color: Colors.white,
+                                        color: Colors.black,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),

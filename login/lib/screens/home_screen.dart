@@ -32,10 +32,11 @@ class HomeScreem extends StatelessWidget {
 
     //estructura base
     return Scaffold(
-      appBar: AppBar(                               //Muestra la barra superior
-        title: Text('Organización', style: TextStyle(fontFamily: '-apple-system'),),
+      appBar: AppBar(
+        backgroundColor: Color(0xFF3E2B6A),    //Muestra la barra superior
+        title: Text('Organización', style: TextStyle(color: Colors.white, fontFamily: '-apple-system'),),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, size: 24.0,),             //Icono flecha atras
+          icon: Icon(Icons.arrow_back, size: 24.0, color: Colors.white,),             //Icono flecha atras
           onPressed: () {
             Navigator.pop(context, 'logout');
           },
@@ -83,23 +84,7 @@ class HomeScreem extends StatelessWidget {
                               size: 30,
                               color: Colors.white,
                             ),
-                    ),
-                    Positioned(
-                      bottom: 2,
-                      right: 2,
-                      child: Container(
-                        width: 16,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
+                    ),    
                   ],
                 ),
                 
@@ -107,19 +92,39 @@ class HomeScreem extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [Text(
-                        '$nombre $apellido',
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, fontFamily: 'Inter'),
-                      ),
-                      Text(
-                        'ADMINISTRADOR',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, fontFamily: 'Inter'),
-                      ),
-                    ]
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: Color(0xFF72C8C0),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: Color(0xFF72C8C0),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            'Online',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          '$nombre $apellido',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, fontFamily: 'Inter'),
+                        ),
+                        Text(
+                          'ADMINISTRADOR',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, fontFamily: 'Inter'),
+                        ),
+                      ]
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             SizedBox(height: 24),                  //texto 
             Text(
               'Mis Organizaciones:',
@@ -156,23 +161,16 @@ class HomeScreem extends StatelessWidget {
                       );
                     },
                     child: Card(
-                      color: Color(0xFFF8A835),
-                      shadowColor: Colors.black, // Color de sombra
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20), // Tarjeta cuadrada
+                      //shadowColor: Colors.black, // Color de sombra
+                      //elevation: 3,
+                      //shape: RoundedRectangleBorder(
+                        //borderRadius: BorderRadius.circular(6), // Tarjeta cuadrada
                         
-                      ),
+                      //),
                       child: Container(
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [ Color(0xFFFFA528), Color(0xFFF77B09),],
-                            stops: [0.1, 0.9],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          color: Color(0xFFF8A835),
-                          borderRadius: BorderRadius.circular(20), // Tarjeta cuadrada
+                          //color: Color(0xFFF8F7FC),
+                          borderRadius: BorderRadius.circular(4), // Tarjeta cuadrada
                         ),
                         
                         padding: const EdgeInsets.all(16),
@@ -184,13 +182,13 @@ class HomeScreem extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.domain, color: Colors.black, size: 28),
+                                  Icon(Icons.domain, color: Color(0xFF3E2B6A), size: 28),
                                   SizedBox(width: 15),
                                   Expanded(
                                     child: Text(
                                       razonSocial ?? 'Sin razón social',
                                       style: TextStyle(
-                                        color: Colors.white,
+                                        color: Colors.black,
                                         fontSize: 18, // Reducido ligeramente
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -202,7 +200,7 @@ class HomeScreem extends StatelessWidget {
                               Text(
                                 'RUC: $ruc',
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.black,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500
                                 ),
@@ -211,7 +209,7 @@ class HomeScreem extends StatelessWidget {
                               Text(
                                 'Tipo: $tipo',
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.black,
                                   fontSize: 12,
                                 ),
                               ),
@@ -219,7 +217,7 @@ class HomeScreem extends StatelessWidget {
                               Text(
                                 'Cantidad de empleados: ${org['cantidad_empleados_lumina'] ?? '0'}',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.black,
                                   fontSize: 12,
                                 ),
                               ),

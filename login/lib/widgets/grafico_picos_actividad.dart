@@ -25,13 +25,15 @@ class GraficoPicosActividad extends StatelessWidget {
   Widget build(BuildContext context) {
     // Paleta de colores vibrantes
     final List<Color> colorPalette = [
-      Color(0xFF0868FB), // Azul
+      Color(0xFF3E2B6B),
+      Color(0xFF64D9C5),
+    /*  Color(0xFF0868FB), // Azul
       Color(0xFF2DC70D), // Verde
       Color(0xFFFF1A15), // Rojo
       Color(0xFF7AD6D5), // Cian
       Color(0xFFDC32F3), // Morado
       Color(0xFFFE9717), // Naranja
-      Color(0xFFFFA2CD), // Rosa
+      Color(0xFFFFA2CD), // Rosa*/
     ];
 
     // Filtrar datos para mostrar solo de 8:00 a 18:00
@@ -49,7 +51,7 @@ class GraficoPicosActividad extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      color: const Color(0xFF1E293B),
+      color: const Color(0xFFF8F7FC),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: SizedBox(
@@ -59,14 +61,14 @@ class GraficoPicosActividad extends StatelessWidget {
               // Título adaptado al estilo del otro gráfico
               const Row(
                 children: [
-                  Icon(Icons.show_chart, color: Colors.blueAccent),
+                  Icon(Icons.show_chart, color: Color(0xFF3E2B6B)),
                   SizedBox(width: 8),
                   Text(
                     'PICOS DE ACTIVIDAD',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                   ),
                 ],
@@ -81,20 +83,20 @@ class GraficoPicosActividad extends StatelessWidget {
                   primaryXAxis: CategoryAxis(
                     labelRotation: -45,
                     majorGridLines: const MajorGridLines(width: 0),
-                    axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
+                    axisLine: const AxisLine(width: 1.5, color: Colors.white54),
                     labelStyle: TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontSize: 12,
                     ),
                   ),
                   primaryYAxis: NumericAxis(
-                    axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
+                    axisLine: const AxisLine(width: 1.5, color: Colors.white54),
                     majorGridLines: MajorGridLines(
                       width: 1,
-                      color: Colors.grey[200]!,
+                      color: Colors.grey[100],
                     ),
                     labelStyle: TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                   ),
                   tooltipBehavior: TooltipBehavior(
@@ -112,10 +114,10 @@ class GraficoPicosActividad extends StatelessWidget {
                       yValueMapper: (d, _) => d.valor,
                       name: 'Actividad',
                       pointColorMapper: (HoraActividadData d, int index) {
-                        return colorPalette[index % colorPalette.length].withValues(alpha: 0.9);
+                        return colorPalette[index % colorPalette.length];
                       },
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                      width: 0.7,
+                      
+                      width: 0.9,
                       spacing: 0.2,
                       borderWidth: 1,
                       animationDuration: 2000,
@@ -123,17 +125,17 @@ class GraficoPicosActividad extends StatelessWidget {
                       dataLabelSettings: DataLabelSettings(
                         isVisible: true,
                         textStyle: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
-                        labelAlignment: ChartDataLabelAlignment.top,
+                        labelAlignment: ChartDataLabelAlignment.outer,
                         // Añade esta propiedad para formatear con 1 decimal
                         builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
                           return Text(
                             '${point.y.toStringAsFixed(1)}', // Muestra con 1 decimal
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),

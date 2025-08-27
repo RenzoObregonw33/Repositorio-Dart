@@ -59,6 +59,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_native_splash: ^2.3.0
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -67,13 +69,15 @@ dev_dependencies:
 flutter:
 
   assets:
+    - assets/logolumina.png
     - assets/Lumina2.png
+    - assets/splash.png
     - assets/Icons/inversion.png
     - assets/Icons/cronografo.png
     - assets/Icons/calendario.png
     - assets/Icons/reloj.png
     - assets/Icons/objetivo.png
-    - assets/imagen/lumina.png
+    - assets/imagen/luminaos.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -109,3 +113,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_native_splash:
+  color: "#ff0000"          # Fondo blanco
+  image: assets/splash.png    # Logo en splash
+  android: true
+  ios: false

@@ -31,6 +31,7 @@ class _LoginScreemState extends State<LoginScreen> {
   }
 
   @override
+
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
@@ -41,7 +42,7 @@ class _LoginScreemState extends State<LoginScreen> {
             children: [
               SizedBox(
                 height: 70,
-                child: Image.asset('assets/Lumina2.png', height: 100),
+                child: Image.asset('assets/logolumina.png', height: 100),
               ),
               SizedBox(height: 50),
               Text(
@@ -49,7 +50,7 @@ class _LoginScreemState extends State<LoginScreen> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFFBB347),
+                  color: Color(0xFF3D2A6A),
                   fontFamily: '-apple-system'
                 ),
               ),
@@ -78,12 +79,12 @@ class _LoginScreemState extends State<LoginScreen> {
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  labelStyle: TextStyle(fontFamily: '-apple-system',color: Colors.white),
+                  labelStyle: TextStyle(fontFamily: '-apple-system',color: Colors.grey),
                   prefixIcon: Icon(
                     Icons.person_outline,
                     color: _emailError != null
                         ? Colors.red
-                        : Color(0xFFFBB347),
+                        : Color(0xFF3D2A6A),
                   ),
                   suffixIcon: _emailError != null
                       ? Icon(Icons.error_outline, color: Colors.red)
@@ -104,12 +105,12 @@ class _LoginScreemState extends State<LoginScreen> {
                 obscureText: _ocultarPassword,
                 decoration: InputDecoration(
                   labelText: 'Contraseña',
-                  labelStyle: TextStyle(fontFamily: '-apple-system',color: Colors.white),
+                  labelStyle: TextStyle(fontFamily: '-apple-system',color: Colors.grey),
                   prefixIcon: Icon(
                     Icons.lock_outline,
                     color: _passwordError != null
                         ? Colors.red
-                        : Color(0xFFFBB347),
+                        : Color(0xFF3D2A6A),
                   ),
                   suffixIcon: _passwordError != null
                       ? Icon(Icons.error_outline, color: Colors.red)
@@ -162,10 +163,10 @@ class _LoginScreemState extends State<LoginScreen> {
                   child: Text(
                     'Olvidaste tu Contraseña',
                     style: TextStyle(
-                      color: Color(0xFFFBB347),
+                      color: Color(0xFF3D2A6A),
                       fontSize: 14,
                       decoration: TextDecoration.underline,
-                      decorationColor: Color(0xFFFBB347),
+                      decorationColor: Color(0xFF3D2A6A),
                       fontFamily: '-apple-system'
                     ),
                   ),
@@ -179,3 +180,4 @@ class _LoginScreemState extends State<LoginScreen> {
   
   }
 }
+

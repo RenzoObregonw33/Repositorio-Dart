@@ -20,13 +20,15 @@ class GraficoPicosPorcentaje extends StatelessWidget {
   Widget build(BuildContext context) {
     // Paleta de colores original (igual que tu versión)
     final List<Color> colorPalette = [
-      const Color(0xFF0868FB), // Azul
-      const Color(0xFF2DC70D), // Verde
-      const Color(0xFFFF1A15), // Rojo
-      const Color(0xFF7AD6D5), // Cian
-      const Color(0xFFDC32F3), // Morado
-      const Color(0xFFFE9717), // Naranja
-      const Color(0xFFFFA2CD), // Rosa
+      Color(0xFF3E2B6B),
+      Color(0xFF64D9C5),
+    /*  Color(0xFF0868FB), // Azul
+      Color(0xFF2DC70D), // Verde
+      Color(0xFFFF1A15), // Rojo
+      Color(0xFF7AD6D5), // Cian
+      Color(0xFFDC32F3), // Morado
+      Color(0xFFFE9717), // Naranja
+      Color(0xFFFFA2CD), // Rosa*/
     ];
 
     // Filtramos solo horas de 8:00 a 18:00 como en tu versión original
@@ -41,7 +43,7 @@ class GraficoPicosPorcentaje extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      color: const Color(0xFF1E293B),
+      color: const Color(0xFFF8F7FC),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: SizedBox(
@@ -51,14 +53,14 @@ class GraficoPicosPorcentaje extends StatelessWidget {
               // Título con icono (idéntico a tu versión)
               const Row(
                 children: [
-                  Icon(Icons.pie_chart, color: Colors.blueAccent),
+                  Icon(Icons.pie_chart, color: Color(0xFF3E2B6B)),
                   SizedBox(width: 8),
                   Text(
                     'ACTIVIDAD POR HORA (%)',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                   ),
                 ],
@@ -73,9 +75,9 @@ class GraficoPicosPorcentaje extends StatelessWidget {
                   primaryXAxis: CategoryAxis(
                     labelRotation: -45,
                     majorGridLines: const MajorGridLines(width: 0),
-                    axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
+                    axisLine: const AxisLine(width: 1.5, color: Colors.white54),
                     labelStyle: const TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontSize: 12,
                     ),
                   ),
@@ -83,13 +85,13 @@ class GraficoPicosPorcentaje extends StatelessWidget {
                     minimum: 0,
                     maximum: 100, // Máximo 100% para porcentajes
                     interval: 20,
-                    axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
+                    axisLine: const AxisLine(width: 1.5, color: Colors.white54),
                     majorGridLines: MajorGridLines(
                       width: 1,
-                      color: Colors.grey.withValues(alpha: 0.3),
+                      color: Colors.grey[100],
                     ),
                     labelStyle: const TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                   ),
                   tooltipBehavior: TooltipBehavior(
@@ -106,22 +108,29 @@ class GraficoPicosPorcentaje extends StatelessWidget {
                       xValueMapper: (d, _) => d.hora,
                       yValueMapper: (d, _) => d.porcentaje,
                       pointColorMapper: (d, index) => 
-                          colorPalette[index % colorPalette.length],
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(8),
-                      ),
-                      width: 0.7,
+                          colorPalette[index % colorPalette.length],       
+                      width: 0.8,
                       spacing: 0.2,
                       borderWidth: 1,
                       animationDuration: 2000,
-                      dataLabelSettings: const DataLabelSettings(
+                      dataLabelSettings: DataLabelSettings(
                         isVisible: true,
                         textStyle: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
-                        labelAlignment: ChartDataLabelAlignment.top,
+                        labelAlignment: ChartDataLabelAlignment.outer,
+                        builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+                          return Text(
+                            '${point.y.toStringAsFixed(1)}', // Muestra con 1 decimal
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        },
                       ),
                     )
                   ],

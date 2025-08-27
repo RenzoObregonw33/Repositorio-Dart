@@ -3,7 +3,7 @@ import 'package:login/Apis/api_graphics_services.dart';
 import 'package:login/Models/datos_actividad.dart';
 import 'package:login/Models/datos_embudo.dart';
 import 'package:login/Models/filtro_data.dart';
-import 'package:login/widgets/grafico_actividad_diaria.dart';
+import 'package:login/widgets/grafico_actividad_semanal.dart';
 import 'package:login/widgets/grafico_distribucion_actividad.dart';
 import 'package:login/widgets/grafico_donut.dart';
 import 'package:login/widgets/grafico_eficiencia.dart';
@@ -75,9 +75,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard Gráficos'),
+        backgroundColor: Color(0xFF3E2B6B),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Dashboard Gráficos', style: TextStyle(color: Colors.white),textAlign: TextAlign.center,),
         actions: [
           IconButton(
+            color: Colors.white,
             icon: const Icon(Icons.refresh),
             onPressed: _dateRange != null ? () {
               if (!mounted) return; // <-- Añadir aquí
@@ -205,10 +208,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       right: -12,  // Posición ligeramente fuera para no comprimir el gráfico
                       child: FloatingActionButton(
                         mini: true,
-                        backgroundColor: Color(0xFFF77B09),
+                        backgroundColor: Color(0xFF7876E1),
                         elevation: 2,
                         onPressed: _nextGraph,
-                        child: Icon(Icons.arrow_forward, color: Colors.black),
+                        child: Icon(Icons.arrow_forward, color: Colors.white),
                       ),
                     ),
                   ],
@@ -230,13 +233,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       height: 50,
       width: fullWidth ? double.infinity : null,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-            colors: [ Color(0xFFFFA528), Color(0xFFF77B09),],
-            stops: [0.1, 0.9],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ), // Amarillo medio
-        borderRadius: BorderRadius.circular(8),
+        color: Color(0xFF7876E1),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha:  0.1),
@@ -258,8 +256,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Text(
           text,
           style: const TextStyle(
-            fontSize: 16,
-            color: Colors.black, // Texto negro
+            fontSize: 14,
+            color: Colors.white, // Texto negro
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -275,7 +273,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Lumina(
-              assetPath: 'assets/imagen/lumina.png',
+              assetPath: 'assets/imagen/luminaos.png',
               duracion: const Duration(milliseconds: 1500),
               size: 300,
             ),
@@ -348,16 +346,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final embudoProcesos = data['embudo_procesos'] ?? {};
         _productivas = (embudoProcesos['productivas'] ?? 0).toDouble();
         _noProductivas = (embudoProcesos['no_productivas'] ?? 0).toDouble();
+        print('✅ EMBUDO PROCESOS - Productivas: $_productivas');
+        print('✅ EMBUDO PROCESOS - No Productivas: $_noProductivas');
         
         final comparativo = data['comparativo_horas'] ?? {};
         _productivas = (comparativo['productivas'] ?? 0).toDouble();
         _noProductivas = (comparativo['no_productivas'] ?? 0).toDouble();
 
         _funnelData = [
-          FunnelData('Horas productivas', (comparativo['productivas'] ?? 0).toDouble(), const Color(0xFF0868FB)),
-          FunnelData('Horas no productivas', (comparativo['no_productivas'] ?? 0).toDouble(), const Color(0xFFFDF807)),
-          FunnelData('Horas programadas', (comparativo['programadas'] ?? 0).toDouble(), const Color(0xFFFF1A15)),
-          FunnelData('Horas de presencia', (comparativo['presencia'] ?? 0).toDouble(), const Color(0xFF2BCA07)),
+          FunnelData('Horas productivas', (comparativo['productivas'] ?? 0).toDouble(), const Color(0xFF446078)),
+          FunnelData('Horas no productivas', (comparativo['no_productivas'] ?? 0).toDouble(), const Color(0xFFC4DEF9)),
+          FunnelData('Horas programadas', (comparativo['programadas'] ?? 0).toDouble(), const Color(0xFF232B36)),
+          FunnelData('Horas de presencia', (comparativo['presencia'] ?? 0).toDouble(), const Color(0xFF64D9C5)),
         ];
 
         final actividad = data['sStackUltimos7Dias'];

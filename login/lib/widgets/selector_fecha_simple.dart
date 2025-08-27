@@ -17,13 +17,8 @@ class SelectorFechaSimple extends StatelessWidget {
       child: Container(
         height: 50,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFFA528), Color(0xFFF77B09)],
-            stops: [0.1, 0.9],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(8),
+          color: Color(0xFF7775E2),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -55,13 +50,13 @@ class SelectorFechaSimple extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.calendar_today, size: 20, color: Colors.black),
+              const Icon(Icons.calendar_today, size: 20, color: Colors.white),
               const SizedBox(width: 8),
               Text(
                 "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
                 style: const TextStyle(
                   fontSize: 16,
-                  color: Colors.black,
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),

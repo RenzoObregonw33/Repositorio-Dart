@@ -141,22 +141,29 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Color de fondo
+      backgroundColor: Colors.white, // Color de fondo
       appBar: AppBar(
-        backgroundColor: Colors.black, // Color de fondo de la AppBar
+        backgroundColor: Color(0xFF3E2B6A), // Color de fondo de la AppBar
+        iconTheme: IconThemeData(color: Colors.white), // Color de los íconos
         title: Text(
           'Diario en Lista',
           style: TextStyle(color: Colors.white), // Color del texto
         ),
-        bottom: TabBar(
-          controller: _tabController, // Controlador de pestañas
-          indicatorColor: Colors.blueAccent, // Color del indicador
-          labelColor: Colors.white, // Color de la etiqueta seleccionada
-          unselectedLabelColor: Colors.grey, // Color de la etiqueta no seleccionada
-          tabs: const [
-            Tab(text: 'Diario en Línea'), // Primera pestaña
-            Tab(text: 'Línea de Tiempo'), // Segunda pestaña
-          ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(kToolbarHeight),
+          child: Container(
+            color: Colors.white, // Fondo blanco para el TabBar
+            child: TabBar(
+              controller: _tabController,
+              indicatorColor: Color(0xFF64D9C5),
+              labelColor: Colors.black, // Texto seleccionado en negro sobre fondo blanco
+              unselectedLabelColor: Colors.black,
+              tabs: const [
+                Tab(text: 'Diario en Línea'),
+                Tab(text: 'Línea de Tiempo'),
+              ],
+            ),
+          ),
         ),
       ),
       body: _buildBody(), // Cuerpo de la pantalla
@@ -217,7 +224,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Lumina(
-              assetPath: 'assets/imagen/lumina.png', // Ruta a tu imagen de carga
+              assetPath: 'assets/imagen/luminaos.png', // Ruta a tu imagen de carga
               duracion: const Duration(milliseconds: 1500), // Duración de la animación
               size: 300, // Tamaño de la imagen
             ),
@@ -239,7 +246,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
       return Center(
         child: Text(
           'No hay datos disponibles', // Mensaje cuando no hay datos
-          style: TextStyle(color: Colors.white), // Color del texto
+          style: TextStyle(color: Colors.black), // Color del texto
         ),
       );
     }
@@ -284,7 +291,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
                 children: [
                   CircleAvatar(
                     radius: 25,
-                    backgroundColor: Colors.white, // Color de fondo del avatar
+                    backgroundColor: Colors.grey, // Color de fondo del avatar
                     child: Icon(Icons.person, size: 30, color: Colors.black), // Icono del avatar
                   ),
                   SizedBox(width: 10), // Espaciado
@@ -292,7 +299,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
                     child: Text(
                       "${widget.empleado['nombre']} ${widget.empleado['apPaterno']} ${widget.empleado['apMaterno']}", // Nombre del empleado
                       style: TextStyle(
-                        color: Colors.white, // Color del texto
+                        color: Colors.black, // Color del texto
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -303,11 +310,11 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
               SizedBox(height: 10), // Espaciado
               Row(
                 children: [
-                  Icon(Icons.calendar_today, color: Colors.white, size: 18), // Icono de calendario
+                  Icon(Icons.calendar_today, color: Color(0xFF3E2B6B), size: 18), // Icono de calendario
                   SizedBox(width: 5), // Espaciado
                   Text(
                     "${widget.fecha.day} de ${_getMonthName(widget.fecha.month)} del ${widget.fecha.year}", // Fecha formateada
-                    style: TextStyle(color: Colors.white), // Color del texto
+                    style: TextStyle(color: Colors.black), // Color del texto
                   ),
                 ],
               ),
@@ -321,13 +328,19 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
               SizedBox(height: 20), // Espaciado
 
               // Lista de actividades
-              Text(
-                'Actividades del día',
-                style: TextStyle(
-                  color: Colors.white, // Color del texto
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                children: [
+                  Icon(Icons.link, color: Color(0xFF3E2B6B), size: 18), // Icono de actividades
+                  SizedBox(width: 5), // Espaciado
+                  Text(
+                    'Actividades del día',
+                    style: TextStyle(
+                      color: Colors.black, // Color del texto
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 10), // Espaciado
               ...lista.map((item) => _buildItemLista(item)).toList(), // Muestra la lista de actividades
@@ -336,7 +349,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
               if (_cargando && _responseData != null)
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Center(child: CircularProgressIndicator(color: Colors.white)), // Indicador de carga
+                  child: Center(child: CircularProgressIndicator(color: Colors.black)), // Indicador de carga
                 ),
               
               // Mensaje cuando no hay más datos
@@ -365,7 +378,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
       margin: EdgeInsets.only(bottom: 10), // Margen inferior
       padding: EdgeInsets.all(12), // Espaciado interno
       decoration: BoxDecoration(
-        color: Colors.white, // Color de fondo
+        color: Color(0xFFF8F7FC), // Color de fondo
         borderRadius: BorderRadius.circular(12), // Bordes redondeados
       ),
       child: Column(
@@ -378,10 +391,10 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
           SizedBox(height: 5), // Espaciado
           Row(
             children: [
-              Icon(Icons.door_front_door_rounded, size: 20, color: Colors.green), // Icono de entrada
+              Icon(Icons.schedule_rounded, size: 20, color: Colors.green), // Icono de entrada
               Text(item['inicioA'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Hora de inicio
               SizedBox(width: 30), // Espaciado
-              Icon(Icons.door_back_door_rounded, size: 20, color: Colors.red), // Icono de salida
+              Icon(Icons.schedule_rounded, size: 20, color: Colors.red), // Icono de salida
               Text(item['ultimaA'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Hora de salida
             ],
           ),
@@ -390,7 +403,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
             children: [
               Row(
                 children: [
-                  Icon(Icons.timer, size: 20, color: Colors.blue[900]), // Icono de tiempo transcurrido
+                  Icon(Icons.timer, size: 20, color: Color(0xFF3E2B6B)), // Icono de tiempo transcurrido
                   Text(item['tiempoTranscurrido'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Tiempo transcurrido
                 ]
               ),
@@ -453,9 +466,9 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
 
   // Método para obtener el color según la eficiencia
   Color _getColorEficiencia(double eficiencia) {
-    if (eficiencia >= 50) return Color(0xFF2BCA07); // Verde
-    if (eficiencia >= 30) return Colors.orange; // Naranja
-    return Color(0xFFFF1A15); // Rojo
+    if (eficiencia >= 50) return Color(0xFF64D9C5); // Verde
+    if (eficiencia >= 30) return Color(0xFFFFC066); // Naranja
+    return Color(0xFFFF625C); // Rojo
   }
 
   // Método para obtener el nombre del mes

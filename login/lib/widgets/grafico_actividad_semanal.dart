@@ -20,18 +20,13 @@ class GraficoActividadDiaria extends StatefulWidget {
 class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
   bool _esLinea = false;
   final List<Color> _coloresBarras = [
-    const Color(0xFF0868FB), // Azul
-    const Color(0xFF2DC70D), // Verde
-    const Color(0xFFFF1A15), // Rojo
-    const Color(0xFF7AD6D5), // Cian
-    const Color(0xFFFE9717), // Naranja
-    const Color(0xFFDC32F3), // Morado   
+    Color(0xFF3E2B6B),
+    Color(0xFF64D9C5), // Turquesa
   ];
 
   final List<Color> _coloresLineas = [
-    const Color(0xFFFF1A15), // Rojo
-    const Color(0xFF2DC70D), // Verde
-    const Color(0xFF0868FB), // Azul
+    Color(0xFF3E2B6B), // Morado oscuro
+    Color(0xFF64D9C5), // Turquesa
   ];
 
   List<ActividadDiariaData> _procesarDatos() {
@@ -41,12 +36,19 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
           .map((v) => double.tryParse(v.toString()) ?? 0.0)
           .toList();
 
-      return List.generate(labels.length, (index) => 
-        ActividadDiariaData(
+      // Obtener todos los datos
+      List<ActividadDiariaData> todosLosDatos = List.generate(
+        labels.length, 
+        (index) => ActividadDiariaData(
           labels.length > index ? labels[index] : 'Día ${index + 1}',
           valores.length > index ? valores[index] : 0
         )
       );
+
+      // Tomar solo los últimos 6 días (o menos si hay menos datos)
+      int startIndex = todosLosDatos.length > 6 ? todosLosDatos.length - 6 : 0;
+      return todosLosDatos.sublist(startIndex);
+      
     } catch (e) {
       debugPrint('Error procesando datos: $e');
       return [];
@@ -63,29 +65,29 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      color: const Color(0xFF1E293B),
+      color: const Color(0xFFF8F7FC),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: SizedBox(
-          height: 280, // Misma altura que los otros gráficos
+          height: 280,
           child: Column(
             children: [
-              // Título manteniendo tu formato original
+              // Título
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '📊 ${datos.length >= 7 ? 'Actividad Semanal' : 'Actividad Reciente'}',
+                    '📊 Actividad Semanal ${datos.length} Días',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                   ),
                   IconButton(
                     icon: Icon(
                       _esLinea ? Icons.bar_chart : Icons.show_chart,
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                     onPressed: () => setState(() => _esLinea = !_esLinea),
                     tooltip: _esLinea ? 'Ver como barras' : 'Ver como líneas',
@@ -114,17 +116,17 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
       plotAreaBorderWidth: 0,
       primaryXAxis: CategoryAxis(
         labelRotation: -45,
-        labelStyle: const TextStyle(color: Colors.white),
+        labelStyle: const TextStyle(color: Colors.black),
         majorGridLines: const MajorGridLines(width: 0),
-        axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
+        axisLine: const AxisLine(width: 1.5, color: Colors.white54),
       ),
       primaryYAxis: NumericAxis(
         minimum: 0,
         maximum: _calcularMaxY(datos),
         interval: _calcularIntervalo(datos),
         labelFormat: '{value}%',
-        labelStyle: const TextStyle(color: Colors.white),
-        axisLine: const AxisLine(width: 1.5, color: Colors.blueGrey),
+        labelStyle: const TextStyle(color: Colors.black),
+        axisLine: const AxisLine(width: 1.5, color: Colors.white54),
         majorGridLines: MajorGridLines(
           width: 1,
           color: Colors.grey.withValues(alpha: 0.3),
@@ -133,13 +135,13 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
       tooltipBehavior: TooltipBehavior(
         enable: true,
         format: 'point.x\n${_esLinea ? 'Actividad' : 'Total'}: point.y%',
-        color: Colors.white,
+        color: Colors.black,
         textStyle: const TextStyle(
-          color: Colors.black,
+          color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: 14,
         ),
-        borderColor: Colors.blueGrey.shade300,
+        borderColor: Colors.grey.shade300,
       ),
       series: _esLinea ? _buildLineSeries(datos) : _buildColumnSeries(datos),
     );
@@ -168,15 +170,25 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
           isVisible: true,
           shape: DataMarkerType.circle,
           borderWidth: 2,
-          borderColor: Colors.white,
+          borderColor: Color(0xFF3E2B6B),
           color: _coloresLineas[1],
         ),
-        dataLabelSettings: const DataLabelSettings(
+        dataLabelSettings: DataLabelSettings(
           isVisible: true,
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Colors.black,
           ),
+          builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+            return Text(
+              '${point.y.toStringAsFixed(1)}%',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontSize: 10,
+              ),
+            );
+          },
         ),
       )
     ];
@@ -189,15 +201,24 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
         xValueMapper: (d, _) => d.dia,
         yValueMapper: (d, _) => d.porcentaje,
         pointColorMapper: (d, index) => _coloresBarras[index % _coloresBarras.length],
-        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
         width: 0.7,
         spacing: 0.2,
-        dataLabelSettings: const DataLabelSettings(
+        dataLabelSettings: DataLabelSettings(
           isVisible: true,
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Colors.black,
           ),
+          builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+            return Text(
+              '${point.y.toStringAsFixed(1)}%',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontSize: 10,
+              ),
+            );
+          },
         ),
       )
     ];

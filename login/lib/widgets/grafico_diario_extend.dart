@@ -29,7 +29,7 @@ class GraficoDiarioExtend extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Color(0xFF1E2A38), // Fondo oscuro para el contenedor
+        color: Color(0xFFF8F7FC), // Fondo oscuro para el contenedor
         borderRadius: BorderRadius.circular(12), // Bordes redondeados
       ),
       height: 300, // Altura fija para el contenedor del gráfico
@@ -44,14 +44,14 @@ class GraficoDiarioExtend extends StatelessWidget {
               children: [
                 Icon(
                   Icons.calendar_month_rounded, // Ícono que prefieras
-                  color: Colors.white,
+                  color: Color(0xFF3E2B6B),
                   size: 20,
                 ),
                 SizedBox(width: 8), // Espacio entre ícono y texto
                 Text(
                   "% Porcentaje de Actividad Diaria",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -78,7 +78,7 @@ class GraficoDiarioExtend extends StatelessWidget {
                   drawVerticalLine: false, // Oculta líneas verticales
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: Colors.white.withValues(alpha: 0.1), // Líneas tenues
+                      color: Colors.grey.withValues(alpha: 0.1), // Líneas tenues
                       strokeWidth: 1,
                     );
                   },
@@ -100,7 +100,7 @@ class GraficoDiarioExtend extends StatelessWidget {
                         return Text(
                           '${value.toInt()}%',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.black,
                             fontSize: 10,
                             fontWeight: FontWeight.bold
                           ),
@@ -124,7 +124,7 @@ class GraficoDiarioExtend extends StatelessWidget {
                             child: Text(
                               grafico['labels'][index].toString(),
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Colors.black,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold
                               ),
@@ -168,7 +168,7 @@ class GraficoDiarioExtend extends StatelessWidget {
                       ),
                     ),
                     isCurved: true, // Línea curva suave
-                    color: Colors.blueAccent, // Color de la línea
+                    color: Color(0xFF3E2B6B), // Color de la línea
                     barWidth: 4, // Grosor de la línea
                     isStrokeCapRound: true, // Extremos redondeados
                     
@@ -178,9 +178,9 @@ class GraficoDiarioExtend extends StatelessWidget {
                       getDotPainter: (spot, percent, barData, index) {
                         return FlDotCirclePainter(
                           radius: 4,
-                          color: Colors.white, // Relleno blanco
+                          color: Color(0xFF64D9C5), // Relleno blanco
                           strokeWidth: 2,
-                          strokeColor: Colors.blueAccent, // Borde azul
+                          strokeColor: Color(0xFF3E2B6B), // Borde azul
                         );
                       },
                     ),
@@ -192,15 +192,15 @@ class GraficoDiarioExtend extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.blueAccent.withValues(alpha: 0.3), // Más opaco arriba
-                          Colors.blueAccent.withValues(alpha: 0.1), // Más transparente abajo
+                          Color(0xFF3E2B6B).withValues(alpha: 0.3), // Más opaco arriba
+                          Color(0xFF3E2B6B).withValues(alpha: 0.1), // Más transparente abajo
                         ],
                       ),
                     ),
                     
                     // Sombra para efecto de profundidad
                     shadow: Shadow(
-                      color: Colors.blueAccent.withValues(alpha: 0.5),
+                      color: Color(0xFF3E2B6B).withValues(alpha: 0.5),
                       blurRadius: 8,
                       offset: Offset(0, 5),
                     ),

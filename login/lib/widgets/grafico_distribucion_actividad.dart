@@ -34,7 +34,7 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      color: const Color(0xFF1E293B),
+      color: const Color(0xFFF8F7FC),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -42,14 +42,14 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
           children: [
             Row(
               children: [
-                Icon(Icons.bar_chart, color: Colors.blueAccent),
+                Icon(Icons.bar_chart, color: Color(0xFF3E2B6B)),
                 const SizedBox(width: 8),
                 Text(
                   'DISTRIBUCIÓN DE ACTIVIDAD',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Colors.black,
                   ),
                 ),
               ],
@@ -64,14 +64,14 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _buildToggleLegend(
-                      color: Colors.green,
+                      color: Color(0xFF64D9C5),
                       label: 'Con actividad',
                       isActive: mostrarConActividad,
                       onTap: () => setState(() => mostrarConActividad = !mostrarConActividad),
                     ),
                     const SizedBox(width: 24),
                     _buildToggleLegend(
-                      color: Colors.orange,
+                      color: Color(0xFFC4DEF9),
                       label: 'Sin actividad',
                       isActive: mostrarSinActividad,
                       onTap: () => setState(() => mostrarSinActividad = !mostrarSinActividad),
@@ -101,7 +101,7 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
                         rods.add(BarChartRodStackItem(
                           inicio, 
                           inicio + dato.conActividad, 
-                          Colors.green,
+                          Color(0xFF64D9C5),
                         ));
                         inicio += dato.conActividad;
                       }
@@ -109,7 +109,7 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
                         rods.add(BarChartRodStackItem(
                           inicio, 
                           inicio + dato.sinActividad, 
-                          Colors.orange,
+                          Color(0xFFC4DEF9),
                         ));
                       }
 
@@ -120,7 +120,7 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
                             toY: totalAltura,
                             rodStackItems: rods,
                             width: anchoBarra,
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                           ),
                         ],
                       );
@@ -189,13 +189,13 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
                       show: true,
                       drawVerticalLine: false,
                       getDrawingHorizontalLine: (value) => FlLine(
-                        color: Colors.grey.withValues(alpha:  0.3),
+                        color: Colors.grey[300]!,
                         strokeWidth: 1,
                       ),
                     ),
                     borderData: FlBorderData(
                       show: true,
-                      border: Border.all(color: Colors.grey.withValues(alpha:  0.3)),
+                      border: Border.all(color: Colors.grey[300]!, width: 1),
                     ),
                   ),
                 ),
@@ -231,7 +231,7 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
           Text(
             label,
             style: TextStyle(
-              color: isActive ? Colors.white : Colors.grey,
+              color: isActive ? Colors.black : Colors.grey,
             ),
           ),
         ],

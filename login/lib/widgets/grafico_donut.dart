@@ -23,8 +23,8 @@ class GraficoDonut extends StatelessWidget {
   Widget build(BuildContext context) {
     final total = productivas + noProductivas;
     final data = [
-      DonutData('Horas productivas', productivas, const Color(0xFFC909F7)),
-      DonutData('Horas no productivas', noProductivas, const Color(0xFF0868FB)),
+      DonutData('Horas productivas', productivas, const Color(0xFFC4DEF9)),
+      DonutData('Horas no productivas', noProductivas, const Color(0xFF64D9C5)),
     ];
 
     return Card(
@@ -33,7 +33,7 @@ class GraficoDonut extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      color: const Color(0xFF1E293B),
+      color: const Color(0xFFF8F7FC),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -42,14 +42,14 @@ class GraficoDonut extends StatelessWidget {
             // Título con icono
             const Row(
               children: [
-                Icon(Icons.pie_chart, color: Colors.blueAccent),
+                Icon(Icons.pie_chart, color: Color(0xFF3E2B6B)),
                 SizedBox(width: 8),
                 Text(
                   'DISTRIBUCIÓN DE HORAS',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Colors.black,
                   ),
                 ),
               ],
@@ -63,7 +63,7 @@ class GraficoDonut extends StatelessWidget {
                   isVisible: true,
                   overflowMode: LegendItemOverflowMode.wrap,
                   position: LegendPosition.bottom,
-                  textStyle: const TextStyle(color: Colors.white),
+                  textStyle: const TextStyle(color: Colors.black),
                 ),
                 series: <CircularSeries<DonutData, String>>[
                   DoughnutSeries<DonutData, String>(
@@ -78,13 +78,13 @@ class GraficoDonut extends StatelessWidget {
                       labelPosition: ChartDataLabelPosition.outside,
                       textStyle: TextStyle(
                         fontWeight: FontWeight.bold, 
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 12,
                       ),
                       connectorLineSettings: ConnectorLineSettings(
                         length: '20%',
                         type: ConnectorType.curve,
-                        color: Colors.white54,
+                        color: Colors.black,
                       ),
                     ),
                     radius: '75%',

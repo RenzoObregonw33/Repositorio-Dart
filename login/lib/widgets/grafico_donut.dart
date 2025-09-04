@@ -76,18 +76,19 @@ class GraficoDonut extends StatelessWidget {
                     dataLabelSettings: const DataLabelSettings(
                       isVisible: true,
                       labelPosition: ChartDataLabelPosition.outside,
+                      overflowMode: OverflowMode.shift,
                       textStyle: TextStyle(
                         fontWeight: FontWeight.bold, 
                         color: Colors.black,
                         fontSize: 12,
                       ),
                       connectorLineSettings: ConnectorLineSettings(
-                        length: '20%',
+                        length: '5%',
                         type: ConnectorType.curve,
                         color: Colors.black,
                       ),
                     ),
-                    radius: '75%',
+                    radius: '65%',
                     innerRadius: '60%',
                   ),
                 ],

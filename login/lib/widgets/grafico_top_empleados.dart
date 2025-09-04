@@ -66,7 +66,7 @@ class GraficoTopEmpleados extends StatelessWidget {
       },
       'grid': {
         'left': '2%',
-        'right': '5%',
+        'right': '2%',
         'bottom': '5%',
         'top': '5%',
         'containLabel': true
@@ -75,10 +75,12 @@ class GraficoTopEmpleados extends StatelessWidget {
         'type': 'value',
         'min': -100,
         'max': 100,
+        'interval': 25,
         'axisLabel': {
           'formatter': '{value} %',
           'color': '#000000',
           'fontWeight': 'bold',
+          'fontSize': 10,
         },
         'axisLine': {
           'lineStyle': {
@@ -88,6 +90,7 @@ class GraficoTopEmpleados extends StatelessWidget {
         'splitLine': {
           'lineStyle': {
             'color': '#4A5568',
+            'opacity': 0.3,
           }
         },
       },
@@ -99,6 +102,8 @@ class GraficoTopEmpleados extends StatelessWidget {
         'axisLabel': {
           'color': '#000000',
           'fontWeight': 'bold',
+          'margin': 6,
+          'fontSize': 10,   // Reducir tamaño de fuente
         },
         'data': labels,
       },
@@ -111,8 +116,9 @@ class GraficoTopEmpleados extends StatelessWidget {
             'formatter': '{c} %',
             'color': '#000000',
             'fontWeight': 'bold',
+            'fontSize': 10, // Reducir tamaño de fuente en las etiquetas
           },
-          'barWidth': '60%',
+          'barWidth': '50%',
           'data': valoresConEstilo,
         }
       ]
@@ -154,7 +160,7 @@ class GraficoTopEmpleados extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
                   child: SizedBox(
                     width: chartWidth,
-                    height: labels.length * 50 + 100,
+                    height: labels.length * 40 + 80,
                     child: Echarts(
                       option: jsonEncode(option),
                     ),

@@ -177,8 +177,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 style: TextStyle(color: Colors.red[700]),
               ),
             ),
-          if (_isLoading)
-            const LinearProgressIndicator(),
 
           SizedBox(height: 8),
 

@@ -113,6 +113,10 @@ class GraficoPicosPorcentaje extends StatelessWidget {
                       spacing: 0.2,
                       borderWidth: 1,
                       animationDuration: 2000,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        topRight: Radius.circular(8),
+                      ),
                       dataLabelSettings: DataLabelSettings(
                         isVisible: true,
                         textStyle: TextStyle(

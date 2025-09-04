@@ -52,12 +52,23 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
     _processItems();
   }
 
+  // Método para obtener el color según la eficiencia (igual que en diario_lista_screen)
+  Color _getColorEficiencia(double eficiencia) {
+    if (eficiencia >= 50) return Color(0xFF64D9C5); // Verde
+    if (eficiencia >= 30) return Color(0xFFFFC066); // Naranja
+    return Color(0xFFFF625C); // Rojo
+  }
+
   void _processItems() {
     if (!mounted) return;
 
     items = widget.eventos.map((event) {
       int tiempoEnSegundos = event['tiempoT'];
       String tiempo = _convertirSegundosATiempo(tiempoEnSegundos);
+
+      // Obtener porcentaje y determinar color
+      double porcentaje = double.tryParse(event['division']?.toString() ?? '0') ?? 0.0;
+      Color colorPorcentaje = _getColorEficiencia(porcentaje);
 
       // Manejar imágenes en base64
       List<Uint8List> imageBytesList = [];
@@ -66,9 +77,9 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
           event['imagen'].isNotEmpty) {
         
         for (var imgData in event['imagen']) {
-          if (imgData['imagen_grande'] != null) {
+          if (imgData['miniatura'] != null) {
             try {
-              String base64String = imgData['imagen_grande'];
+              String base64String = imgData['miniatura'];
               // Extraer solo la parte base64 (eliminar el prefijo data:image/...)
               if (base64String.contains(',')) {
                 base64String = base64String.split(',').last;
@@ -89,7 +100,8 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
         imageBytesList: imageBytesList,
         color: Color(0xFFF8F7FC),
         tiempo: tiempo,
-        porcentaje: event['division']?.toString() ?? '0',
+        porcentaje: porcentaje.toStringAsFixed(1),
+        colorPorcentaje: colorPorcentaje, // Nuevo campo para el color
       );
     }).toList();
   }
@@ -253,14 +265,15 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
   }
 }
 
-// Clase para representar un elemento de la línea de tiempo
+// Clase para representar un elemento de la línea de tiempo (MODIFICADA)
 class TimelineItem {
   final String title;
   final String time;
-  final List<Uint8List> imageBytesList; // Cambiado a lista de bytes
+  final List<Uint8List> imageBytesList;
   final Color color;
   final String tiempo;
   final String porcentaje;
+  final Color colorPorcentaje; // Nuevo campo para el color del porcentaje
 
   TimelineItem({
     required this.title,
@@ -269,6 +282,7 @@ class TimelineItem {
     required this.color,
     this.tiempo = '0:00:00',
     this.porcentaje = '0',
+    required this.colorPorcentaje, // Campo requerido
   });
 }
 
@@ -328,30 +342,6 @@ class EnhancedChainTimelinePainter extends CustomPainter {
       
       canvas.drawPath(path, paint);
       
-      final shadowPaint = Paint()
-        ..color = Colors.black.withValues(alpha: 0.1)
-        ..strokeWidth = 6.0
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round;
-      
-      final shadowPath = Path();
-      shadowPath.moveTo(centerX + 2, y + 2);
-      
-      if (i % 2 == 0) {
-        shadowPath.cubicTo(
-          centerX + curveIntensity + 2, y + (nextY - y) * 0.2 + 2,
-          centerX + curveIntensity + 2, y + (nextY - y) * 0.8 + 2,
-          centerX + 2, nextY + 2,
-        );
-      } else {
-        shadowPath.cubicTo(
-          centerX - curveIntensity + 2, y + (nextY - y) * 0.2 + 2,
-          centerX - curveIntensity + 2, y + (nextY - y) * 0.8 + 2,
-          centerX + 2, nextY + 2,
-        );
-      }
-      
-      canvas.drawPath(shadowPath, shadowPaint);
     }
   }
 
@@ -362,7 +352,7 @@ class EnhancedChainTimelinePainter extends CustomPainter {
 // Enum para la posición de la tarjeta
 enum ItemPosition { left, right }
 
-// Clase para la tarjeta de la línea de tiempo
+// Clase para la tarjeta de la línea de tiempo (MODIFICADA)
 class AnimatedTimelineCard extends StatelessWidget {
   final TimelineItem item;
   final ItemPosition position;
@@ -391,7 +381,7 @@ class AnimatedTimelineCard extends StatelessWidget {
               : MainAxisAlignment.end,
           children: [
             Container(
-              width: MediaQuery.of(context).size.width * 0.7, // ← AQUÍ se calcula el ancho
+              width: MediaQuery.of(context).size.width * 0.7,
               decoration: BoxDecoration(
                 color: Color(0xFFF8F7FC),
                 borderRadius: BorderRadius.circular(16),
@@ -406,7 +396,7 @@ class AnimatedTimelineCard extends StatelessWidget {
                     offset: const Offset(0, 5),
                   ),
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -440,13 +430,14 @@ class AnimatedTimelineCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        // BADGE MODIFICADO - Usa el color según productividad
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Color(0xFF3E2B6B).withValues(alpha: 0.2),
+                            color: item.colorPorcentaje.withOpacity(0.3), // Color con opacidad
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Color(0xFF3E2B6B).withValues(alpha: 0.5),
+                              color: item.colorPorcentaje, // Borde del color
                               width: 1,
                             ),
                           ),

@@ -115,13 +115,16 @@ class GraficoPicosActividad extends StatelessWidget {
                       name: 'Actividad',
                       pointColorMapper: (HoraActividadData d, int index) {
                         return colorPalette[index % colorPalette.length];
-                      },
-                      
+                      },     
                       width: 0.9,
                       spacing: 0.2,
                       borderWidth: 1,
                       animationDuration: 2000,
                       enableTooltip: true,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        topRight: Radius.circular(8),
+                      ),
                       dataLabelSettings: DataLabelSettings(
                         isVisible: true,
                         textStyle: TextStyle(

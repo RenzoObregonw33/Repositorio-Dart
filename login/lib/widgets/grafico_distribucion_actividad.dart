@@ -123,6 +123,7 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
                             borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                           ),
                         ],
+                        
                       );
                     }).toList(),
                     titlesData: FlTitlesData(
@@ -172,13 +173,15 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
                           final total = conActividad + sinActividad;
                           
                           return BarTooltipItem(
-                            'Actividad\n\n'
-                            '${mostrarConActividad ? 'Con actividad: ${d.conActividad.toStringAsFixed(1)} hrs\n' : ''}'
-                            '${mostrarSinActividad ? 'Sin actividad: ${d.sinActividad.toStringAsFixed(1)} hrs\n' : ''}'
-                            'Total: ${total.toStringAsFixed(1)} hrs',
+                            '📊 Actividad\n\n'
+                            '${mostrarConActividad ? '🟢 Con actividad: ${d.conActividad.toStringAsFixed(1)} hrs\n' : ''}'
+                            '${mostrarSinActividad ? '⚪ Sin actividad: ${d.sinActividad.toStringAsFixed(1)} hrs\n' : ''}'
+                            '🧮 Total: ${total.toStringAsFixed(1)} hrs',
                             const TextStyle(
                               color: Colors.white,
-                              fontSize: 12,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              height: 1.4,
                             ),
                             textAlign: TextAlign.left,
                           );

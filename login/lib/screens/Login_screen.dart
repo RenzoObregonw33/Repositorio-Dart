@@ -36,17 +36,12 @@ class _LoginScreemState extends State<LoginScreen> {
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 30),
+          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 40),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                height: 70,
-                child: Image.asset('assets/logolumina.png', height: 100),
-              ),
-              SizedBox(height: 50),
               Text(
-                'Bienvenido',
+                'Hola de nuevo!',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -56,8 +51,9 @@ class _LoginScreemState extends State<LoginScreen> {
               ),
               SizedBox(height: 10),
               Text(
-                'Por favor, inicia sesión para continuar',
+                'Bienvenido de regreso,',
                 style: TextStyle( 
+                fontSize: 16,
                 fontFamily: '-apple-system', // Tu fuente principal (como una sola String)
                 fontFamilyFallback: [
                   'system-ui',
@@ -71,7 +67,18 @@ class _LoginScreemState extends State<LoginScreen> {
                   'Segoe UI Symbol',
                 ]),
               ),
-              SizedBox(height: 30),
+              Text('te extrañamos!',
+                style: TextStyle( 
+                fontSize: 16,
+                fontFamily: '-apple-system', // Tu fuente principal (como una sola String)
+                fontFamilyFallback: [
+                  'system-ui',
+                  'Segoe UI',
+                  'roboto',
+                ]),
+              ),
+
+              SizedBox(height: 50),
 
               //TextField de Email
               TextField(
@@ -99,7 +106,7 @@ class _LoginScreemState extends State<LoginScreen> {
               ),
 
               //TextField de Password
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               TextField(
                 controller: _passwordController,
                 obscureText: _ocultarPassword,
@@ -121,6 +128,7 @@ class _LoginScreemState extends State<LoginScreen> {
                             });
                           },
                           icon: Icon(
+                            color: Colors.grey,
                             _ocultarPassword
                                 ? Icons.visibility_off
                                 : Icons.visibility,
@@ -135,22 +143,10 @@ class _LoginScreemState extends State<LoginScreen> {
                 },
               ),
 
-              //Boton Inicio de sesion
-              SizedBox(height: 30),
-              LoginButton(
-                emailController: _usernameController,
-                passwordController: _passwordController,
-                onError: ({String? emailError, String? passwordError}) {
-                  setState(() {
-                    _emailError = emailError;
-                    _passwordError = passwordError;
-                  });
-                },
-              ),
               //olvidaste contraseña
-              SizedBox(height: 10),
+              SizedBox(height: 8),
               Align(
-                alignment: Alignment.center,
+                alignment: Alignment.centerRight,
                 child: TextButton(                  //Reestablercer contraseña
                   onPressed: () {
                     Navigator.push(
@@ -161,17 +157,36 @@ class _LoginScreemState extends State<LoginScreen> {
                     );
                   },
                   child: Text(
-                    'Olvidaste tu Contraseña',
+                    'Recuperar Contraseña',
                     style: TextStyle(
                       color: Color(0xFF3D2A6A),
                       fontSize: 14,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Color(0xFF3D2A6A),
+                      /*decoration: TextDecoration.underline,
+                      decorationColor: Color(0xFF3D2A6A),*/
                       fontFamily: '-apple-system'
                     ),
                   ),
                 ),
               ),
+
+              //Boton Inicio de sesion
+              SizedBox(height: 10),
+              LoginButton(
+                emailController: _usernameController,
+                passwordController: _passwordController,
+                onError: ({String? emailError, String? passwordError}) {
+                  setState(() {
+                    _emailError = emailError;
+                    _passwordError = passwordError;
+                  });
+                },
+              ),
+              SizedBox(height: 240),
+              SizedBox(
+                height: 30,
+                child: Image.asset('assets/logolumina.png', height: 100),
+              ),
+              
             ],
           ),
         ),

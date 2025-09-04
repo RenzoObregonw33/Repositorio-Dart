@@ -229,26 +229,30 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
 
           // Barra de búsqueda
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _busquedaController, // Usamos el controlador
-                    decoration: InputDecoration(
-                      hintText: 'Buscar empleados...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    height: 40,
+                    child: TextField(
+                      controller: _busquedaController, // Usamos el controlador
+                      decoration: InputDecoration(
+                        hintText: 'Buscar empleados...',
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 8),
+                        suffixIcon: _textoBusqueda.isNotEmpty 
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: _limpiarBusqueda,
+                              )
+                            : null,
                       ),
-                      suffixIcon: _textoBusqueda.isNotEmpty 
-                          ? IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: _limpiarBusqueda,
-                            )
-                          : null,
+                      onSubmitted: (_) => _ejecutarBusqueda(), // Buscar al presionar enter
                     ),
-                    onSubmitted: (_) => _ejecutarBusqueda(), // Buscar al presionar enter
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -259,7 +263,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   ),
                   onPressed: _ejecutarBusqueda,
                   child: Text('Buscar', style: TextStyle(color: Colors.white),),
@@ -460,7 +464,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
   // Agrega este nuevo método para construir la leyenda
   Widget _buildLeyendaProductividad() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       padding: const EdgeInsets.all(8),
       /*decoration: BoxDecoration(
         color: const Color(0xFF0F2747),
@@ -569,7 +573,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
             // Fila con nombre e ID
             Row(
               children: [
-                const Icon(Icons.person, color: Colors.black, size: 24),
+                const Icon(Icons.person, color: Color(0xFF3E2B6B), size: 24),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -584,7 +588,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             
             //Esta fila es provisional
             Row(
@@ -593,7 +597,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   'assets/Icons/objetivo.png',
                   width: 16,
                   height: 16,
-                  color: Colors.black, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Color(0xFF3E2B6B), // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -618,7 +622,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   'assets/Icons/reloj.png',
                   width: 16,
                   height: 16,
-                  color: Colors.black, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Color(0xFF3E2B6B), // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -627,7 +631,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
       
             // Horas de inicio y última actividad
             Row(
@@ -651,7 +655,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                 Text("Última: $ultima", style: const TextStyle(color: Colors.black)),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
       
             // Horas trabajadas
             Row(
@@ -660,14 +664,14 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   'assets/Icons/calendario.png',
                   width: 16,
                   height: 16,
-                  color: Colors.black, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Color(0xFF3E2B6B), // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 6),
                 Text("Horas trabajadas: $horasTrabajadas",
                     style: const TextStyle(color: Colors.black)),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
       
             // Barra de progreso de eficiencia
             Row(
@@ -677,28 +681,48 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   'assets/Icons/inversion.png',
                   width: 16,
                   height: 16,
-                  color: Colors.black, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Color(0xFF3E2B6B), // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 6),
                 Expanded(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: division / 100,
-                      minHeight: 8,
-                      backgroundColor: Color(0xFFE7E7F3),
-                      color: _getProgressColor(division),
+                    child: Stack(
+                      children: [
+                        Container(
+                          height: 18,
+                          decoration: BoxDecoration(
+                            color: Color(0xFFE7E7F3),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        FractionallySizedBox(
+                          widthFactor: division / 100,
+                          child: Container(
+                            height: 18,
+                            decoration: BoxDecoration(
+                              color: _getProgressColor(division),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                        Center(
+                          child: Text(
+                            "${division.toStringAsFixed(1)}%",
+                            style: const TextStyle(
+                              color: Color(0xFF3E2B6B),
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  "${division.toStringAsFixed(1)}%",
-                  style: const TextStyle(color: Colors.black),
-                ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             
             // Estado de productividad
             Row(

@@ -69,6 +69,12 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
 
   // Método para cargar datos desde la API
   Future<void> _cargarDatos({bool reset = false}) async {
+    if (!mounted) return; // Verifica si el widget sigue montado
+    setState(() {
+      _cargando = true; // Indica que se está cargando
+      _errorMessage = ''; // Resetea el mensaje de error
+    });
+
     if (reset) {
       // Reinicia la paginación si se solicita
       _start = 0;
@@ -76,11 +82,6 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
       _hasMoreData = true;
       _responseData = null; // Resetea los datos de respuesta
     }
-
-    setState(() {
-      _cargando = true; // Indica que se está cargando
-      _errorMessage = ''; // Resetea el mensaje de error
-    });
 
     try {
       // Realiza la llamada a la API para obtener datos
@@ -96,7 +97,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
       );
 
       if (!mounted) return; // Verifica si el widget sigue montado
-
+  
       setState(() {
         // SIEMPRE reemplaza los datos en lugar de concatenarlos
         if (reset || _responseData == null) {
@@ -123,12 +124,16 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
   Future<void> _cargarMasDatos() async {
     if (!_hasMoreData) return; // Si no hay más datos, no hace nada
 
+    if (!mounted) return; // Verifica si el widget sigue montado
+
     setState(() {
       _start += _limite; // Incrementa el índice de inicio
       _currentPage++; // Incrementa la página actual
     });
 
     await _cargarDatos(); // Carga los nuevos datos
+
+    if (!mounted) return; // Verifica si el widget sigue montado
   }
 
   @override
@@ -386,51 +391,73 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
         children: [
           Text(
             item['nombre_actividad'], // Nombre de la actividad
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'inter'),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'inter'),
           ),
           SizedBox(height: 5), // Espaciado
           Row(
             children: [
               Icon(Icons.schedule_rounded, size: 20, color: Colors.green), // Icono de entrada
-              Text(item['inicioA'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Hora de inicio
+              Text(item['inicioA'], style: TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Hora de inicio
               SizedBox(width: 30), // Espaciado
               Icon(Icons.schedule_rounded, size: 20, color: Colors.red), // Icono de salida
-              Text(item['ultimaA'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Hora de salida
+              Text(item['ultimaA'], style: TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Hora de salida
             ],
           ),
+          SizedBox(height: 5), // Espaciado
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween, // Espaciado entre elementos
             children: [
               Row(
                 children: [
                   Icon(Icons.timer, size: 20, color: Color(0xFF3E2B6B)), // Icono de tiempo transcurrido
-                  Text(item['tiempoTranscurrido'], style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Tiempo transcurrido
+                  Text(item['tiempoTranscurrido'], style: TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Tiempo transcurrido
                 ]
               ),
               Container(
-                width: 200, // Ancho del contenedor
+                width: 200,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end, // Alineación a la derecha
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      "${porcentaje.toStringAsFixed(1)}%", // Porcentaje formateado
-                      style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black, fontSize: 20),
-                    ),
-                    Container(
-                      width: 200, // Ancho del contenedor del indicador
-                      height: 18, // Altura del indicador
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10), // Bordes redondeados
-                        child: LinearProgressIndicator(
-                          value: porcentaje / 100, // Valor del indicador
-                          color: _getColorEficiencia(porcentaje), // Color del indicador
-                          backgroundColor: Colors.grey[300], // Color de fondo del indicador
-                        ),
+                    
+                    SizedBox(height: 10), // Espacio entre texto y barra
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: 200,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          Container(
+                            width: 200 * (porcentaje / 100),
+                            height: 22,
+                            decoration: BoxDecoration(
+                              color: _getColorEficiencia(porcentaje),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          Positioned.fill(
+                            child: Center(
+                              child: Text(
+                                "${porcentaje.toStringAsFixed(1)}%",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
+              )
             ],
           ),
         ],

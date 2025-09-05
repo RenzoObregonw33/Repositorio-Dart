@@ -56,10 +56,10 @@ class GraficoPicosPorcentaje extends StatelessWidget {
                   Icon(Icons.pie_chart, color: Color(0xFF3E2B6B)),
                   SizedBox(width: 8),
                   Text(
-                    'ACTIVIDAD POR HORA (%)',
+                    'Analisis de Picos de Actividad (%)',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       color: Colors.black,
                     ),
                   ),

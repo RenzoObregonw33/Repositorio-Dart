@@ -143,10 +143,10 @@ class GraficoTopEmpleados extends StatelessWidget {
                   Icon(Icons.emoji_events, color: Color(0xFF3E2B6B)),
                   SizedBox(width: 8),
                   Text(
-                    'TOP EMPLEADOS',
+                    'Desempeño por nivel de Actividad',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       color: Colors.black87,
                     ),
                   ),

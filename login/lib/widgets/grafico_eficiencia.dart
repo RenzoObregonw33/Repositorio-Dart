@@ -27,10 +27,10 @@ class GraficoEficiencia extends StatelessWidget {
                   Icon(Icons.auto_graph, color: Color(0xFF3E2B6B)),
                   SizedBox(width: 8),
                   Text(
-                    'EFICIENCIA GENERAL',
+                    'Engagement Operativo',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       color: Colors.black,
                     ),
                   ),
@@ -81,7 +81,7 @@ class GraficoEficiencia extends StatelessWidget {
                           NeedlePointer(
                             value: eficiencia,
                             needleLength: 0.9, // Aguja ligeramente más larga
-                            needleColor: Colors.black,
+                            needleColor: Colors.black.withOpacity(0.5),
                             knobStyle: const KnobStyle(
                               color: Colors.black,
                               knobRadius: 0.08,
@@ -96,8 +96,8 @@ class GraficoEficiencia extends StatelessWidget {
                                 Text(
                                   '${eficiencia.toStringAsFixed(1)}%',
                                   style: const TextStyle(
-                                    fontSize: 26, // Texto un poco más grande
-                                    fontWeight: FontWeight.bold,
+                                    fontSize: 22, // Texto un poco más grande
+                                    fontWeight: FontWeight.w500,
                                     color: Colors.black,
                                   ),
                                 ),

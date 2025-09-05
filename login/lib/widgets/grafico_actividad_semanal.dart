@@ -96,10 +96,10 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '📊 Actividad Semanal (${datos.length} Días)',
+                        'Intensidad de trabajo en el tiempo',
                         style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                           color: Colors.black,
                         ),
                       ),

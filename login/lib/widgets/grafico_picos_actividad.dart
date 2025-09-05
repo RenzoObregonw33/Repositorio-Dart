@@ -64,10 +64,10 @@ class GraficoPicosActividad extends StatelessWidget {
                   Icon(Icons.show_chart, color: Color(0xFF3E2B6B)),
                   SizedBox(width: 8),
                   Text(
-                    'PICOS DE ACTIVIDAD',
+                    'Analisis de Picos de Actividad',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       color: Colors.black,
                     ),
                   ),

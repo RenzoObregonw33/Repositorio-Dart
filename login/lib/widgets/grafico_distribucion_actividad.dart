@@ -45,10 +45,10 @@ class _GraficoDistribucionActividadState extends State<GraficoDistribucionActivi
                 Icon(Icons.bar_chart, color: Color(0xFF3E2B6B)),
                 const SizedBox(width: 8),
                 Text(
-                  'DISTRIBUCIÓN DE ACTIVIDAD',
+                  'Distribución de actividad registrada',
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                     color: Colors.black,
                   ),
                 ),

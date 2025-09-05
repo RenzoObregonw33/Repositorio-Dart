@@ -38,7 +38,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<int> _empleadosSeleccionados = [];
   DateTimeRange? _dateRange;
   double? _eficiencia;
-  int _currentGraphIndex = 0;
   double? _productivas;
   double? _noProductivas;
   List<FunnelData> _funnelData = [];
@@ -51,7 +50,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic> _actividadDiaria = {}; 
   List<TopEmpleadoData> _topEmpleadosData = [];
   bool _isDisposed = false;
-  final int totalGraficos = 8;
 
   @override
   void initState() {
@@ -189,37 +187,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: SizedBox( // Widget SizedBox para mantener el tamaño fijo
-                height: 500, // Altura original exacta
-                child: Stack(
-                  clipBehavior: Clip.none, // Importante: permite que los hijos se dibujen fuera de los límites
-                  children: [
-                    // Contenedor del gráfico (EXACTAMENTE igual que antes)
-                    Container(
-                      width: double.infinity, // Ocupa todo el ancho disponible
-                      height: 500, // Altura fija idéntica a la original
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.transparent),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: _buildCurrentGraph(), // Gráfico sin modificaciones
-                    ),
-                    
-                    // Botón flotante ABSOLUTO que no afecta el espacio del gráfico
-                    Positioned(
-                      bottom: 5, // Posición ligeramente fuera para no comprimir el gráfico
-                      right: -12,  // Posición ligeramente fuera para no comprimir el gráfico
-                      child: FloatingActionButton(
-                        mini: true,
-                        backgroundColor: Color(0xFF7876E1),
-                        elevation: 2,
-                        onPressed: _nextGraph,
-                        child: Icon(Icons.arrow_forward, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              child: _buildAllGraphs(),
             ),
           ),
         ],
@@ -268,55 +236,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
-  }
-
-  Widget _buildCurrentGraph() {
-    // Mostrar loading si aún no hay datos
-    if (_isLoading) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Lumina(
-              assetPath: 'assets/imagen/luminaos.png',
-              duracion: const Duration(milliseconds: 1500),
-              size: 300,
-            ),
-          ],
-        ),
-      );
-    }
-    switch (_currentGraphIndex) {
-      case 0: return GraficoEficiencia(eficiencia: _eficiencia!);
-      case 1: return GraficoEmbudo(data: _funnelData);
-      case 2: return GraficoDonut(productivas: _productivas!, noProductivas: _noProductivas!);
-
-      case 3: return GraficoDistribucionActividad(datos: _distribucionActividad);
-      case 4: return GraficoPicosActividad(labels: _picosLabels, valores: _picosValores);
-      case 5: 
-        final filteredData = <HoraActividadPorcentajeData>[];
-        for (int i = 0; i < _picosLabels.length; i++) {
-          final hour = int.parse(_picosLabels[i].split(':')[0]);
-          if (hour >= 8 && hour <= 18) {
-            filteredData.add(HoraActividadPorcentajeData(
-              hora: _picosLabels[i],
-              porcentaje: _picosValores[i],
-            ));
-          }
-        }
-        return GraficoPicosPorcentaje(datos: _picosPorcentajeData);
-      case 6: return GraficoActividadDiaria(apiResponse: _actividadDiaria);
-      case 7: return GraficoTopEmpleados(data: _topEmpleadosData);
-      default: return const Center(child: Text('Gráfico no disponible'));
-    }
-  }
-
-
-  void _nextGraph() {
-    if (!mounted) return;
-    setState(() {
-      _currentGraphIndex = (_currentGraphIndex + 1) % totalGraficos;
-    });
   }
 
   Future<void> _loadData() async {
@@ -425,5 +344,69 @@ class _DashboardScreenState extends State<DashboardScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  Widget _buildAllGraphs() {
+    if (_isLoading) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Lumina(
+              assetPath: 'assets/imagen/luminaos.png',
+              duracion: const Duration(milliseconds: 1500),
+              size: 300,
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Lista de todos los gráficos
+    final List<Widget> todosLosGraficos = [
+      if (_eficiencia != null) 
+        SizedBox(height: 300, child: GraficoEficiencia(eficiencia: _eficiencia!)),
+      
+      if (_funnelData.isNotEmpty)
+        SizedBox(height: 300, child: GraficoEmbudo(data: _funnelData)),
+      
+      if (_productivas != null && _noProductivas != null)
+        SizedBox(height: 300, child: GraficoDonut(productivas: _productivas!, noProductivas: _noProductivas!)),
+      
+      if (_distribucionActividad.isNotEmpty)
+        SizedBox(height: 300, child: GraficoDistribucionActividad(datos: _distribucionActividad)),
+      
+      if (_picosLabels.isNotEmpty && _picosValores.isNotEmpty)
+        SizedBox(height: 300, child: GraficoPicosActividad(labels: _picosLabels, valores: _picosValores)),
+      
+      if (_picosPorcentajeData.isNotEmpty)
+        SizedBox(height: 300, child: GraficoPicosPorcentaje(datos: _picosPorcentajeData)),
+      
+      if (_actividadDiaria.isNotEmpty)
+        SizedBox(height: 300, child: GraficoActividadDiaria(apiResponse: _actividadDiaria)),
+      
+      if (_topEmpleadosData.isNotEmpty)
+        SizedBox(height: 400, child: GraficoTopEmpleados(data: _topEmpleadosData)),
+    ];
+
+    // Si no hay gráficos, mostrar mensaje
+    if (todosLosGraficos.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay datos disponibles',
+          style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+        ),
+      );
+    }
+
+    // ListView con todos los gráficos SIN Card exterior
+    return ListView.separated(
+      padding: const EdgeInsets.only(bottom: 20),
+      itemCount: todosLosGraficos.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 20),
+      itemBuilder: (context, index) {
+        return todosLosGraficos[index]; // ✅ Directamente el gráfico con SizedBox
+      },
+    );
   }
 }

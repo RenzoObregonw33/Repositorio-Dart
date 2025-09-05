@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:login/Apis/api_services.dart';
 import 'package:login/screens/home_screen.dart';
+import 'package:login/widgets/secure_storage_service.dart';
 
 class LoginButton extends StatelessWidget {
   final TextEditingController emailController;
@@ -62,6 +63,10 @@ class LoginButton extends StatelessWidget {
           );
 
           if (result['success']) {
+            // ✅ GUARDAR CREDENCIALES DESPUÉS DE LOGIN EXITOSO 
+            await SecureStorageService.saveCredentials(email, password); 
+            print('✅ Credenciales guardadas: $email');  
+
             final data = result['data'];
             final user = data['user'];
             final nombre = user['perso_nombre'] ?? '';
@@ -98,9 +103,15 @@ class LoginButton extends StatelessWidget {
             );
 
             if (resultado == 'logout') {
-              emailController.clear();
-              passwordController.clear();
+              // ✅ Volver a cargar credenciales guardadas
+              final saved = await SecureStorageService.getCredentials();
+              if (saved != null) {
+                emailController.text = saved['email'] ?? '';
+                passwordController.text = saved['password'] ?? '';
+              }
+              print('🚪 Sesión cerrada, credenciales recargadas');
             }
+
           } else {
             final message = result['message'] ?? 'Error desconocido';
             if (message.toLowerCase().contains('correo')) {

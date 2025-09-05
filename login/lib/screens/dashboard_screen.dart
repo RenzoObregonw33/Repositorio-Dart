@@ -59,8 +59,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _graphicsService = ApiGraphicsService(token: widget.token, organiId: widget.organiId);
     final now = DateTime.now();
     _dateRange = DateTimeRange(
-      start: now.subtract(const Duration(days: 7)),
-      end: now,
+      start: DateTime(now.year, now.month, now.day),
+      end: DateTime(now.year, now.month, now.day),
     );
     _loadData();
   }
@@ -77,7 +77,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         backgroundColor: Color(0xFF3E2B6B),
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Dashboard Gráficos', style: TextStyle(color: Colors.white),textAlign: TextAlign.center,),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text('Dashboard Gráficos', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400),textAlign: TextAlign.center,),
         actions: [
           IconButton(
             color: Colors.white,
@@ -88,6 +92,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             } : null,
           ),
         ],
+        centerTitle: true,
       ),
       body: Column(
         children: [
@@ -251,12 +256,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
         ),
         onPressed: onPressed,
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.white, // Texto negro
-            fontWeight: FontWeight.bold,
+        child: Center(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.white, // Texto negro
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ),

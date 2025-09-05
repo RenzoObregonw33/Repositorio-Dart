@@ -7,6 +7,7 @@ class ApiGraphicsService {
   static const String _baseUrl = 'https://rhnube.com.pe';
   final String token; // Cambiado a final y non-nullable
   final int organiId; // ID de la organización, puede ser dinámico si es necesario
+  bool _primeraCarga = true;
 
   // Constructor ahora requiere token obligatorio
   ApiGraphicsService({required this.token, required this.organiId,});
@@ -32,11 +33,14 @@ class ApiGraphicsService {
       'fecha_ini': _formatDate(fechaIni),
       'fecha_fin': _formatDate(fechaFin),
       'organi_id': organiId,
+      'is_cacheo': _primeraCarga ? 1 : 0,
       if (filtroId != null && filtroId.isNotEmpty)
       'id': filtroId,
       if (empleadosIds != null && empleadosIds.isNotEmpty) 
       'empleados': empleadosIds,
     };
+
+    _primeraCarga = false; // Después de la primera carga, siempre será false
 
     // AÑADE AQUÍ EL debugPrint PARA VER LOS DATOS QUE SE ENVIARÁN
     debugPrint('📤 Enviando a la API: ${jsonEncode(body)}');
@@ -59,6 +63,9 @@ class ApiGraphicsService {
   Map<String, dynamic> _processResponse(http.Response response) {
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
+    } else if (response.statusCode == 422) {
+      final errorData = jsonDecode(response.body);
+      throw Exception('Error de validación: ${errorData['message']}');
     } else {
       throw Exception('Error ${response.statusCode}: ${response.body}');
     }

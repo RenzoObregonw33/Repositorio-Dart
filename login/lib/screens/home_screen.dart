@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:login/screens/tabs_dashboard_screen.dart';
-//import 'package:login/screens/dashboard_screen.dart';  //Importa el paquete principal de Flutter con todos los widgets visuales.
+import 'package:login/screens/dashboard_screen.dart';  //Importa el paquete principal de Flutter con todos los widgets visuales.
 
 
 class HomeScreem extends StatelessWidget {
@@ -26,6 +26,34 @@ class HomeScreem extends StatelessWidget {
     required this.fotoUrl,
   });
 
+  // Método para cerrar sesión 
+  void _cerrarSesion(BuildContext context) async { 
+    //Mostrar diálogo de confirmación 
+    final confirmar = await showDialog( 
+      context: context, 
+      builder: (BuildContext context) { 
+        return AlertDialog( 
+          title: Text('Cerrar sesión', style: TextStyle(fontFamily: '-apple-system')), 
+          content: Text('¿Estás seguro de que quieres cerrar sesión?', style: TextStyle(fontFamily: '-apple-system')), 
+          actions: [ 
+            TextButton( 
+              onPressed: () => Navigator.of(context).pop(false), child: Text('Cancelar', style: TextStyle(color: Color(0xFF3E2B6A))), 
+            ), 
+            TextButton( 
+              onPressed: () => Navigator.of(context).pop(true), child: Text('Cerrar sesión', style: TextStyle(color: Colors.red)), 
+            ), 
+          ], 
+        );
+      }, 
+    ); 
+    if (confirmar == true) { 
+      // ✅ NO eliminar las credenciales - SOLO CERRAR SESIÓN 
+      print('🚪 Cerrando sesión (credenciales se mantienen guardadas)');
+      // Regresar al login con el mensaje de logout 
+      Navigator.pop(context, 'logout');
+    }
+  }
+
 //Metodo que construye el UI widget
   @override
   Widget build(BuildContext context) {
@@ -33,14 +61,24 @@ class HomeScreem extends StatelessWidget {
     //estructura base
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF3E2B6A),    //Muestra la barra superior
-        title: Text('Organización', style: TextStyle(color: Colors.white, fontFamily: '-apple-system'),),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, size: 24.0, color: Colors.white,),             //Icono flecha atras
-          onPressed: () {
-            Navigator.pop(context, 'logout');
-          },
-        ),
+        backgroundColor: Color(0xFF3E2B6A),   
+        automaticallyImplyLeading: false, // Elimina la flecha de retroceso
+        // BOTÓN DE CERRAR SESIÓN A LA IZQUIERDA 
+        leading: IconButton( 
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white), 
+          onPressed: () => _cerrarSesion(context), 
+          tooltip: 'Cerrar sesión', 
+        ), // TÍTULO CENTRADO 
+        title: Text( 
+          'Organización',
+          style: TextStyle(
+            color: Colors.white, 
+            fontFamily: '-apple-system', 
+            fontSize: 20, 
+            fontWeight: FontWeight.w500 
+          ), 
+        ), 
+        centerTitle: true, // ✅ Centra el título 
       ),
       body: Padding(                                //Cuerpo redondeado en un padding de 16px del box
         padding: const EdgeInsets.all(16),
@@ -127,8 +165,8 @@ class HomeScreem extends StatelessWidget {
               ),
             SizedBox(height: 24),                  //texto 
             Text(
-              'Mis Organizaciones:',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
+              'Mis organizaciones:',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, fontFamily: 'Inter'),
             ),
             SizedBox(height: 20),
             Expanded(                               //esto crea una lista 
@@ -161,15 +199,8 @@ class HomeScreem extends StatelessWidget {
                       );
                     },
                     child: Card(
-                      //shadowColor: Colors.black, // Color de sombra
-                      //elevation: 3,
-                      //shape: RoundedRectangleBorder(
-                        //borderRadius: BorderRadius.circular(6), // Tarjeta cuadrada
-                        
-                      //),
                       child: Container(
                         decoration: BoxDecoration(
-                          //color: Color(0xFFF8F7FC),
                           borderRadius: BorderRadius.circular(4), // Tarjeta cuadrada
                         ),
                         
@@ -202,7 +233,7 @@ class HomeScreem extends StatelessWidget {
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w500
+                                  fontWeight: FontWeight.w400
                                 ),
                               ),
                               SizedBox(height: 8), // Espacio reducido

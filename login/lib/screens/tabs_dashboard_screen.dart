@@ -62,7 +62,7 @@ class _TabsDashboardScreenState extends State<TabsDashboardScreen> {
                     child: _buildTabCard(
                       'PANEL DE DESEMPEÑO',
                       0,
-                      Icons.assessment_outlined,
+                      Icons.edit_document,
                     ),
                   ),
                   const SizedBox(width: 8), // Reducido de 10 a 8
@@ -70,7 +70,7 @@ class _TabsDashboardScreenState extends State<TabsDashboardScreen> {
                     child: _buildTabCard(
                       'DETALLE DIARIO',
                       1,
-                      Icons.calendar_today_outlined,
+                      Icons.edit_calendar,
                     ),
                   ),
                 ],
@@ -112,7 +112,7 @@ class _TabsDashboardScreenState extends State<TabsDashboardScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: isSelected ? Colors.white : Color(0xFF7775E2),
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w400,
                 fontSize: 11, // Reducido de 12 a 11
               ),
             ),

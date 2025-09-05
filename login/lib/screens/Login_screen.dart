@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:login/screens/password_reset_screen.dart';
 import 'package:login/widgets/login_button.dart';
- // Asegúrate de que el path sea correcto
+import 'package:login/widgets/secure_storage_service.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -18,10 +18,29 @@ class _LoginScreemState extends State<LoginScreen> {
 
   String? _emailError;              //Mensaje de error para email
   String? _passwordError;           //Mensaje de error para contraseña
-
   bool _ocultarPassword = true;     //Contraseña oculta al escribir
 
- 
+  @override void initState() { 
+    super.initState(); 
+    // Cargar credenciales después de que el widget esté completamente construido 
+    WidgetsBinding.instance.addPostFrameCallback((_) { 
+      _cargarCredencialesGuardadas(); 
+    }); 
+  }
+
+  // Cargar credenciales guardadas al iniciar la pantalla 
+  Future<void> _cargarCredencialesGuardadas() async { 
+    final bool tieneCredenciales = await 
+    SecureStorageService.hasCredentials(); 
+    if (tieneCredenciales) { 
+      final credenciales = await SecureStorageService.getCredentials(); 
+      setState(() { 
+        _usernameController.text = credenciales['email'] ?? ''; 
+        _passwordController.text = credenciales['password'] ?? ''; 
+      }); 
+    } 
+  }
+
   //Sobreescribir api
   @override
   void dispose() {

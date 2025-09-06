@@ -81,12 +81,14 @@ class GraficoDiarioExtend extends StatelessWidget {
           // Título del gráfico
           Padding(
             padding: const EdgeInsets.only(bottom: 6.0), // Reducido de 8 a 6
-            child: Text(
-              "% Porcentaje de Actividad Diaria",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 15, // Reducido de 16 a 15
-                fontWeight: FontWeight.bold,
+            child: Center(
+              child: Text(
+                "% Porcentaje de Actividad Diaria",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 15, // Reducido de 16 a 15
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),

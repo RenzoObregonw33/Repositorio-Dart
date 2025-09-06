@@ -169,7 +169,11 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
       backgroundColor: Colors.black.withValues(alpha: 0.05),
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text("Detalle Diario de Empleados", style: TextStyle(color: Colors.white),),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text("Detalle diario de Empleados", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),),
         backgroundColor: Color(0xFF3E2B6A),
         actions: [
           // Botón para recargar datos
@@ -179,18 +183,19 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
             onPressed: _cargarDatos,
           ),
         ],
+        centerTitle: true,
       ),
       body: Column(
         children: [
           // Selector de fechas
           SelectorFechaSimple(
-          selectedDate: _selectedDate,
-          onDateSelected: (newDate) {
-            if (!mounted) return;
-            setState(() => _selectedDate = newDate);
-            _cargarDatos();
-          },
-        ),
+            selectedDate: _selectedDate,
+            onDateSelected: (newDate) {
+              if (!mounted) return;
+              setState(() => _selectedDate = newDate);
+              _cargarDatos();
+            },
+          ),
           
           // Botones de filtros
           Padding(
@@ -239,35 +244,31 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                       controller: _busquedaController, // Usamos el controlador
                       decoration: InputDecoration(
                         hintText: 'Buscar empleados...',
-                        prefixIcon: const Icon(Icons.search),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        contentPadding: EdgeInsets.symmetric(vertical: 8),
-                        suffixIcon: _textoBusqueda.isNotEmpty 
-                            ? IconButton(
-                                icon: const Icon(Icons.clear),
+                        contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        // Icono de búsqueda a la derecha que ejecuta la búsqueda
+                        suffixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (_textoBusqueda.isNotEmpty)
+                              IconButton(
+                                icon: const Icon(Icons.clear, size: 20),
                                 onPressed: _limpiarBusqueda,
-                              )
-                            : null,
+                              ),
+                            IconButton(
+                              icon: const Icon(Icons.search, size: 20),
+                              onPressed: _ejecutarBusqueda,
+                            ),
+                          ],
+                        ),
                       ),
-                      onSubmitted: (_) => _ejecutarBusqueda(), // Buscar al presionar enter
+                      onSubmitted: (_) => _ejecutarBusqueda(),
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                // Botón de búsqueda
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF7775E2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  ),
-                  onPressed: _ejecutarBusqueda,
-                  child: Text('Buscar', style: TextStyle(color: Colors.white),),
-                ),
+
                 const SizedBox(width: 8),
                 // Selector de tipo de búsqueda
                 DropdownButton<String>(
@@ -466,11 +467,6 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       padding: const EdgeInsets.all(8),
-      /*decoration: BoxDecoration(
-        color: const Color(0xFF0F2747),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white24),
-      ),*/
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -478,12 +474,12 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
             color: const Color(0xFF64D9C5),
             texto: 'Alta',
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 30),
           _buildItemLeyenda(
             color: const Color(0xFFFFC066),
             texto: 'Media',
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 30),
           _buildItemLeyenda(
             color: const Color(0xFFFF625C),
             texto: 'Baja',
@@ -499,11 +495,11 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 20,
-          height: 12,
+          width: 24,
+          height: 14,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(6),
           ),
         ),
         const SizedBox(width: 6),
@@ -511,7 +507,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
           texto,
           style: const TextStyle(
             color: Colors.black,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.normal,
             fontSize: 14,
           ),
         ),
@@ -580,12 +576,12 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                     nombreCompleto,
                     style: const TextStyle(
                       color: Colors.black,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       fontSize: 16,
                     ),
-                  ),
-                  
+                  ),  
                 ),
+                const Icon(Icons.touch_app, color: Color(0xFF3E2B6B), size: 20), // 👈 nuevo icono
               ],
             ),
             const SizedBox(height: 8),
@@ -613,7 +609,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
               ],
             ),
       
-            const Divider(color: Colors.black), // Divisor
+            Divider(color: Color(0xFF7775E2).withValues(alpha: 0.3)), // Divisor
       
             // Horario del empleado
             Row(

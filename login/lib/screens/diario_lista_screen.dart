@@ -150,10 +150,15 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
       appBar: AppBar(
         backgroundColor: Color(0xFF3E2B6A), // Color de fondo de la AppBar
         iconTheme: IconThemeData(color: Colors.white), // Color de los íconos
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: Text(
           'Diario en Lista',
-          style: TextStyle(color: Colors.white), // Color del texto
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20), // Color del texto
         ),
+        centerTitle: true, // Centra el título
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(kToolbarHeight),
           child: Container(
@@ -306,7 +311,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
                       style: TextStyle(
                         color: Colors.black, // Color del texto
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
@@ -319,7 +324,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
                   SizedBox(width: 5), // Espaciado
                   Text(
                     "${widget.fecha.day} de ${_getMonthName(widget.fecha.month)} del ${widget.fecha.year}", // Fecha formateada
-                    style: TextStyle(color: Colors.black), // Color del texto
+                    style: TextStyle(color: Color(0xFF3E2B6B),fontSize: 16), // Color del texto
                   ),
                 ],
               ),
@@ -335,14 +340,14 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
               // Lista de actividades
               Row(
                 children: [
-                  Icon(Icons.link, color: Color(0xFF3E2B6B), size: 18), // Icono de actividades
+                  Icon(Icons.layers, color: Color(0xFF3E2B6B), size: 18), // Icono de actividades
                   SizedBox(width: 5), // Espaciado
                   Text(
                     'Actividades del día',
                     style: TextStyle(
                       color: Colors.black, // Color del texto
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -391,16 +396,18 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
         children: [
           Text(
             item['nombre_actividad'], // Nombre de la actividad
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black, fontFamily: 'inter'),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black, fontFamily: 'inter'),
           ),
           SizedBox(height: 5), // Espaciado
           Row(
             children: [
               Icon(Icons.schedule_rounded, size: 20, color: Colors.green), // Icono de entrada
-              Text(item['inicioA'], style: TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Hora de inicio
+              SizedBox(width: 5), 
+              Text(item['inicioA'], style: TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w500)), // Hora de inicio
               SizedBox(width: 30), // Espaciado
               Icon(Icons.schedule_rounded, size: 20, color: Colors.red), // Icono de salida
-              Text(item['ultimaA'], style: TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Hora de salida
+              SizedBox(width: 5), 
+              Text(item['ultimaA'], style: TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w500)), // Hora de salida
             ],
           ),
           SizedBox(height: 5), // Espaciado
@@ -410,6 +417,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
               Row(
                 children: [
                   Icon(Icons.timer, size: 20, color: Color(0xFF3E2B6B)), // Icono de tiempo transcurrido
+                  SizedBox(width: 5), // Espaciado
                   Text(item['tiempoTranscurrido'], style: TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'inter', fontWeight: FontWeight.w600)), // Tiempo transcurrido
                 ]
               ),
@@ -447,7 +455,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),

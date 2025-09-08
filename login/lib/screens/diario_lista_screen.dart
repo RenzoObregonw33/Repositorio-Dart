@@ -34,10 +34,10 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
   String _errorMessage = ''; // Mensaje de error
   final int _limite = 10; // Límite de registros por página
   int _start = 0; // Índice de inicio para la paginación
-  int _currentPage = 1; // Página actual
   int _totalRecords = 0; // Total de registros disponibles
   bool _hasMoreData = true; // Indica si hay más datos para cargar
   ScrollController _scrollController = ScrollController(); // Controlador de desplazamiento
+  bool _cargandoMas = false; // Indicador para carga adicional
 
   @override
   void initState() {
@@ -61,7 +61,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
     if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
       // Carga más datos si hay más disponibles y no se está cargando
-      if (_hasMoreData && !_cargando) {
+      if (_hasMoreData && !_cargando && !_cargandoMas) {
         _cargarMasDatos();
       }
     }
@@ -70,15 +70,19 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
   // Método para cargar datos desde la API
   Future<void> _cargarDatos({bool reset = false}) async {
     if (!mounted) return; // Verifica si el widget sigue montado
+    
     setState(() {
-      _cargando = true; // Indica que se está cargando
+      if (reset) {
+        _cargando = true; // Solo mostrar carga inicial si es reset
+      } else {
+        _cargandoMas = true; // Mostrar indicador de carga adicional
+      }
       _errorMessage = ''; // Resetea el mensaje de error
     });
 
     if (reset) {
       // Reinicia la paginación si se solicita
       _start = 0;
-      _currentPage = 1;
       _hasMoreData = true;
       _responseData = null; // Resetea los datos de respuesta
     }
@@ -99,22 +103,36 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
       if (!mounted) return; // Verifica si el widget sigue montado
   
       setState(() {
-        // SIEMPRE reemplaza los datos en lugar de concatenarlos
         if (reset || _responseData == null) {
           _responseData = response['data'];
         } else {
-          // Para navegación con botones: REEMPLAZA los datos
-          _responseData = response['data'];
+          // ✅ CONCATENAR TANTO LISTA COMO LÍNEA DE TIEMPO
+          final newData = response['data'];
+          
+          // Concatenar lista principal
+          final currentList = _responseData!['lista']['data'] as List;
+          final newList = newData['lista']['data'] as List;
+          _responseData!['lista']['data'] = [...currentList, ...newList];
+          
+          // ✅ CONCATENAR LÍNEA DE TIEMPO TAMBIÉN
+          if (newData['linea_tiempo'] != null && 
+              newData['linea_tiempo']['data'] != null) {
+            final currentTimeline = _responseData!['linea_tiempo']['data'] as List;
+            final newTimeline = newData['linea_tiempo']['data'] as List;
+            _responseData!['linea_tiempo']['data'] = [...currentTimeline, ...newTimeline];
+          }
         }
         
         _totalRecords = response['data']['lista']['recordsTotal'] ?? 0;
-        _hasMoreData = _start + _limite < _totalRecords; // ← Corrección importante
+        _hasMoreData = _start + _limite < _totalRecords;
         _cargando = false;
+        _cargandoMas = false;
       });
     } catch (e) {
       if (!mounted) return; // Verifica si el widget sigue montado
       setState(() {
         _cargando = false; // Finaliza la carga
+        _cargandoMas = false;
         _errorMessage = 'Error al cargar datos: ${e.toString()}'; // Asigna el mensaje de error
       });
     }
@@ -124,16 +142,19 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
   Future<void> _cargarMasDatos() async {
     if (!_hasMoreData) return; // Si no hay más datos, no hace nada
 
-    if (!mounted) return; // Verifica si el widget sigue montado
+    debugPrint('📊 Antes de cargar más - Start: $_start, Limite: $_limite');
+    debugPrint('📈 Datos actuales en lista: ${_responseData?['lista']?['data']?.length ?? 0}');
+    debugPrint('📈 Datos actuales en timeline: ${_responseData?['linea_tiempo']?['data']?.length ?? 0}');
 
     setState(() {
       _start += _limite; // Incrementa el índice de inicio
-      _currentPage++; // Incrementa la página actual
     });
 
     await _cargarDatos(); // Carga los nuevos datos
 
-    if (!mounted) return; // Verifica si el widget sigue montado
+    debugPrint('✅ Después de cargar - Start: $_start');
+    debugPrint('📊 Nuevos datos en lista: ${_responseData?['lista']?['data']?.length ?? 0}');
+    debugPrint('📊 Nuevos datos en timeline: ${_responseData?['linea_tiempo']?['data']?.length ?? 0}');
   }
 
   @override
@@ -177,52 +198,6 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
         ),
       ),
       body: _buildBody(), // Cuerpo de la pantalla
-      bottomNavigationBar: _buildPaginationControls(), // Controles de paginación
-    );
-  }
-
-  // Método para construir los controles de paginación
-  Widget _buildPaginationControls() {
-    if (_responseData == null || _totalRecords <= _limite) {
-      return SizedBox.shrink(); // Si no hay datos, no muestra controles
-    }
-
-    return Container(
-      color: Colors.black, // Color de fondo
-      padding: EdgeInsets.symmetric(vertical: 8), // Espaciado vertical
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center, // Centra los controles
-        children: [
-          IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white), // Botón de retroceso
-            onPressed: _currentPage > 1
-                ? () async {
-                  setState(() {
-                    _start = Math.max(0, _start - _limite); // Retrocede correctamente
-                    _currentPage--;
-                  });
-                  await _cargarDatos(); // Llama sin reset: true
-                }
-              : null,
-        ),
-          Text(
-            'Página $_currentPage de ${(_totalRecords / _limite).ceil()}', // Muestra la página actual
-            style: TextStyle(color: Colors.white), // Color del texto
-          ),
-          IconButton(
-            icon: Icon(Icons.arrow_forward, color: Colors.white),
-            onPressed: _hasMoreData
-                ? () async {
-                    setState(() {
-                      _start += _limite; // Avanza correctamente
-                      _currentPage++;
-                    });
-                    await _cargarDatos(); // Llama sin reset: true
-                  }
-                : null,
-          ),
-        ],
-      ),
     );
   }
 
@@ -283,7 +258,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
         if (scrollNotification is ScrollEndNotification &&
             _scrollController.position.pixels ==
                 _scrollController.position.maxScrollExtent) {
-          if (_hasMoreData && !_cargando) {
+          if (_hasMoreData && !_cargando && !_cargandoMas) {
             _cargarMasDatos(); // Carga más datos
           }
         }
@@ -356,7 +331,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
               ...lista.map((item) => _buildItemLista(item)).toList(), // Muestra la lista de actividades
               
               // Indicador de carga al final
-              if (_cargando && _responseData != null)
+              if (_cargandoMas)
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Center(child: CircularProgressIndicator(color: Colors.black)), // Indicador de carga
@@ -369,7 +344,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
                   child: Center(
                     child: Text(
                       'No hay más actividades para mostrar', // Mensaje de fin de datos
-                      style: TextStyle(color: Colors.white54), // Color del texto
+                      style: TextStyle(color: Colors.grey), // Color del texto
                     ),
                   ),
                 ),
@@ -481,7 +456,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
       return const Center(
         child: Text(
           'No hay datos de línea de tiempo disponibles', // Mensaje cuando no hay datos
-          style: TextStyle(color: Colors.white), // Color del texto
+          style: TextStyle(color: Colors.black), // Color del texto
         ),
       );
     }
@@ -491,11 +466,11 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
     final tieneMasDatosTimeline = timelineData.length < totalTimelineRecords; // Verifica si hay más datos
 
     return TimelineScreen(
-      eventos: _responseData!['linea_tiempo']['data'], // Pasa los eventos a la pantalla de línea de tiempo
-      tieneMasDatos: tieneMasDatosTimeline, // Indica si hay más datos
-      cargandoMas: _cargando, // Indica si se está cargando más
-      onCargarMas: _cargarMasDatos, // Método para cargar más datos
-      authToken: widget.token, // Pasa el token de autenticación
+      eventos: timelineData, // Pasa solo los datos de timeline
+      tieneMasDatos: tieneMasDatosTimeline,
+      cargandoMas: _cargandoMas,
+      onCargarMas: _cargarMasDatos, // Este método incrementa _start y llama _cargarDatos
+      authToken: widget.token,
     );
   }
 

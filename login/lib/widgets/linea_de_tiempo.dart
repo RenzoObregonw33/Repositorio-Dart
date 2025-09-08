@@ -114,24 +114,34 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
   }
 
   void _onScroll() {
+    debugPrint('💫 Scroll position: ${_scrollController.position.pixels.toStringAsFixed(1)}');
+    debugPrint('📏 Max scroll: ${_scrollController.position.maxScrollExtent.toStringAsFixed(1)}');
     if (!mounted) return;
 
+    // Cargar más datos cuando esté cerca del final
     if (_scrollController.position.pixels >= 
         _scrollController.position.maxScrollExtent - 100) {
-      if (widget.tieneMasDatos && !widget.cargandoMas && !_isLoadingMore) {
-        setState(() {
-          _isLoadingMore = true;
-        });
-        widget.onCargarMas();
-        
-        Future.delayed(Duration(seconds: 2), () {
-          if (mounted) {
-            setState(() {
-              _isLoadingMore = false;
-            });
-          }
-        });
-      }
+        debugPrint('🚀 ¡Cargando más datos!');
+      _cargarMasDatos();
+    }
+  }
+
+  void _cargarMasDatos() {
+    if (widget.tieneMasDatos && !widget.cargandoMas && !_isLoadingMore) {
+      setState(() {
+        _isLoadingMore = true;
+      });
+      
+      widget.onCargarMas();
+      
+      // Resetear el estado de carga después de un tiempo
+      Future.delayed(Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() {
+            _isLoadingMore = false;
+          });
+        }
+      });
     }
   }
 
@@ -156,6 +166,10 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
   void _showFullScreenImage(BuildContext context, Uint8List imageBytes) {
     if (!mounted) return;
 
+    
+    final TransformationController _transformationController = 
+        TransformationController();
+
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -166,7 +180,7 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
@@ -174,9 +188,18 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
               child: Hero(
                 tag: 'imageHero_${DateTime.now().millisecondsSinceEpoch}',
                 child: InteractiveViewer(
+                  transformationController: _transformationController,
                   panEnabled: true,
-                  minScale: 0.1,
+                  minScale: 0.1,  // ← Valor mínimo seguro
                   maxScale: 4.0,
+                  boundaryMargin: EdgeInsets.all(20),
+                  onInteractionEnd: (details) {
+                    // Prevenir que la escala llegue a 0
+                    final scale = _transformationController.value.getMaxScaleOnAxis();
+                    if (scale < 0.1) {
+                      _transformationController.value = Matrix4.identity();
+                    }
+                  },
                   child: Image.memory(
                     imageBytes,
                     fit: BoxFit.contain,
@@ -194,73 +217,100 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
   @override
   Widget build(BuildContext context) {
     if (!mounted) return SizedBox.shrink();
+    
     return Scaffold(
       body: FadeTransition(
         opacity: _fadeAnimation,
-        child: NotificationListener<ScrollNotification>(
-          onNotification: (scrollNotification) => false,
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                SizedBox(
-                  height: items.length * 210.0,
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: CustomPaint(
-                          painter: EnhancedChainTimelinePainter(
-                            itemCount: items.length,
-                            itemHeight: 210.0,
+        child: Column(
+          children: [
+            // CABECERA BONITA
+            const SizedBox(height: 20),
+            
+            // CONTENEDOR PRINCIPAL CON SCROLL
+            Expanded(
+              child: Column(
+                children: [
+                  SizedBox(height: 20),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        children: [
+                          // LIENZO DE LA LÍNEA DE TIEMPO (¡Manteniendo tu arte!)
+                          SizedBox(
+                            height: items.length * 210.0,
+                            child: Stack(
+                              children: [
+                                // LÍNEAS DE CONEXIÓN (Tu diseño original)
+                                Positioned.fill(
+                                  child: CustomPaint(
+                                    painter: EnhancedChainTimelinePainter(
+                                      itemCount: items.length,
+                                      itemHeight: 210.0,
+                                    ),
+                                  ),
+                                ),
+                                
+                                // TARJETAS ANIMADAS
+                                Column(
+                                  children: List.generate(items.length, (index) {
+                                    return Column(
+                                      children: [
+                                        AnimatedTimelineCard(
+                                          item: items[index],
+                                          position: index % 2 == 0 
+                                              ? ItemPosition.left 
+                                              : ItemPosition.right,
+                                          onImageTap: _showFullScreenImage,
+                                          delay: Duration(milliseconds: index * 200),
+                                          cardWidth: MediaQuery.of(context).size.width * 0.8,
+                                        ),
+                                        const SizedBox(height: 30),
+                                      ],
+                                    );
+                                  }),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                    
+                          // INDICADORES DE CARGA (Footer)
+                          _buildFooter(),
+                        ],
                       ),
-                      
-                      Column(
-                        children: List.generate(items.length, (index) {
-                          if (!mounted) return SizedBox.shrink();
-                          return Column(
-                            children: [
-                              AnimatedTimelineCard(
-                                item: items[index],
-                                position: index % 2 == 0 
-                                    ? ItemPosition.left 
-                                    : ItemPosition.right,
-                                onImageTap: _showFullScreenImage,
-                                delay: Duration(milliseconds: index * 200),
-                                cardWidth: MediaQuery.of(context).size.width * 0.8, 
-                              ),
-                              const SizedBox(height: 30),
-                            ],
-                          );
-                        }),
-                      ),
-                    ],
-                  ),
-                ),
-
-                if (widget.cargandoMas || _isLoadingMore)
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: CircularProgressIndicator(color: Colors.black54),
-                  ),
-                  
-                if (!widget.tieneMasDatos && items.isNotEmpty)
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Text(
-                      'No hay más eventos',
-                      style: TextStyle(color: Colors.white54),
                     ),
                   ),
-                const SizedBox(height: 40),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
+    );
+  }
+
+  // MÉTODO PARA EL FOOTER BONITO
+  Widget _buildFooter() {
+    return Column(
+      children: [
+        if (widget.cargandoMas || _isLoadingMore)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: CircularProgressIndicator(color: Colors.purpleAccent),
+          ),
+        
+        if (!widget.tieneMasDatos && items.isNotEmpty)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Text(
+              '✨ No hay más eventos por ahora',
+              style: TextStyle(color: Colors.grey, fontSize: 16),
+            ),
+          ),
+        
+        const SizedBox(height: 40),
+      ],
     );
   }
 }
@@ -273,7 +323,7 @@ class TimelineItem {
   final Color color;
   final String tiempo;
   final String porcentaje;
-  final Color colorPorcentaje; // Nuevo campo para el color del porcentaje
+  final Color colorPorcentaje;
 
   TimelineItem({
     required this.title,
@@ -282,7 +332,7 @@ class TimelineItem {
     required this.color,
     this.tiempo = '0:00:00',
     this.porcentaje = '0',
-    required this.colorPorcentaje, // Campo requerido
+    required this.colorPorcentaje,
   });
 }
 
@@ -312,9 +362,9 @@ class EnhancedChainTimelinePainter extends CustomPainter {
       
       final gradient = LinearGradient(
         colors: [
-          Color(0xFF7956A8).withValues(alpha: 0.8),
-          Color(0xFF3E2B6B).withValues(alpha: 0.8),
-          Color(0xFF7876E1).withValues(alpha: 0.8),
+          Color(0xFF7956A8).withAlpha(128),
+          Color(0xFF3E2B6B).withAlpha(128),
+          Color(0xFF7876E1).withAlpha(128),
         ],
         stops: const [0.0, 0.5, 1.0],
       );
@@ -341,7 +391,6 @@ class EnhancedChainTimelinePainter extends CustomPainter {
       }
       
       canvas.drawPath(path, paint);
-      
     }
   }
 
@@ -386,17 +435,17 @@ class AnimatedTimelineCard extends StatelessWidget {
                 color: Color(0xFFF8F7FC),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: item.color.withValues(alpha: 0.5),
+                  color: item.color.withOpacity(0.5),
                   width: 2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: item.color.withValues(alpha: 0.3),
+                    color: item.color.withOpacity(0.3),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: Colors.black.withOpacity(0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -434,10 +483,10 @@ class AnimatedTimelineCard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: item.colorPorcentaje.withOpacity(0.3), // Color con opacidad
+                            color: item.colorPorcentaje.withOpacity(0.3),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: item.colorPorcentaje, // Borde del color
+                              color: item.colorPorcentaje,
                               width: 1,
                             ),
                           ),
@@ -469,7 +518,7 @@ class AnimatedTimelineCard extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: item.color.withValues(alpha: 0.3),
+                                    color: item.color.withOpacity(0.3),
                                     width: 1,
                                   ),
                                 ),
@@ -501,7 +550,7 @@ class AnimatedTimelineCard extends StatelessWidget {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: item.color.withValues(alpha: 0.3),
+                                color: item.color.withOpacity(0.3),
                                 width: 1,
                               ),
                               color: Colors.grey[800],

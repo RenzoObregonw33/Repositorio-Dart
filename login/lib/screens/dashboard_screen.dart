@@ -138,19 +138,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
 
           if (_mostrarFiltros)
-            SizedBox(
-              height: 300,
-              child: Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: SelectorFiltros(
-                  graphicsService: _graphicsService,
-                  onFiltrosChanged: (filtros) { 
-                    if (!mounted) return;
-                    setState(() => _filtrosEmpresariales = filtros);
-                    _loadData();
-                  },
-                ),
-              ),
+          SizedBox(
+            height: 300,
+            child: SelectorFiltros(
+              graphicsService: _graphicsService,
+              onFiltrosChanged: (filtros) { 
+                if (!mounted) return;
+                setState(() {
+                  _filtrosEmpresariales = filtros;
+                  _mostrarFiltros = false; // ← ESTA LÍNEA OCULTA LA LISTA
+                });
+                _loadData();
+              },
+            ),
           ),
 
           if (_mostrarEmpleados)

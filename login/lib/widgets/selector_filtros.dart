@@ -36,7 +36,6 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
     try {
       final response = await widget.graphicsService.fetchFiltrosEmpresariales();
       
-      // Usar operadores seguros y valores por defecto
       setState(() {
         _filtros = [
           GrupoFiltros(
@@ -92,39 +91,162 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
-    if (_error != null) return Text(_error!, style: TextStyle(color: Colors.red));
+    if (_loading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF7876E1)),
+          strokeWidth: 3,
+        ),
+      );
+    }
+    
+    if (_error != null) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          _error!,
+          style: const TextStyle(color: Colors.red, fontSize: 16),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
 
-    return Column(
-      children: [
-        Expanded(
-          child: ListView(
-            children: _filtros.map((grupo) {
-              return ExpansionTile(
-                title: Text(grupo.categoria, style: const TextStyle(fontWeight: FontWeight.bold)),
-                initiallyExpanded: grupo.expandido,
-                onExpansionChanged: (expanded) => setState(() => grupo.expandido = expanded),
-                children: grupo.filtros.map((filtro) {
-                  return CheckboxListTile(
-                    title: Text(filtro.descripcion),
-                    value: filtro.seleccionado,
-                    onChanged: (value) {
-                      setState(() {
-                        filtro.seleccionado = value ?? false;
-                        widget.onFiltrosChanged(_filtros);
-                      });
-                    },
-                  );
-                }).toList(),
-              );
-            }).toList(),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            spreadRadius: 2,
           ),
-        ),
-        ElevatedButton(
-          onPressed: () => widget.onFiltrosChanged(_filtros),
-          child: const Text('Aplicar Filtros'),
-        ),
-      ],
+        ],
+      ),
+      margin: const EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // HEADER CON TÍTULO
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.deepPurple[50],
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: const Text(
+              'FILTROS DISPONIBLES',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF3E2B6B),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+
+          // LISTA DE FILTROS
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(8),
+              children: _filtros.map((grupo) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8F7FC), // Color original que tenías
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Color(0xFF7956A8).withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: ExpansionTile(
+                    leading: Icon(
+                      Icons.filter_list,
+                      color: Color(0xFF3E2B6B),
+                      size: 20,
+                    ),
+                    title: Text(
+                      grupo.categoria,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    initiallyExpanded: grupo.expandido,
+                    onExpansionChanged: (expanded) => setState(() => grupo.expandido = expanded),
+                    children: grupo.filtros.map((filtro) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: CheckboxListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          title: Text(
+                            filtro.descripcion,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          value: filtro.seleccionado,
+                          onChanged: (value) {
+                            setState(() {
+                              filtro.seleccionado = value ?? false;
+                            });
+                          },
+                          activeColor: Color(0xFF7956A8),
+                          checkColor: Colors.white,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          dense: true,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+
+          // BOTÓN APLICAR - MANTIENE TODO IGUAL SOLO CAMBIA EL onPressed
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(12),
+                bottomRight: Radius.circular(12),
+              ),
+            ),
+            child: ElevatedButton(
+              onPressed: () => widget.onFiltrosChanged(_filtros), // ← ASÍ SE QUEDA
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF7876E1),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                elevation: 1,
+              ),
+              child: const Text(
+                'Aplicar Filtros',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:login/widgets/image_viewer_centrado.dart';
 
 // Clase principal de la pantalla de la línea de tiempo
 class TimelineScreen extends StatefulWidget {
@@ -114,14 +115,12 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
   }
 
   void _onScroll() {
-    debugPrint('💫 Scroll position: ${_scrollController.position.pixels.toStringAsFixed(1)}');
-    debugPrint('📏 Max scroll: ${_scrollController.position.maxScrollExtent.toStringAsFixed(1)}');
+    
     if (!mounted) return;
 
     // Cargar más datos cuando esté cerca del final
     if (_scrollController.position.pixels >= 
-        _scrollController.position.maxScrollExtent - 100) {
-        debugPrint('🚀 ¡Cargando más datos!');
+        _scrollController.position.maxScrollExtent - 100) {     
       _cargarMasDatos();
     }
   }
@@ -163,57 +162,6 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
     super.dispose();
   }
 
-  void _showFullScreenImage(BuildContext context, Uint8List imageBytes) {
-    if (!mounted) return;
-
-    
-    final TransformationController _transformationController = 
-        TransformationController();
-
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => FadeTransition(
-          opacity: animation,
-          child: Scaffold(
-            backgroundColor: Colors.black,
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-            body: Center(
-              child: Hero(
-                tag: 'imageHero_${DateTime.now().millisecondsSinceEpoch}',
-                child: InteractiveViewer(
-                  transformationController: _transformationController,
-                  panEnabled: true,
-                  minScale: 0.1,  // ← Valor mínimo seguro
-                  maxScale: 4.0,
-                  boundaryMargin: EdgeInsets.all(20),
-                  onInteractionEnd: (details) {
-                    // Prevenir que la escala llegue a 0
-                    final scale = _transformationController.value.getMaxScaleOnAxis();
-                    if (scale < 0.1) {
-                      _transformationController.value = Matrix4.identity();
-                    }
-                  },
-                  child: Image.memory(
-                    imageBytes,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        transitionDuration: const Duration(milliseconds: 300),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     if (!mounted) return SizedBox.shrink();
@@ -226,62 +174,51 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
             // CABECERA BONITA
             const SizedBox(height: 20),
             
-            // CONTENEDOR PRINCIPAL CON SCROLL
+            // CONTENEDOR PRINCIPAL CON SCROLL - ¡AQUÍ ESTÁ LA CORRECCIÓN!
             Expanded(
-              child: Column(
-                children: [
-                  SizedBox(height: 20),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      physics: const BouncingScrollPhysics(),
-                      child: Column(
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    // LIENZO DE LA LÍNEA DE TIEMPO
+                    SizedBox(
+                      height: items.length * 230.0,
+                      child: Stack(
                         children: [
-                          // LIENZO DE LA LÍNEA DE TIEMPO (¡Manteniendo tu arte!)
-                          SizedBox(
-                            height: items.length * 210.0,
-                            child: Stack(
-                              children: [
-                                // LÍNEAS DE CONEXIÓN (Tu diseño original)
-                                Positioned.fill(
-                                  child: CustomPaint(
-                                    painter: EnhancedChainTimelinePainter(
-                                      itemCount: items.length,
-                                      itemHeight: 210.0,
-                                    ),
-                                  ),
-                                ),
-                                
-                                // TARJETAS ANIMADAS
-                                Column(
-                                  children: List.generate(items.length, (index) {
-                                    return Column(
-                                      children: [
-                                        AnimatedTimelineCard(
-                                          item: items[index],
-                                          position: index % 2 == 0 
-                                              ? ItemPosition.left 
-                                              : ItemPosition.right,
-                                          onImageTap: _showFullScreenImage,
-                                          delay: Duration(milliseconds: index * 200),
-                                          cardWidth: MediaQuery.of(context).size.width * 0.8,
-                                        ),
-                                        const SizedBox(height: 30),
-                                      ],
-                                    );
-                                  }),
-                                ),
-                              ],
+                          // LÍNEAS DE CONEXIÓN
+                          Positioned.fill(
+                            child: CustomPaint(
+                              painter: EnhancedChainTimelinePainter(
+                                itemCount: items.length,
+                                itemHeight: 230.0,
+                              ),
                             ),
                           ),
-                    
-                          // INDICADORES DE CARGA (Footer)
-                          _buildFooter(),
+                          
+                          // TARJETAS ANIMADAS
+                          Column(
+                            children: List.generate(items.length, (index) {
+                              return Padding(
+                                padding: EdgeInsets.only(bottom: index < items.length - 1 ? 30 : 0),
+                                child: AnimatedTimelineCard(
+                                  item: items[index],
+                                  position: index % 2 == 0 ? ItemPosition.left : ItemPosition.right,
+                                  delay: Duration(milliseconds: index * 200),
+                                  cardWidth: MediaQuery.of(context).size.width * 0.8,
+                                ),
+                              );
+                            }),
+                          ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                    
+                    // INDICADORES DE CARGA (Footer)
+                    _buildFooter(),
+                  ],
+                ),
               ),
             ),
           ],
@@ -405,7 +342,6 @@ enum ItemPosition { left, right }
 class AnimatedTimelineCard extends StatelessWidget {
   final TimelineItem item;
   final ItemPosition position;
-  final Function(BuildContext, Uint8List) onImageTap;
   final Duration delay;
   final double cardWidth;
 
@@ -413,15 +349,24 @@ class AnimatedTimelineCard extends StatelessWidget {
     super.key,
     required this.item,
     required this.position,
-    required this.onImageTap,
     required this.delay,
     this.cardWidth = 280, 
   });
 
+  // Método para obtener el color según la eficiencia
+  Color _getColorEficiencia(double eficiencia) {
+    if (eficiencia >= 50) return const Color(0xFF64D9C5); // Verde
+    if (eficiencia >= 30) return const Color(0xFFFFC066); // Naranja
+    return const Color(0xFFFF625C); // Rojo
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Convertir el porcentaje string a double
+    double porcentaje = double.tryParse(item.porcentaje) ?? 0.0;
+    
     return SizedBox(
-      height: 180,
+      height: 210,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
@@ -432,7 +377,7 @@ class AnimatedTimelineCard extends StatelessWidget {
             Container(
               width: MediaQuery.of(context).size.width * 0.7,
               decoration: BoxDecoration(
-                color: Color(0xFFF8F7FC),
+                color: const Color(0xFFF8F7FC),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: item.color.withOpacity(0.5),
@@ -455,6 +400,7 @@ class AnimatedTimelineCard extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
                       children: [
@@ -479,36 +425,21 @@ class AnimatedTimelineCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        // BADGE MODIFICADO - Usa el color según productividad
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: item.colorPorcentaje.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: item.colorPorcentaje,
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            '${item.porcentaje.isNotEmpty ? item.porcentaje : '0'}%',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
                       ],
                     ),    
                     const SizedBox(height: 10),
+                    
                     Expanded(
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           if (item.imageBytesList.isNotEmpty)
                           GestureDetector(
-                            onTap: () => onImageTap(context, item.imageBytesList[0]),
+                            onTap: () => showFullScreenImageCentrado(
+                              context,
+                              imageBytes: item.imageBytesList[0],
+                              heroTag: 'imageHero_${item.title}',
+                            ),
                             child: Hero(
                               tag: 'imageHero_${item.title}',
                               child: Container(
@@ -571,13 +502,13 @@ class AnimatedTimelineCard extends StatelessWidget {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    Icon(Icons.access_time, 
+                                    const Icon(Icons.access_time, 
                                         color: Colors.green, 
                                         size: 18),
                                     const SizedBox(width: 6),
                                     Text(
                                       item.time.split(' - ')[0],
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 14,
                                         color: Colors.black,
                                         fontWeight: FontWeight.w600,
@@ -590,13 +521,13 @@ class AnimatedTimelineCard extends StatelessWidget {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    Icon(Icons.access_time, 
+                                    const Icon(Icons.access_time, 
                                         color: Colors.red, 
                                         size: 18),
                                     const SizedBox(width: 6),
                                     Text(
                                       item.time.split(' - ')[1],
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 14,
                                         color: Colors.black,
                                         fontWeight: FontWeight.w600,
@@ -609,7 +540,7 @@ class AnimatedTimelineCard extends StatelessWidget {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    Icon( Icons.timer, 
+                                    const Icon( Icons.timer, 
                                         color: Color(0xFF3E2B6B),
                                         size: 18),
                                     const SizedBox(width: 6),
@@ -628,6 +559,52 @@ class AnimatedTimelineCard extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
+
+                    // BARRA DE PROGRESO EN LA PARTE INFERIOR
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Stack(
+                            children: [
+                              // Fondo de la barra
+                              Container(
+                                width: 240,
+                                height: 22,
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFE7E7F3),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              // Barra de progreso
+                              Container(
+                                width: 240 * (porcentaje / 100),
+                                height: 22,
+                                decoration: BoxDecoration(
+                                  color: _getColorEficiencia(porcentaje),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              // Texto del porcentaje
+                              Positioned.fill(
+                                child: Center(
+                                  child: Text(
+                                    "${porcentaje.toStringAsFixed(1)}%",
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

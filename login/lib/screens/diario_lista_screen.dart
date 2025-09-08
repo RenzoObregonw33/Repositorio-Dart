@@ -142,19 +142,11 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
   Future<void> _cargarMasDatos() async {
     if (!_hasMoreData) return; // Si no hay más datos, no hace nada
 
-    debugPrint('📊 Antes de cargar más - Start: $_start, Limite: $_limite');
-    debugPrint('📈 Datos actuales en lista: ${_responseData?['lista']?['data']?.length ?? 0}');
-    debugPrint('📈 Datos actuales en timeline: ${_responseData?['linea_tiempo']?['data']?.length ?? 0}');
-
     setState(() {
       _start += _limite; // Incrementa el índice de inicio
     });
 
     await _cargarDatos(); // Carga los nuevos datos
-
-    debugPrint('✅ Después de cargar - Start: $_start');
-    debugPrint('📊 Nuevos datos en lista: ${_responseData?['lista']?['data']?.length ?? 0}');
-    debugPrint('📊 Nuevos datos en timeline: ${_responseData?['linea_tiempo']?['data']?.length ?? 0}');
   }
 
   @override
@@ -334,7 +326,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
               if (_cargandoMas)
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Center(child: CircularProgressIndicator(color: Colors.black)), // Indicador de carga
+                  child: Center(child: CircularProgressIndicator(color: Colors.purpleAccent)), // Indicador de carga
                 ),
               
               // Mensaje cuando no hay más datos

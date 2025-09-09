@@ -28,7 +28,7 @@ class SelectorFechas extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
               side: BorderSide(
-                color: Color(0xFF7775E2), // Borde gris claro
+                color: Color(0xFF7775E2), // Borde 
                 width: 1,
               ),
             ),

@@ -5,11 +5,13 @@ import 'package:login/Apis/api_graphics_services.dart';
 class SelectorFiltros extends StatefulWidget {
   final ApiGraphicsService graphicsService;
   final Function(List<GrupoFiltros>) onFiltrosChanged;
+  final VoidCallback? onClose; // 👈 NUEVO callback para cerrar
 
   const SelectorFiltros({
     super.key,
     required this.graphicsService,
     required this.onFiltrosChanged,
+    this.onClose,
   });
 
   @override
@@ -127,7 +129,7 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // HEADER CON TÍTULO
+          // HEADER CON TÍTULO Y X
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -137,14 +139,22 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
                 topRight: Radius.circular(12),
               ),
             ),
-            child: const Text(
-              'FILTROS DISPONIBLES',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF3E2B6B),
-              ),
-              textAlign: TextAlign.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'FILTROS DISPONIBLES',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF3E2B6B),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, size: 18, color: Color(0xFF3E2B6B)),
+                  onPressed: widget.onClose, // 👈 dispara el callback
+                ),
+              ],
             ),
           ),
 
@@ -156,15 +166,15 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8F7FC), // Color original que tenías
+                    color: const Color(0xFFF8F7FC),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: Color(0xFF7956A8).withOpacity(0.3),
+                      color: const Color(0xFF7956A8).withOpacity(0.3),
                       width: 1,
                     ),
                   ),
                   child: ExpansionTile(
-                    leading: Icon(
+                    leading: const Icon(
                       Icons.filter_list,
                       color: Color(0xFF3E2B6B),
                       size: 20,
@@ -178,7 +188,8 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
                       ),
                     ),
                     initiallyExpanded: grupo.expandido,
-                    onExpansionChanged: (expanded) => setState(() => grupo.expandido = expanded),
+                    onExpansionChanged: (expanded) =>
+                        setState(() => grupo.expandido = expanded),
                     children: grupo.filtros.map((filtro) {
                       return Container(
                         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -202,7 +213,7 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
                               filtro.seleccionado = value ?? false;
                             });
                           },
-                          activeColor: Color(0xFF7956A8),
+                          activeColor: const Color(0xFF7956A8),
                           checkColor: Colors.white,
                           controlAffinity: ListTileControlAffinity.leading,
                           dense: true,
@@ -215,7 +226,7 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
             ),
           ),
 
-          // BOTÓN APLICAR - MANTIENE TODO IGUAL SOLO CAMBIA EL onPressed
+          // BOTÓN APLICAR
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -226,9 +237,9 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
               ),
             ),
             child: ElevatedButton(
-              onPressed: () => widget.onFiltrosChanged(_filtros), // ← ASÍ SE QUEDA
+              onPressed: () => widget.onFiltrosChanged(_filtros),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF7876E1),
+                backgroundColor: const Color(0xFF7876E1),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(

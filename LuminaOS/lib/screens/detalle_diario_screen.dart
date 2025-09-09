@@ -218,19 +218,22 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
 
           // Panel de filtros empresariales
           if (_mostrarFiltros)
-            SizedBox(
-              height: 300,
-              child: Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: SelectorFiltros(
-                  graphicsService: _apiService,
-                  onFiltrosChanged: (filtros) {
-                    setState(() => _filtrosEmpresariales = filtros);
-                    _cargarDatos();
-                  },
-                ),
-              ),
-            ),
+          SizedBox(
+            height: 300,   
+            child: SelectorFiltros(
+              graphicsService: _apiService,
+              onFiltrosChanged: (filtros) {
+                setState(() => _filtrosEmpresariales = filtros);
+                _cargarDatos();
+              },
+              onClose: () { // 👈 NUEVO
+                setState(() {
+                  _mostrarFiltros = false; // Oculta al presionar la ❌
+                });
+              },
+            ),  
+          ),
+
 
           // Barra de búsqueda
           Padding(

@@ -50,6 +50,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic> _actividadDiaria = {}; 
   List<TopEmpleadoData> _topEmpleadosData = [];
   bool _isDisposed = false;
+  int _intentosRefresh = 0;
 
   @override
   void initState() {
@@ -73,19 +74,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF3E2B6B),
+        backgroundColor: const Color(0xFF3E2B6B),
         iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('Dashboard Gráficos', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400),textAlign: TextAlign.center,),
+        title: const Text('Dashboard Gráficos', 
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400),
+          textAlign: TextAlign.center,
+        ),
         actions: [
           IconButton(
             color: Colors.white,
             icon: const Icon(Icons.refresh),
             onPressed: _dateRange != null ? () {
-              if (!mounted) return; // <-- Añadir aquí
+              if (!mounted) return;
               _loadData();
             } : null,
           ),
@@ -94,6 +98,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: Column(
         children: [
+          // Selector de fechas
           SelectorFechas(
             range: _dateRange!,
             onRangeSelected: (newRange) {
@@ -105,7 +110,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             },
           ),
 
-          // Botones con nuevo estilo
+          // Botones de filtros
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Row(
@@ -137,58 +142,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
 
+          // Selectores (filtros y empleados)
           if (_mostrarFiltros)
-          SizedBox(
-            height: 300,
-            child: SelectorFiltros(
-              graphicsService: _graphicsService,
-              onFiltrosChanged: (filtros) { 
-                if (!mounted) return;
-                setState(() {
-                  _filtrosEmpresariales = filtros;
-                  _mostrarFiltros = false; // ← ESTA LÍNEA OCULTA LA LISTA
-                });
-                _loadData();
-              },
+            SizedBox(
+              height: 300,
+              child: SelectorFiltros(
+                graphicsService: _graphicsService,
+                onFiltrosChanged: (filtros) { 
+                  if (!mounted) return;
+                  setState(() {
+                    _filtrosEmpresariales = filtros;
+                    _mostrarFiltros = false;
+                  });
+                  _loadData();
+                },
+                onClose: () {
+                  setState(() {
+                    _mostrarFiltros = false;
+                  });
+                },
+              ),
             ),
-          ),
 
           if (_mostrarEmpleados)
             SizedBox(
               height: 300,
-              child: Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: SelectorEmpleado(
-                  graphicsService: _graphicsService,
-                  filtrosEmpresariales: _filtrosEmpresariales,
-                  empleadosSeleccionadosIniciales: _empleadosSeleccionados,
-                  onError: (error) => setState(() => _error = error),
-                  onEmpleadosSeleccionados: (empleadosIds) {
-                    if (!mounted) return;
-                    setState(() => _empleadosSeleccionados = empleadosIds);
-                    _loadData();
-                  },
-                ),
-              ),
+              child: SelectorEmpleado(
+                graphicsService: _graphicsService,
+                filtrosEmpresariales: _filtrosEmpresariales,
+                empleadosSeleccionadosIniciales: _empleadosSeleccionados,
+                onError: (error) => setState(() => _error = error),
+                onEmpleadosSeleccionados: (empleadosIds) {
+                  if (!mounted) return;
+                  setState(() => _empleadosSeleccionados = empleadosIds);
+                  _loadData();
+                },
+                onClose: () {
+                  setState(() {
+                    _mostrarEmpleados = false;
+                  });
+                },
+              ),    
             ),
 
-          if (_error != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                _error!,
-                style: TextStyle(color: Colors.red[700]),
-              ),
-            ),
-
-          SizedBox(height: 8),
-
-          // Gráfico reducido
+          // Área principal de gráficos
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: _buildAllGraphs(),
-            ),
+            child: _buildMainContent(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMainContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          // Gráficos
+          Expanded(
+            child: _buildAllGraphs(),
           ),
         ],
       ),
@@ -204,11 +218,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       height: 50,
       width: fullWidth ? double.infinity : null,
       decoration: BoxDecoration(
-        color: Color(0xFF7876E1),
+        color: const Color(0xFF7876E1),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:  0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 2,
             offset: const Offset(0, 2),
           ),
@@ -229,7 +243,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             text,
             style: const TextStyle(
               fontSize: 12,
-              color: Colors.white, // Texto negro
+              color: Colors.white,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -334,13 +348,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
       });
     } catch (e) {
-        if (!_isDisposed && mounted) { // <-- Verificación para errores
+        if (!_isDisposed && mounted) {
         setState(() {
           _error = 'Error al cargar datos: ${e.toString()}';
         });
       }
     } finally {
-        if (!_isDisposed && mounted) { // <-- Verificación final
+        if (!_isDisposed && mounted) {
         setState(() => _isLoading = false);
       }
     }
@@ -348,16 +362,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildAllGraphs() {
     if (_isLoading) {
+      // SOLUCIÓN: Usar Center directamente sin Column para evitar overflow
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Lumina(
-              assetPath: 'assets/imagen/luminaos.png',
-              duracion: const Duration(milliseconds: 1500),
-              size: 300,
-            ),
-          ],
+        child: Lumina(
+          assetPath: 'assets/imagen/luminaos.png',
+          duracion: const Duration(milliseconds: 1500),
+          size: 200, // Reducir tamaño para que quepa mejor
         ),
       );
     }
@@ -392,20 +402,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // Si no hay gráficos, mostrar mensaje
     if (todosLosGraficos.isEmpty) {
       return Center(
-        child: Text(
-          'No hay datos disponibles',
-          style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_intentosRefresh < 2) ...[
+              Text(
+                'Actualizar Dashboard',
+                style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 10),
+              IconButton(
+                icon: const Icon(Icons.refresh_rounded, size: 32, color: Color(0xFF757575)),
+                onPressed: () {
+                  if (_intentosRefresh < 2) {
+                    setState(() {
+                      _intentosRefresh++;
+                    });
+                    _loadData();
+                  }
+                },
+              ),
+            ] else ...[
+              Text(
+                'No hay datos el día de hoy.\nCambia la fecha de tu consulta',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: Colors.red[600]),
+              ),
+            ],
+          ],
         ),
       );
     }
 
-    // ListView con todos los gráficos SIN Card exterior
+    // ListView con todos los gráficos
     return ListView.separated(
       padding: const EdgeInsets.only(bottom: 20),
       itemCount: todosLosGraficos.length,
       separatorBuilder: (context, index) => const SizedBox(height: 20),
       itemBuilder: (context, index) {
-        return todosLosGraficos[index]; // ✅ Directamente el gráfico con SizedBox
+        return todosLosGraficos[index];
       },
     );
   }

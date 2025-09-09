@@ -18,10 +18,9 @@ class GraficoEficiencia extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: SizedBox(
-          height: 280, // Altura aumentada para contener el gráfico más grande
+          height: 280,
           child: Column(
             children: [
-              // Título (se mantiene igual)
               const Row(
                 children: [
                   Icon(Icons.auto_graph, color: Color(0xFF3E2B6B)),
@@ -36,19 +35,18 @@ class GraficoEficiencia extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 8), // Espacio reducido entre título y gráfico
+              const SizedBox(height: 8),
               
-              // Gráfico ampliado y centrado
               Expanded(
-                child: Center( // Envuelto en Center para asegurar centrado
+                child: Center(
                   child: SfRadialGauge(
                     axes: <RadialAxis>[
                       RadialAxis(
                         minimum: 0,
                         maximum: 100,
-                        radiusFactor: 0.9, // Gráfico más grande (90% del espacio)
+                        radiusFactor: 0.9,
                         axisLineStyle: const AxisLineStyle(
-                          thickness: 0.08, // Ancho de barras reducido
+                          thickness: 0.08,
                           color: Colors.white54,
                         ),
                         ranges: <GaugeRange>[
@@ -80,7 +78,7 @@ class GraficoEficiencia extends StatelessWidget {
                         pointers: <GaugePointer>[
                           NeedlePointer(
                             value: eficiencia,
-                            needleLength: 0.9, // Aguja ligeramente más larga
+                            needleLength: 0.9,
                             needleColor: Colors.black.withOpacity(0.5),
                             knobStyle: const KnobStyle(
                               color: Colors.black,
@@ -96,7 +94,7 @@ class GraficoEficiencia extends StatelessWidget {
                                 Text(
                                   '${eficiencia.toStringAsFixed(1)}%',
                                   style: const TextStyle(
-                                    fontSize: 22, // Texto un poco más grande
+                                    fontSize: 22,
                                     fontWeight: FontWeight.w500,
                                     color: Colors.black,
                                   ),
@@ -111,7 +109,7 @@ class GraficoEficiencia extends StatelessWidget {
                               ],
                             ),
                             angle: 90,
-                            positionFactor: 0.5,
+                            positionFactor: 0.7, // Cambiado de 0.5 a 0.7 para mayor separación
                           ),
                         ],
                       ),

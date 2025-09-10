@@ -30,7 +30,7 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
   List<int> _empleadosSeleccionados = [];
   bool _loading = false;
   String? _error;
-  bool _mostrarTodos = false;
+  bool _mostrarTodos = true;
   bool _mostrarSelector = true;
 
   @override
@@ -46,7 +46,7 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
     setState(() {
       _loading = true;
       _error = null;
-      _mostrarTodos = false;
+      //_mostrarTodos = false;
     });
 
     try {

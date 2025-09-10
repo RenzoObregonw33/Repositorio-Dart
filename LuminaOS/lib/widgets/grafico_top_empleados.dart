@@ -151,7 +151,8 @@ class _GraficoTopEmpleadosState extends State<GraficoTopEmpleados> {
             'color': '#000000',
             'fontWeight': 'bold',
             'fontSize': 10,
-          },
+          }
+          ,
           'barWidth': '50%',
           'data': valoresConEstilo,
         }

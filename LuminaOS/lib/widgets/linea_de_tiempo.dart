@@ -183,37 +183,8 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
                   children: [
                     const SizedBox(height: 20),
                     // LIENZO DE LA LÍNEA DE TIEMPO
-                    SizedBox(
-                      height: items.length * 230.0,
-                      child: Stack(
-                        children: [
-                          // LÍNEAS DE CONEXIÓN
-                          Positioned.fill(
-                            child: CustomPaint(
-                              painter: EnhancedChainTimelinePainter(
-                                itemCount: items.length,
-                                itemHeight: 230.0,
-                              ),
-                            ),
-                          ),
-                          
-                          // TARJETAS ANIMADAS
-                          Column(
-                            children: List.generate(items.length, (index) {
-                              return Padding(
-                                padding: EdgeInsets.only(bottom: index < items.length - 1 ? 30 : 0),
-                                child: AnimatedTimelineCard(
-                                  item: items[index],
-                                  position: index % 2 == 0 ? ItemPosition.left : ItemPosition.right,
-                                  delay: Duration(milliseconds: index * 200),
-                                  cardWidth: MediaQuery.of(context).size.width * 0.8,
-                                ),
-                              );
-                            }),
-                          ),
-                        ],
-                      ),
-                    ),
+                    // CORRECCIÓN: Cambiamos el SizedBox por un widget que no tenga altura fija
+                    _buildTimelineContent(),
                     
                     // INDICADORES DE CARGA (Footer)
                     _buildFooter(),
@@ -227,6 +198,42 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
     );
   }
 
+  // NUEVO MÉTODO: Construye el contenido de la línea de tiempo sin altura fija
+  Widget _buildTimelineContent() {
+    return Column(
+      children: [
+        Stack(
+          children: [
+            // LÍNEAS DE CONEXIÓN
+            Positioned.fill(
+              child: CustomPaint(
+                painter: EnhancedChainTimelinePainter(
+                  itemCount: items.length,
+                  itemHeight: 230.0,
+                ),
+              ),
+            ),
+            
+            // TARJETAS ANIMADAS
+            Column(
+              children: List.generate(items.length, (index) {
+                return Padding(
+                  padding: EdgeInsets.only(bottom: index < items.length - 1 ? 30 : 0),
+                  child: AnimatedTimelineCard(
+                    item: items[index],
+                    position: index % 2 == 0 ? ItemPosition.left : ItemPosition.right,
+                    delay: Duration(milliseconds: index * 200),
+                    cardWidth: MediaQuery.of(context).size.width * 0.8,
+                  ),
+                );
+              }),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   // MÉTODO PARA EL FOOTER BONITO
   Widget _buildFooter() {
     return Column(
@@ -234,7 +241,7 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
         if (widget.cargandoMas || _isLoadingMore)
           Padding(
             padding: EdgeInsets.symmetric(vertical: 20),
-            child: CircularProgressIndicator(color: Colors.purpleAccent),
+            child: CircularProgressIndicator(color: Color(0xFF3E2B6B)),
           ),
         
         if (!widget.tieneMasDatos && items.isNotEmpty)
@@ -572,7 +579,7 @@ class AnimatedTimelineCard extends StatelessWidget {
                             children: [
                               // Fondo de la barra
                               Container(
-                                width: 240,
+                                width: 220,
                                 height: 22,
                                 decoration: BoxDecoration(
                                   color: Color(0xFFE7E7F3),
@@ -581,7 +588,7 @@ class AnimatedTimelineCard extends StatelessWidget {
                               ),
                               // Barra de progreso
                               Container(
-                                width: 240 * (porcentaje / 100),
+                                width: 220 * (porcentaje / 100),
                                 height: 22,
                                 decoration: BoxDecoration(
                                   color: _getColorEficiencia(porcentaje),

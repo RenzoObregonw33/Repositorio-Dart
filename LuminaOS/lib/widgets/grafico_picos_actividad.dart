@@ -27,13 +27,6 @@ class GraficoPicosActividad extends StatelessWidget {
     final List<Color> colorPalette = [
       Color(0xFF3E2B6B),
       Color(0xFF64D9C5),
-    /*  Color(0xFF0868FB), // Azul
-      Color(0xFF2DC70D), // Verde
-      Color(0xFFFF1A15), // Rojo
-      Color(0xFF7AD6D5), // Cian
-      Color(0xFFDC32F3), // Morado
-      Color(0xFFFE9717), // Naranja
-      Color(0xFFFFA2CD), // Rosa*/
     ];
 
     // Filtrar datos para mostrar solo de 8:00 a 18:00
@@ -61,7 +54,7 @@ class GraficoPicosActividad extends StatelessWidget {
               // Título adaptado al estilo del otro gráfico
               const Row(
                 children: [
-                  Icon(Icons.show_chart, color: Color(0xFF3E2B6B)),
+                  Icon(Icons.bar_chart_rounded, color: Color(0xFF3E2B6B)),
                   SizedBox(width: 8),
                   Text(
                     'Analisis de Picos de Actividad',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:login/Apis/api_graphics_services.dart';
 import 'package:login/Models/filtro_data.dart';
 import 'package:login/screens/diario_lista_screen.dart';
+import 'package:login/widgets/error_message.dart';
 import 'package:login/widgets/selector_fecha_simple.dart';
 import 'package:login/widgets/selector_filtros.dart';
 import 'package:login/widgets/lumina.dart';
@@ -166,7 +167,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black.withValues(alpha: 0.05),
+      
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
@@ -388,7 +389,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
           style: const TextStyle(
             fontSize: 14,
             color: Colors.white,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
@@ -404,9 +405,14 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Lumina(
-              assetPath: 'assets/imagen/luminaos.png', // Ruta a tu imagen de carga
+              assetPath: 'assets/imagen/luminaos.png',
               duracion: const Duration(milliseconds: 1500),
-              size: 300,
+              size: 200,
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Cargando datos...',
+              style: TextStyle(color: Colors.grey[600], fontSize: 16),
             ),
           ],
         ),
@@ -415,11 +421,8 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
 
     // Mostrar mensaje de error si existe
     if (_errorMessage.isNotEmpty) {
-      return Center(
-        child: Text(
-          _errorMessage,
-          style: const TextStyle(color: Colors.red),
-        ),
+      return ErrorMessageWidget(
+        mensaje: _errorMessage,
       );
     }
 
@@ -752,7 +755,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
 
   // Obtener color para la barra de progreso según porcentaje
   Color _getProgressColor(double porcentaje) {
-    if (porcentaje >= 80) return Colors.blue;
+    if (porcentaje >= 95) return Colors.blue;
     if (porcentaje >= 50) return Color(0xFF64D9C5); // Verde
     if (porcentaje >= 30) return Color(0xFFFFC066); // Naranja
     return Color(0xFFFF625C); // Rojo

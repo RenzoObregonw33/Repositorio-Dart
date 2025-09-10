@@ -186,7 +186,7 @@ class _ImageViewerCentradoState extends State<ImageViewerCentrado> {
                       ),
                     ),
 
-                  // Instrucciones (solo en zoom mínimo)
+                  // Instrucciones (solo en zoom mínimo) - MENSAJE CAMBIADO
                   if (_currentScale <= _minScale + 0.1)
                     const Positioned(
                       bottom: 60,
@@ -194,8 +194,23 @@ class _ImageViewerCentradoState extends State<ImageViewerCentrado> {
                       right: 0,
                       child: Column(
                         children: [
+                          Icon(
+                            Icons.screen_rotation_rounded,
+                            color: Colors.white54,
+                            size: 24,
+                          ),
+                          SizedBox(height: 8),
                           Text(
-                            'Doble tap para zoom',
+                            'Gire su pantalla',
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'para una mejor visualización',
                             style: TextStyle(
                               color: Colors.white54,
                               fontSize: 12,

@@ -5,7 +5,7 @@ import 'package:login/Apis/api_graphics_services.dart';
 class SelectorFiltros extends StatefulWidget {
   final ApiGraphicsService graphicsService;
   final Function(List<GrupoFiltros>) onFiltrosChanged;
-  final VoidCallback? onClose; // 👈 NUEVO callback para cerrar
+  final VoidCallback? onClose;
 
   const SelectorFiltros({
     super.key,
@@ -30,6 +30,9 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
   }
 
   Future<void> _loadFiltros() async {
+    // 👇 VERIFICAR SI EL WIDGET ESTÁ MONTADO
+    if (!mounted) return;
+    
     setState(() {
       _loading = true;
       _error = null;
@@ -37,6 +40,9 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
 
     try {
       final response = await widget.graphicsService.fetchFiltrosEmpresariales();
+      
+      // 👇 VERIFICAR SI EL WIDGET ESTÁ MONTADO
+      if (!mounted) return;
       
       setState(() {
         _filtros = [
@@ -85,8 +91,14 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
         ];
       });
     } catch (e) {
+      // 👇 VERIFICAR SI EL WIDGET ESTÁ MONTADO
+      if (!mounted) return;
+      
       setState(() => _error = 'Error cargando filtros: ${e.toString()}');
     } finally {
+      // 👇 VERIFICAR SI EL WIDGET ESTÁ MONTADO
+      if (!mounted) return;
+      
       setState(() => _loading = false);
     }
   }
@@ -152,7 +164,7 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close, size: 18, color: Color(0xFF3E2B6B)),
-                  onPressed: widget.onClose, // 👈 dispara el callback
+                  onPressed: widget.onClose,
                 ),
               ],
             ),
@@ -188,8 +200,11 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
                       ),
                     ),
                     initiallyExpanded: grupo.expandido,
-                    onExpansionChanged: (expanded) =>
-                        setState(() => grupo.expandido = expanded),
+                    onExpansionChanged: (expanded) {
+                      // 👇 VERIFICAR SI EL WIDGET ESTÁ MONTADO
+                      if (!mounted) return;
+                      setState(() => grupo.expandido = expanded);
+                    },
                     children: grupo.filtros.map((filtro) {
                       return Container(
                         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -209,6 +224,8 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
                           ),
                           value: filtro.seleccionado,
                           onChanged: (value) {
+                            // 👇 VERIFICAR SI EL WIDGET ESTÁ MONTADO
+                            if (!mounted) return;
                             setState(() {
                               filtro.seleccionado = value ?? false;
                             });

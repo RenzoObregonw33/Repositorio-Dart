@@ -1,16 +1,17 @@
 import 'dart:math' as Math;
 import 'package:flutter/material.dart';
 import 'package:login/Apis/api_graphics_services.dart';
+import 'package:login/widgets/error_message.dart';
 import 'package:login/widgets/grafico_diario_extend.dart';
 import 'package:login/widgets/linea_de_tiempo.dart';
 import 'package:login/widgets/lumina.dart';
 
-// Clase principal para la pantalla de Diario en Lista
-class DiarioEnListaScreen extends StatefulWidget {
-  final String token; // Token de autenticación
-  final int organiId; // ID de la organización
-  final Map<String, dynamic> empleado; // Información del empleado
-  final DateTime fecha; // Fecha para la consulta
+// 👇 Añadir WidgetsBindingObserver al StatefulWidget
+class DiarioEnListaScreen extends StatefulWidget with WidgetsBindingObserver {
+  final String token;
+  final int organiId;
+  final Map<String, dynamic> empleado;
+  final DateTime fecha;
 
   const DiarioEnListaScreen({
     super.key,
@@ -27,68 +28,89 @@ class DiarioEnListaScreen extends StatefulWidget {
 class _DiarioEnListaScreenState extends State<DiarioEnListaScreen> 
     with SingleTickerProviderStateMixin {
   
-  late ApiGraphicsService _apiService; // Servicio para la API
-  late TabController _tabController; // Controlador para las pestañas
-  bool _cargando = true; // Estado de carga
-  Map<String, dynamic>? _responseData; // Datos de respuesta de la API
-  String _errorMessage = ''; // Mensaje de error
-  final int _limite = 10; // Límite de registros por página
-  int _start = 0; // Índice de inicio para la paginación
-  int _totalRecords = 0; // Total de registros disponibles
-  bool _hasMoreData = true; // Indica si hay más datos para cargar
-  ScrollController _scrollController = ScrollController(); // Controlador de desplazamiento
-  bool _cargandoMas = false; // Indicador para carga adicional
+  late ApiGraphicsService _apiService;
+  late TabController _tabController;
+  bool _cargando = true;
+  Map<String, dynamic>? _responseData;
+  String _errorMessage = '';
+  final int _limite = 10;
+  int _start = 0;
+  int _totalRecords = 0;
+  bool _hasMoreData = true;
+  ScrollController _scrollController = ScrollController();
+  bool _cargandoMas = false;
+  bool _isDisposed = false;
+  bool _appInBackground = false;
 
   @override
   void initState() {
     super.initState();
-    // Inicializa el servicio de API con el token y el ID de la organización
+    WidgetsBinding.instance.addObserver(widget); // 👈 Cambiar 'this' por 'widget'
+    
     _apiService = ApiGraphicsService(
       token: widget.token,
       organiId: widget.organiId,
     );
-    // Inicializa el controlador de pestañas
     _tabController = TabController(length: 2, vsync: this);
-    // Agrega un listener al controlador de desplazamiento
     _scrollController.addListener(_scrollListener);
-    // Carga los datos iniciales
     _cargarDatos();
   }
 
-  // Listener para el desplazamiento
+  // 👇 Mover el método didChangeAppLifecycleState al StatefulWidget
+  // Pero necesitamos una forma de comunicar el cambio al State
+  // Usaremos un callback approach
+
   void _scrollListener() {
-    // Verifica si se ha llegado al final de la lista
     if (_scrollController.offset >= _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
-      // Carga más datos si hay más disponibles y no se está cargando
       if (_hasMoreData && !_cargando && !_cargandoMas) {
         _cargarMasDatos();
       }
     }
   }
 
-  // Método para cargar datos desde la API
+  // 👇 Método que será llamado desde el Widget cuando la app vuelva al foreground
+  void _onAppResumed() {
+    if (_appInBackground) {
+      _appInBackground = false;
+      
+      // Si hay error o estaba cargando, reintentar
+      if (_errorMessage.isNotEmpty || (_cargando && _responseData == null)) {
+        _reintentarCarga();
+      }
+    }
+  }
+
+  void _reintentarCarga() {
+    if (!mounted || _isDisposed) return;
+    
+    setState(() {
+      _errorMessage = '';
+      _cargando = true;
+    });
+    
+    _cargarDatos(reset: true);
+  }
+
   Future<void> _cargarDatos({bool reset = false}) async {
-    if (!mounted) return; // Verifica si el widget sigue montado
+    if (!mounted || _isDisposed) return;
     
     setState(() {
       if (reset) {
-        _cargando = true; // Solo mostrar carga inicial si es reset
+        _cargando = true;
       } else {
-        _cargandoMas = true; // Mostrar indicador de carga adicional
+        _cargandoMas = true;
       }
-      _errorMessage = ''; // Resetea el mensaje de error
+      _errorMessage = '';
     });
 
     if (reset) {
-      // Reinicia la paginación si se solicita
       _start = 0;
       _hasMoreData = true;
-      _responseData = null; // Resetea los datos de respuesta
+      _responseData = null;
     }
 
     try {
-      // Realiza la llamada a la API para obtener datos
       final response = await _apiService.fetchData(
         fecha: widget.fecha,
         organiId: widget.organiId,
@@ -100,21 +122,18 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
         idEmpleado: widget.empleado['idEmpleado'],
       );
 
-      if (!mounted) return; // Verifica si el widget sigue montado
+      if (!mounted || _isDisposed) return;
   
       setState(() {
         if (reset || _responseData == null) {
           _responseData = response['data'];
         } else {
-          // ✅ CONCATENAR TANTO LISTA COMO LÍNEA DE TIEMPO
           final newData = response['data'];
           
-          // Concatenar lista principal
           final currentList = _responseData!['lista']['data'] as List;
           final newList = newData['lista']['data'] as List;
           _responseData!['lista']['data'] = [...currentList, ...newList];
           
-          // ✅ CONCATENAR LÍNEA DE TIEMPO TAMBIÉN
           if (newData['linea_tiempo'] != null && 
               newData['linea_tiempo']['data'] != null) {
             final currentTimeline = _responseData!['linea_tiempo']['data'] as List;
@@ -129,57 +148,59 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
         _cargandoMas = false;
       });
     } catch (e) {
-      if (!mounted) return; // Verifica si el widget sigue montado
+      if (!mounted || _isDisposed) return;
+      
       setState(() {
-        _cargando = false; // Finaliza la carga
+        _cargando = false;
         _cargandoMas = false;
-        _errorMessage = 'Error al cargar datos: ${e.toString()}'; // Asigna el mensaje de error
+        _errorMessage = 'Error al cargar datos: ${e.toString()}';
       });
     }
   }
 
-  // Método para cargar más datos
   Future<void> _cargarMasDatos() async {
-    if (!_hasMoreData) return; // Si no hay más datos, no hace nada
+    if (!_hasMoreData) return;
 
     setState(() {
-      _start += _limite; // Incrementa el índice de inicio
+      _start += _limite;
     });
 
-    await _cargarDatos(); // Carga los nuevos datos
+    await _cargarDatos();
   }
 
   @override
   void dispose() {
-    _tabController.dispose(); // Libera el controlador de pestañas
-    _scrollController.dispose(); // Libera el controlador de desplazamiento
+    _isDisposed = true;
+    WidgetsBinding.instance.removeObserver(widget); // 👈 Cambiar 'this' por 'widget'
+    _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Color de fondo
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Color(0xFF3E2B6A), // Color de fondo de la AppBar
-        iconTheme: IconThemeData(color: Colors.white), // Color de los íconos
+        backgroundColor: Color(0xFF3E2B6A),
+        iconTheme: IconThemeData(color: Colors.white),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Diario en Lista',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20), // Color del texto
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),
         ),
-        centerTitle: true, // Centra el título
+        centerTitle: true,
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(kToolbarHeight),
           child: Container(
-            color: Colors.white, // Fondo blanco para el TabBar
+            color: Colors.white,
             child: TabBar(
               controller: _tabController,
               indicatorColor: Color(0xFF64D9C5),
-              labelColor: Colors.black, // Texto seleccionado en negro sobre fondo blanco
+              labelColor: Colors.black,
               unselectedLabelColor: Colors.black,
               tabs: const [
                 Tab(text: 'Diario en Línea'),
@@ -189,11 +210,10 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
           ),
         ),
       ),
-      body: _buildBody(), // Cuerpo de la pantalla
+      body: _buildBody(),
     );
   }
 
-  // Método para construir el cuerpo de la pantalla
   Widget _buildBody() {
     if (_cargando && _responseData == null) {
       return Center(
@@ -201,9 +221,14 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Lumina(
-              assetPath: 'assets/imagen/luminaos.png', // Ruta a tu imagen de carga
-              duracion: const Duration(milliseconds: 1500), // Duración de la animación
-              size: 300, // Tamaño de la imagen
+              assetPath: 'assets/imagen/luminaos.png',
+              duracion: const Duration(milliseconds: 1500),
+              size: 200,
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Cargando datos...',
+              style: TextStyle(color: Colors.grey[600], fontSize: 16),
             ),
           ],
         ),
@@ -211,34 +236,30 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
     }
 
     if (_errorMessage.isNotEmpty) {
-      return Center(
-        child: Text(
-          _errorMessage, // Muestra el mensaje de error
-          style: TextStyle(color: Colors.red), // Color del texto
-        ),
+      return ErrorMessageWidget(
+        mensaje: _errorMessage,
       );
     }
+
 
     if (_responseData == null) {
       return Center(
         child: Text(
-          'No hay datos disponibles', // Mensaje cuando no hay datos
-          style: TextStyle(color: Colors.black), // Color del texto
+          'No hay datos disponibles',
+          style: TextStyle(color: Colors.black),
         ),
       );
     }
 
     return TabBarView(
-      controller: _tabController, // Controlador de pestañas
+      controller: _tabController,
       children: [
-        // Primer Tab: Resumen (Gráfico + Lista)
         _buildResumenTab(),
-
-        // Segundo Tab: Línea de tiempo
         _buildLineaTiempoTab(),
       ],
     );
   }
+
 
   // Método para construir la pestaña de resumen
   Widget _buildResumenTab() {
@@ -326,7 +347,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
               if (_cargandoMas)
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Center(child: CircularProgressIndicator(color: Colors.purpleAccent)), // Indicador de carga
+                  child: Center(child: CircularProgressIndicator(color: Color(0xFF3E2B6B))), // Indicador de carga
                 ),
               
               // Mensaje cuando no hay más datos
@@ -335,7 +356,7 @@ class _DiarioEnListaScreenState extends State<DiarioEnListaScreen>
                   padding: EdgeInsets.symmetric(vertical: 16),
                   child: Center(
                     child: Text(
-                      'No hay más actividades para mostrar', // Mensaje de fin de datos
+                      '✨ No hay más actividades para mostrar', // Mensaje de fin de datos
                       style: TextStyle(color: Colors.grey), // Color del texto
                     ),
                   ),

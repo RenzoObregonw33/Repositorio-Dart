@@ -16,7 +16,7 @@ class SelectorFechas extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Color(0xFF7775E2),
+          color: Color(0xFFF8F7FC),
           borderRadius: BorderRadius.circular(24),    
         ),
         child: ElevatedButton(
@@ -24,13 +24,9 @@ class SelectorFechas extends StatelessWidget {
             minimumSize: const Size(double.infinity, 50),
             backgroundColor: Colors.transparent, // Fondo transparente
             shadowColor: Colors.transparent, // Sin sombra del botón
-            foregroundColor: Colors.white, // Texto negro
+            foregroundColor: Color(0xFF3E2B6B), // color del texto
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
-              side: BorderSide(
-                color: Color(0xFF7775E2), // Borde 
-                width: 1,
-              ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),

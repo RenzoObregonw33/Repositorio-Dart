@@ -364,10 +364,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (_isLoading) {
       // SOLUCIÓN: Usar Center directamente sin Column para evitar overflow
       return Center(
-        child: Lumina(
-          assetPath: 'assets/imagen/luminaos.png',
-          duracion: const Duration(milliseconds: 1500),
-          size: 200, // Reducir tamaño para que quepa mejor
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Lumina(
+              assetPath: 'assets/imagen/luminaos.png',
+              duracion: const Duration(milliseconds: 1500),
+              size: 200,
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Cargando datos...',
+              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            ),
+          ],
         ),
       );
     }
@@ -375,25 +385,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // Lista de todos los gráficos
     final List<Widget> todosLosGraficos = [
       if (_eficiencia != null) 
-        SizedBox(height: 300, child: GraficoEficiencia(eficiencia: _eficiencia!)),
+        SizedBox(height: 350, child: GraficoEficiencia(eficiencia: _eficiencia!)),
       
       if (_funnelData.isNotEmpty)
-        SizedBox(height: 300, child: GraficoEmbudo(data: _funnelData)),
+        SizedBox(height: 350, child: GraficoEmbudo(data: _funnelData)),
       
       if (_productivas != null && _noProductivas != null)
-        SizedBox(height: 300, child: GraficoDonut(productivas: _productivas!, noProductivas: _noProductivas!)),
+        SizedBox(height: 350, child: GraficoDonut(productivas: _productivas!, noProductivas: _noProductivas!)),
       
       if (_distribucionActividad.isNotEmpty)
-        SizedBox(height: 300, child: GraficoDistribucionActividad(datos: _distribucionActividad)),
+        SizedBox(height: 350, child: GraficoDistribucionActividad(datos: _distribucionActividad)),
       
       if (_picosLabels.isNotEmpty && _picosValores.isNotEmpty)
-        SizedBox(height: 300, child: GraficoPicosActividad(labels: _picosLabels, valores: _picosValores)),
+        SizedBox(height: 350, child: GraficoPicosActividad(labels: _picosLabels, valores: _picosValores)),
       
       if (_picosPorcentajeData.isNotEmpty)
-        SizedBox(height: 300, child: GraficoPicosPorcentaje(datos: _picosPorcentajeData)),
+        SizedBox(height: 350, child: GraficoPicosPorcentaje(datos: _picosPorcentajeData)),
       
       if (_actividadDiaria.isNotEmpty)
-        SizedBox(height: 300, child: GraficoActividadDiaria(apiResponse: _actividadDiaria)),
+        SizedBox(height: 350, child: GraficoActividadDiaria(apiResponse: _actividadDiaria)),
       
       if (_topEmpleadosData.isNotEmpty)
         SizedBox(height: 400, child: GraficoTopEmpleados(data: _topEmpleadosData)),

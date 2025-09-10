@@ -138,7 +138,7 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
       margin: EdgeInsets.only(
         left: 8,
         right: 8,
-        bottom: datos.length > 5 ? 30 : 20, // Más espacio para etiquetas de dos líneas
+        bottom: 5 // Más espacio para etiquetas de dos líneas 
       ),
       primaryXAxis: CategoryAxis(
         labelRotation: -45,

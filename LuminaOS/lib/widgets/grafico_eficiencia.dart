@@ -23,7 +23,7 @@ class GraficoEficiencia extends StatelessWidget {
             children: [
               const Row(
                 children: [
-                  Icon(Icons.auto_graph, color: Color(0xFF3E2B6B)),
+                  Icon(Icons.trending_up, color: Color(0xFF3E2B6B)),
                   SizedBox(width: 8),
                   Text(
                     'Engagement Operativo',

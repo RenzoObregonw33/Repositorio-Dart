@@ -17,15 +17,8 @@ class SelectorFechaSimple extends StatelessWidget {
       child: Container(
         height: 50,
         decoration: BoxDecoration(
-          color: Color(0xFF7775E2),
+          color: Color(0xFFF8F7FC),
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 2,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
@@ -50,14 +43,14 @@ class SelectorFechaSimple extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.calendar_today, size: 20, color: Colors.white),
-              const SizedBox(width: 8),
+              //const Icon(Icons.calendar_today, size: 20, color: Colors.white),
+              //const SizedBox(width: 8),
               Text(
                 "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
                 style: const TextStyle(
                   fontSize: 16,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF3E2B6B),
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],

@@ -9,15 +9,47 @@ class TopEmpleadoData {
   TopEmpleadoData({required this.nombre, required this.porcentaje});
 }
 
-class GraficoTopEmpleados extends StatelessWidget {
+class GraficoTopEmpleados extends StatefulWidget {
   final List<TopEmpleadoData> data;
 
   const GraficoTopEmpleados({super.key, required this.data});
 
   @override
+  State<GraficoTopEmpleados> createState() => _GraficoTopEmpleadosState();
+}
+
+class _GraficoTopEmpleadosState extends State<GraficoTopEmpleados> {
+  final ScrollController _scrollController = ScrollController();
+  double _scrollPercentage = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_updateScrollIndicator);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_updateScrollIndicator);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _updateScrollIndicator() {
+    if (_scrollController.hasClients) {
+      final maxScroll = _scrollController.position.maxScrollExtent;
+      if (maxScroll > 0) {
+        setState(() {
+          _scrollPercentage = _scrollController.offset / maxScroll;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Verificar si hay datos
-    if (data.isEmpty) {
+    if (widget.data.isEmpty) {
       return Card(
         elevation: 4,
         margin: const EdgeInsets.all(12),
@@ -38,9 +70,9 @@ class GraficoTopEmpleados extends StatelessWidget {
     List<String> labels = [];
     List<Map<String, dynamic>> valoresConEstilo = [];
 
-    for (int i = 0; i < data.length; i++) {
-      final nombre = data[i].nombre;
-      final porcentaje = data[i].porcentaje;
+    for (int i = 0; i < widget.data.length; i++) {
+      final nombre = widget.data[i].nombre;
+      final porcentaje = widget.data[i].porcentaje;
 
       labels.add(nombre);
 
@@ -57,6 +89,8 @@ class GraficoTopEmpleados extends StatelessWidget {
     }
 
     final chartWidth = (labels.length * 120).clamp(300, double.infinity).toDouble();
+    final maxScrollExtent = chartWidth - MediaQuery.of(context).size.width + 32;
+    final showIndicator = maxScrollExtent > 0;
 
     final option = {
       'tooltip': {
@@ -73,7 +107,7 @@ class GraficoTopEmpleados extends StatelessWidget {
       },
       'xAxis': {
         'type': 'value',
-        'min': -100,
+        'min': -50,
         'max': 100,
         'interval': 25,
         'axisLabel': {
@@ -103,7 +137,7 @@ class GraficoTopEmpleados extends StatelessWidget {
           'color': '#000000',
           'fontWeight': 'bold',
           'margin': 6,
-          'fontSize': 10,   // Reducir tamaño de fuente
+          'fontSize': 10,
         },
         'data': labels,
       },
@@ -116,7 +150,7 @@ class GraficoTopEmpleados extends StatelessWidget {
             'formatter': '{c} %',
             'color': '#000000',
             'fontWeight': 'bold',
-            'fontSize': 10, // Reducir tamaño de fuente en las etiquetas
+            'fontSize': 10,
           },
           'barWidth': '50%',
           'data': valoresConEstilo,
@@ -134,10 +168,10 @@ class GraficoTopEmpleados extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: SizedBox(
-          height: 280, // Misma altura que los otros gráficos
+          height: 320,
           child: Column(
             children: [
-              // Título con icono como los otros gráficos
+              // Título con icono
               const Row(
                 children: [
                   Icon(Icons.emoji_events, color: Color(0xFF3E2B6B)),
@@ -154,17 +188,61 @@ class GraficoTopEmpleados extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               
-              // Gráfico con Expanded
+              // Gráfico con indicador de desplazamiento
               Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: SizedBox(
-                    width: chartWidth,
-                    height: labels.length * 40 + 80,
-                    child: Echarts(
-                      option: jsonEncode(option),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        controller: _scrollController,
+                        scrollDirection: Axis.horizontal,
+                        child: SizedBox(
+                          width: chartWidth,
+                          height: labels.length * 40 + 80,
+                          child: Echarts(
+                            option: jsonEncode(option),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    
+                    // Indicador de desplazamiento interactivo
+                    if (showIndicator)
+                    Container(
+                      height: 16,
+                      margin: const EdgeInsets.only(top: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 100,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                            child: Stack(
+                              children: [
+                                // Barra de progreso que se mueve con el scroll
+                                AnimatedPositioned(
+                                  duration: const Duration(milliseconds: 100),
+                                  left: _scrollPercentage * 80, // 80 = 100 - 20 (para que no se salga)
+                                  child: Container(
+                                    width: 20,
+                                    height: 4,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF3E2B6B),
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

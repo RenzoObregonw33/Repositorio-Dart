@@ -103,7 +103,7 @@ class _TabsDashboardScreenState extends State<TabsDashboardScreen> {
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : Color(0xFF7775E2),
+              color: isSelected ? Color(0xFFF8F7FC) : Color(0xFF7775E2),
               size: 18, // Reducido de 20 a 18
             ),
             const SizedBox(height: 2), // Reducido de 4 a 2

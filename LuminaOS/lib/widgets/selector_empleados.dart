@@ -31,7 +31,6 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
   bool _loading = false;
   String? _error;
   bool _mostrarTodos = false;
-  // 👇 NUEVO: controla la visibilidad del selector
   bool _mostrarSelector = true;
 
   @override
@@ -42,6 +41,8 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
   }
 
   Future<void> _cargarEmpleados() async {
+    if (!mounted) return;
+    
     setState(() {
       _loading = true;
       _error = null;
@@ -59,6 +60,8 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
         filtrosIds: filtrosIds.isNotEmpty ? filtrosIds : null,
       );
 
+      if (!mounted) return;
+      
       setState(() {
         _empleados = List<Map<String, dynamic>>.from(response['empleado'] ?? []);
         _empleadosFiltrados = List<int>.from(response['select'] ?? []);
@@ -70,10 +73,14 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
         _notificarSeleccion();
       });
     } catch (e) {
+      if (!mounted) return;
+      
       setState(() => _error = e.toString());
       widget.onError?.call('Error al cargar empleados: $e');
       debugPrint('Error cargando empleados: $e');
     } finally {
+      if (!mounted) return;
+      
       setState(() => _loading = false);
     }
   }
@@ -83,6 +90,8 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
   }
 
   void _toggleSeleccionEmpleado(int empleadoId) {
+    if (!mounted) return;
+    
     setState(() {
       if (_empleadosSeleccionados.contains(empleadoId)) {
         _empleadosSeleccionados.remove(empleadoId);
@@ -94,6 +103,8 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
   }
 
   void _seleccionarTodos() {
+    if (!mounted) return;
+    
     setState(() {
       final empleadosVisibles = _mostrarTodos
           ? _empleados
@@ -106,6 +117,8 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
   }
 
   void _deseleccionarTodos() {
+    if (!mounted) return;
+    
     setState(() {
       _empleadosSeleccionados.clear();
       _notificarSeleccion();
@@ -113,6 +126,8 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
   }
 
   void _toggleMostrarTodos() {
+    if (!mounted) return;
+    
     setState(() {
       _mostrarTodos = !_mostrarTodos;
     });
@@ -162,7 +177,6 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // HEADER estilo igual al de filtros
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -185,15 +199,14 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close, size: 18, color: Color(0xFF3E2B6B)),
-                  onPressed: widget.onClose, // 👈 llama al callback del padre
+                  onPressed: widget.onClose,
                 ),
               ],
             ),
           ),
 
-          // ACCIONES (recargar, seleccionar, etc.)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -236,7 +249,6 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
             ),
           ),
 
-          // LISTA DE EMPLEADOS
           Expanded(
             child: ListView.builder(
               itemCount: empleadosAMostrar.length,
@@ -281,6 +293,39 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
                   ),
                 );
               },
+            ),
+          ),
+
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(12),
+                bottomRight: Radius.circular(12),
+              ),
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                _notificarSeleccion();
+                widget.onClose?.call();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF7876E1),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                elevation: 1,
+              ),
+              child: const Text(
+                'Aplicar Filtros',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ),
         ],

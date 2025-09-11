@@ -23,7 +23,7 @@ class DashboardScreen extends StatefulWidget {
   const DashboardScreen({
     super.key,
     required this.token,
-    required this.organiId, 
+    required this.organiId,
   });
 
   @override

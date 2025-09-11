@@ -30,9 +30,9 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
   List<int> _empleadosSeleccionados = [];
   bool _loading = false;
   String? _error;
-  bool _mostrarTodos = true;
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  bool _todosSeleccionados = false;
 
   @override
   void initState() {
@@ -77,6 +77,7 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
             .where((id) => _empleados.any((e) => e['emple_id'] == id))
             .toList();
 
+        _actualizarEstadoTodosSeleccionados();
         _notificarSeleccion();
       });
     } catch (e) {
@@ -105,49 +106,48 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
       } else {
         _empleadosSeleccionados.add(empleadoId);
       }
+      _actualizarEstadoTodosSeleccionados();
       _notificarSeleccion();
     });
   }
 
-  void _seleccionarTodos() {
+  void _toggleSeleccionTodos() {
     if (!mounted) return;
     
     setState(() {
       final empleadosVisibles = _obtenerEmpleadosVisibles();
-      _empleadosSeleccionados =
-          empleadosVisibles.map((e) => e['emple_id'] as int).toList();
+      if (_todosSeleccionados) {
+        _empleadosSeleccionados.clear();
+      } else {
+        _empleadosSeleccionados =
+            empleadosVisibles.map((e) => e['emple_id'] as int).toList();
+      }
+      _todosSeleccionados = !_todosSeleccionados;
       _notificarSeleccion();
     });
   }
 
-  void _deseleccionarTodos() {
-    if (!mounted) return;
-    
-    setState(() {
-      _empleadosSeleccionados.clear();
-      _notificarSeleccion();
-    });
-  }
-
-  void _toggleMostrarTodos() {
-    if (!mounted) return;
-    
-    setState(() {
-      _mostrarTodos = !_mostrarTodos;
-    });
+  void _actualizarEstadoTodosSeleccionados() {
+    final empleadosVisibles = _obtenerEmpleadosVisibles();
+    _todosSeleccionados = empleadosVisibles.isNotEmpty &&
+        _empleadosSeleccionados.length == empleadosVisibles.length;
   }
 
   List<Map<String, dynamic>> _obtenerEmpleadosVisibles() {
-    List<Map<String, dynamic>> empleadosVisibles = _mostrarTodos
-        ? _empleados
-        : _empleados.where((e) => _empleadosFiltrados.contains(e['emple_id'])).toList();
+    // Siempre mostrar todos los empleados (eliminada la opción de filtrar)
+    List<Map<String, dynamic>> empleadosVisibles = _empleados;
     
-    // Aplicar filtro de búsqueda si hay texto
+    // Aplicar filtro de búsqueda por apellidos
     if (_searchQuery.isNotEmpty) {
       empleadosVisibles = empleadosVisibles.where((empleado) {
-        final nombreCompleto = 
-            '${empleado['perso_nombre']} ${empleado['perso_apPaterno']} ${empleado['perso_apMaterno']}'.trim().toLowerCase();
-        return nombreCompleto.contains(_searchQuery.toLowerCase());
+        final nombre = empleado['perso_nombre']?.toString().toLowerCase() ?? '';
+        final apPaterno = empleado['perso_apPaterno']?.toString().toLowerCase() ?? '';
+        final apMaterno = empleado['perso_apMaterno']?.toString().toLowerCase() ?? '';
+        
+        // Buscar en nombre y apellidos
+        return nombre.contains(_searchQuery.toLowerCase()) ||
+               apPaterno.contains(_searchQuery.toLowerCase()) ||
+               apMaterno.contains(_searchQuery.toLowerCase());
       }).toList();
     }
     
@@ -243,21 +243,22 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
             ),
           ),
 
-          // Barra de búsqueda compacta
+          // Barra de búsqueda con icono de seleccionar todos al costado
           Container(
             padding: EdgeInsets.all(8),
             color: Colors.grey[50],
             child: Row(
               children: [
+                // Buscador
                 Expanded(
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: 'Buscar...',
+                      hintText: 'Buscar por nombre o apellidos...',
                       isDense: true,
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 12,
-                        vertical: isSmallScreen ? 8 : 10,
+                        vertical: 8,
                       ),
                       prefixIcon: Icon(Icons.search, size: 18),
                       suffixIcon: _searchQuery.isNotEmpty
@@ -278,67 +279,50 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
                         borderRadius: BorderRadius.circular(22),
                         borderSide: BorderSide.none,
                       ),
+                      constraints: BoxConstraints(
+                        maxHeight: 40,
+                      ),
                     ),
                     onChanged: (value) {
                       setState(() {
                         _searchQuery = value;
+                        _actualizarEstadoTodosSeleccionados();
                       });
                     },
                   ),
                 ),
+                
                 const SizedBox(width: 8),
-                // Botones de acción compactos
-                if (!isSmallScreen) ...[
-                  _buildSmallActionButton(
-                    icon: Icons.select_all,
-                    tooltip: 'Seleccionar todos',
-                    onPressed: _seleccionarTodos,
+                
+                // Icono para seleccionar/deseleccionar todos
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 4),
-                  _buildSmallActionButton(
-                    icon: Icons.clear_all,
-                    tooltip: 'Deseleccionar todos',
-                    onPressed: _deseleccionarTodos,
+                  child: IconButton(
+                    icon: Icon(
+                      _todosSeleccionados ? Icons.check_box : Icons.check_box_outline_blank,
+                      size: 24,
+                      color: _todosSeleccionados ? Color(0xFF7876E1) : Colors.grey,
+                    ),
+                    onPressed: _toggleSeleccionTodos,
+                    tooltip: _todosSeleccionados ? 'Deseleccionar todos' : 'Seleccionar todos',
+                    padding: const EdgeInsets.all(6),
                   ),
-                  const SizedBox(width: 4),
-                  _buildSmallActionButton(
-                    icon: _mostrarTodos ? Icons.visibility_off : Icons.visibility,
-                    tooltip: _mostrarTodos ? 'Ocultar no filtrados' : 'Mostrar todos',
-                    onPressed: _toggleMostrarTodos,
-                  ),
-                ],
+                ),
               ],
             ),
           ),
 
-          // Para pantallas pequeñas, poner botones en una fila separada
-          if (isSmallScreen)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              color: Colors.grey[50],
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildSmallActionButton(
-                    icon: Icons.select_all,
-                    tooltip: 'Seleccionar todos',
-                    onPressed: _seleccionarTodos,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildSmallActionButton(
-                    icon: Icons.clear_all,
-                    tooltip: 'Deseleccionar todos',
-                    onPressed: _deseleccionarTodos,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildSmallActionButton(
-                    icon: _mostrarTodos ? Icons.visibility_off : Icons.visibility,
-                    tooltip: _mostrarTodos ? 'Ocultar no filtrados' : 'Mostrar todos',
-                    onPressed: _toggleMostrarTodos,
-                  ),
-                ],
-              ),
-            ),
+         
 
           // Lista de empleados optimizada para espacio
           Flexible(
@@ -473,35 +457,6 @@ class _SelectorEmpleadoState extends State<SelectorEmpleado> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSmallActionButton({
-    required IconData icon,
-    required String tooltip,
-    required VoidCallback onPressed,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(6),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 2,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: IconButton(
-        icon: Icon(icon, size: 18),
-        color: const Color(0xFF3E2B6B),
-        onPressed: onPressed,
-        tooltip: tooltip,
-        iconSize: 18,
-        padding: const EdgeInsets.all(6),
-        constraints: const BoxConstraints(),
       ),
     );
   }

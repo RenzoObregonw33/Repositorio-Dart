@@ -366,6 +366,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Lumina(
               assetPath: 'assets/imagen/luminaos.png',
@@ -412,34 +413,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // Si no hay gráficos, mostrar mensaje
     if (todosLosGraficos.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (_intentosRefresh < 2) ...[
-              Text(
-                'Actualizar Dashboard',
-                style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 10),
-              IconButton(
-                icon: const Icon(Icons.refresh_rounded, size: 32, color: Color(0xFF757575)),
-                onPressed: () {
-                  if (_intentosRefresh < 2) {
-                    setState(() {
-                      _intentosRefresh++;
-                    });
-                    _loadData();
-                  }
-                },
-              ),
-            ] else ...[
-              Text(
-                'No hay datos el día de hoy.\nCambia la fecha de tu consulta',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.red[600]),
-              ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (_intentosRefresh < 2) ...[
+                Text(
+                  'Actualizar Dashboard',
+                  style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 10),
+                IconButton(
+                  icon: const Icon(Icons.refresh_rounded, size: 32, color: Color(0xFF757575)),
+                  onPressed: () {
+                    if (_intentosRefresh < 2) {
+                      setState(() {
+                        _intentosRefresh++;
+                      });
+                      _loadData();
+                    }
+                  },
+                ),
+              ] else ...[
+                Text(
+                  'No hay datos el día de hoy.\nCambia la fecha de tu consulta',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, color: Colors.red[600]),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       );
     }

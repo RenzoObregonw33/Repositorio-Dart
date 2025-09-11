@@ -118,8 +118,8 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
       return Padding(
         padding: const EdgeInsets.all(16.0),
         child: Text(
-          _error!,
-          style: const TextStyle(color: Colors.red, fontSize: 16),
+          'No fue posible cargar la información de empleados en este momento.',
+          style: TextStyle(color: Colors.grey[600], fontSize: 16),
           textAlign: TextAlign.center,
         ),
       );
@@ -245,9 +245,9 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
 
           // BOTÓN APLICAR
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: Colors.grey[50],
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(12),
                 bottomRight: Radius.circular(12),

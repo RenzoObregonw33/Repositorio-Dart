@@ -26,6 +26,18 @@ class _GraficoTopEmpleadosState extends State<GraficoTopEmpleados> {
   void initState() {
     super.initState();
     _scrollController.addListener(_updateScrollIndicator);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (_scrollController.hasClients) {
+      final centerOffset = _scrollController.position.maxScrollExtent / 2;
+      _scrollController.jumpTo(centerOffset); 
+      // Si quieres animado:
+      // _scrollController.animateTo(
+      //   centerOffset,
+      //   duration: const Duration(milliseconds: 500),
+      //   curve: Curves.easeInOut,
+      // );
+    }
+  });
   }
 
   @override

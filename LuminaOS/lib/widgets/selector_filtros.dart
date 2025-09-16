@@ -30,9 +30,8 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
   }
 
   Future<void> _loadFiltros() async {
-    // 👇 VERIFICAR SI EL WIDGET ESTÁ MONTADO
     if (!mounted) return;
-    
+
     setState(() {
       _loading = true;
       _error = null;
@@ -40,10 +39,9 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
 
     try {
       final response = await widget.graphicsService.fetchFiltrosEmpresariales();
-      
-      // 👇 VERIFICAR SI EL WIDGET ESTÁ MONTADO
+
       if (!mounted) return;
-      
+
       setState(() {
         _filtros = [
           GrupoFiltros(
@@ -91,14 +89,10 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
         ];
       });
     } catch (e) {
-      // 👇 VERIFICAR SI EL WIDGET ESTÁ MONTADO
       if (!mounted) return;
-      
       setState(() => _error = 'Error cargando filtros: ${e.toString()}');
     } finally {
-      // 👇 VERIFICAR SI EL WIDGET ESTÁ MONTADO
       if (!mounted) return;
-      
       setState(() => _loading = false);
     }
   }
@@ -113,7 +107,7 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
         ),
       );
     }
-    
+
     if (_error != null) {
       return Padding(
         padding: const EdgeInsets.all(16.0),
@@ -126,6 +120,7 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
     }
 
     return Container(
+      margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -137,13 +132,12 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
           ),
         ],
       ),
-      margin: const EdgeInsets.all(8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // HEADER CON TÍTULO Y X
+          // HEADER con estilo morado
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.deepPurple[50],
               borderRadius: const BorderRadius.only(
@@ -157,14 +151,16 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
                 const Text(
                   'FILTROS DISPONIBLES',
                   style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                     color: Color(0xFF3E2B6B),
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close, size: 18, color: Color(0xFF3E2B6B)),
                   onPressed: widget.onClose,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                 ),
               ],
             ),
@@ -173,47 +169,50 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
           // LISTA DE FILTROS
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(12),
               children: _filtros.map((grupo) {
                 return Container(
-                  margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+                  margin: const EdgeInsets.symmetric(vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8F7FC),
+                    color: Colors.grey[50],
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: const Color(0xFF7956A8).withOpacity(0.3),
+                      color: const Color(0xFF7876E1).withOpacity(0.3),
                       width: 1,
                     ),
                   ),
                   child: ExpansionTile(
                     leading: const Icon(
-                      Icons.filter_list,
+                      Icons.filter_alt_outlined,
                       color: Color(0xFF3E2B6B),
-                      size: 20,
+                      size: 22,
                     ),
                     title: Text(
                       grupo.categoria,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
                         color: Colors.black87,
                       ),
                     ),
                     initiallyExpanded: grupo.expandido,
                     onExpansionChanged: (expanded) {
-                      // 👇 VERIFICAR SI EL WIDGET ESTÁ MONTADO
                       if (!mounted) return;
                       setState(() => grupo.expandido = expanded);
                     },
                     children: grupo.filtros.map((filtro) {
                       return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.grey[50],
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.grey.withOpacity(0.2),
+                            width: 1,
+                          ),
                         ),
                         child: CheckboxListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                           title: Text(
                             filtro.descripcion,
                             style: const TextStyle(
@@ -224,13 +223,12 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
                           ),
                           value: filtro.seleccionado,
                           onChanged: (value) {
-                            // 👇 VERIFICAR SI EL WIDGET ESTÁ MONTADO
                             if (!mounted) return;
                             setState(() {
                               filtro.seleccionado = value ?? false;
                             });
                           },
-                          activeColor: const Color(0xFF7956A8),
+                          activeColor: const Color(0xFF7876E1),
                           checkColor: Colors.white,
                           controlAffinity: ListTileControlAffinity.leading,
                           dense: true,
@@ -243,9 +241,9 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
             ),
           ),
 
-          // BOTÓN APLICAR
+          // BOTÓN aplicar con estilo consistente
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.grey[50],
               borderRadius: const BorderRadius.only(
@@ -258,7 +256,7 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF7876E1),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(22),
                 ),

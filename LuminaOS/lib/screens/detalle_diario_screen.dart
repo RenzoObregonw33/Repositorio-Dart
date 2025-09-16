@@ -32,7 +32,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
   DateTime _selectedDate = DateTime.now(); // Rango de fechas seleccionado
   bool _mostrarFiltros = false; // Mostrar/ocultar filtros
   List<GrupoFiltros> _filtrosEmpresariales = []; // Filtros aplicados
-  String _tipoBusqueda = 'emple_nDoc'; // Tipo de búsqueda (documento/nombre/apellido)
+  String _tipoBusqueda = 'perso_nombre'; // Tipo de búsqueda (documento/nombre/apellido)
   String _textoBusqueda = ''; // Texto de búsqueda
   final TextEditingController _busquedaController = TextEditingController(); // Controlador para el campo de búsqueda
   int _start = 0; // Índice de inicio para paginación
@@ -317,9 +317,9 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
           ),
 
           // Controles de paginación
-          if (_totalEmpleados > _limite)
+          if (_totalEmpleados > 0)
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(2.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

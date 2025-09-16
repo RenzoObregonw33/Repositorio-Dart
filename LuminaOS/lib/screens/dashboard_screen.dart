@@ -96,100 +96,116 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
         centerTitle: true,
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // Selector de fechas
-          SelectorFechas(
-            range: _dateRange!,
-            onRangeSelected: (newRange) {
-              if (newRange != null) {
-                if (!mounted) return;
-                setState(() => _dateRange = newRange);
-                _loadData();
-              }
-            },
+          // Contenido principal
+          Column(
+            children: [
+              // Selector de fechas
+              SelectorFechas(
+                range: _dateRange!,
+                onRangeSelected: (newRange) {
+                  if (newRange != null) {
+                    if (!mounted) return;
+                    setState(() => _dateRange = newRange);
+                    _loadData();
+                  }
+                },
+              ),
+
+              // Botones de filtros
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildCustomButton(
+                        text: 'Datos Empresariales',
+                        onPressed: () {
+                          setState(() {
+                            _mostrarFiltros = !_mostrarFiltros;
+                            _mostrarEmpleados = false;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildCustomButton(
+                        text: 'Empleados',
+                        onPressed: () {
+                          setState(() {
+                            _mostrarEmpleados = !_mostrarEmpleados;
+                            _mostrarFiltros = false;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Área principal de gráficos
+              Expanded(
+                child: _buildMainContent(),
+              ),
+            ],
           ),
 
-          // Botones de filtros
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildCustomButton(
-                    text: 'Datos Empresariales',
-                    onPressed: () {
+          // Overlay de filtros
+          if (_mostrarFiltros)
+            _buildFiltrosOverlay(),
+
+          // Overlay de empleados - SOLO el fondo oscuro
+          if (_mostrarEmpleados)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black54,
+                child: Center(
+                  child: SelectorEmpleado(
+                    graphicsService: _graphicsService,
+                    filtrosEmpresariales: _filtrosEmpresariales,
+                    empleadosSeleccionadosIniciales: _empleadosSeleccionados,
+                    onError: (error) => setState(() => _error = error),
+                    onEmpleadosSeleccionados: (empleadosIds) {
+                      if (!mounted) return;
+                      setState(() => _empleadosSeleccionados = empleadosIds);
+                      _loadData();
+                    },
+                    onClose: () {
                       setState(() {
-                        _mostrarFiltros = !_mostrarFiltros;
                         _mostrarEmpleados = false;
                       });
                     },
                   ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildCustomButton(
-                    text: 'Empleados',
-                    onPressed: () {
-                      setState(() {
-                        _mostrarEmpleados = !_mostrarEmpleados;
-                        _mostrarFiltros = false;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Selectores (filtros y empleados)
-          if (_mostrarFiltros)
-            SizedBox(
-              height: 300,
-              child: SelectorFiltros(
-                graphicsService: _graphicsService,
-                onFiltrosChanged: (filtros) { 
-                  if (!mounted) return;
-                  setState(() {
-                    _filtrosEmpresariales = filtros;
-                    _mostrarFiltros = false;
-                  });
-                  _loadData();
-                },
-                onClose: () {
-                  setState(() {
-                    _mostrarFiltros = false;
-                  });
-                },
               ),
             ),
-
-          if (_mostrarEmpleados)
-            SizedBox(
-              height: 300,
-              child: SelectorEmpleado(
-                graphicsService: _graphicsService,
-                filtrosEmpresariales: _filtrosEmpresariales,
-                empleadosSeleccionadosIniciales: _empleadosSeleccionados,
-                onError: (error) => setState(() => _error = error),
-                onEmpleadosSeleccionados: (empleadosIds) {
-                  if (!mounted) return;
-                  setState(() => _empleadosSeleccionados = empleadosIds);
-                  _loadData();
-                },
-                onClose: () {
-                  setState(() {
-                    _mostrarEmpleados = false;
-                  });
-                },
-              ),    
-            ),
-
-          // Área principal de gráficos
-          Expanded(
-            child: _buildMainContent(),
-          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFiltrosOverlay() {
+    return Positioned.fill(
+      child: Container(
+        color: Colors.black.withOpacity(0.5),
+        child: Center(
+          child: SelectorFiltros(
+            graphicsService: _graphicsService,
+            onFiltrosChanged: (filtros) { 
+              if (!mounted) return;
+              setState(() {
+                _filtrosEmpresariales = filtros;
+                _mostrarFiltros = false;
+              });
+              _loadData();
+            },
+            onClose: () {
+              setState(() => _mostrarFiltros = false);
+            },
+          ),
+        ),
       ),
     );
   }
@@ -362,7 +378,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildAllGraphs() {
     if (_isLoading) {
-      // SOLUCIÓN: Usar Center directamente sin Column para evitar overflow
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:login/widgets/image_viewer_centrado.dart';
+import 'package:login/widgets/lumina.dart';
 
-// Clase principal de la pantalla de la línea de tiempo
 class TimelineScreen extends StatefulWidget {
   final List<dynamic> eventos;
   final bool tieneMasDatos;
@@ -30,6 +30,7 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
   late List<TimelineItem> items;
   final ScrollController _scrollController = ScrollController();
   bool _isLoadingMore = false;
+  bool _isInitialLoading = true; // Nuevo estado para carga inicial
 
   @override
   void initState() {
@@ -51,13 +52,21 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
     _animationController.forward();
     _scrollController.addListener(_onScroll);
     _processItems();
+    
+    // Simular carga inicial
+    Future.delayed(Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _isInitialLoading = false;
+        });
+      }
+    });
   }
 
-  // Método para obtener el color según la eficiencia (igual que en diario_lista_screen)
   Color _getColorEficiencia(double eficiencia) {
-    if (eficiencia >= 50) return Color(0xFF64D9C5); // Verde
-    if (eficiencia >= 30) return Color(0xFFFFC066); // Naranja
-    return Color(0xFFFF625C); // Rojo
+    if (eficiencia >= 50) return Color(0xFF64D9C5);
+    if (eficiencia >= 30) return Color(0xFFFFC066);
+    return Color(0xFFFF625C);
   }
 
   void _processItems() {
@@ -67,25 +76,18 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
       int tiempoEnSegundos = event['tiempoT'];
       String tiempo = _convertirSegundosATiempo(tiempoEnSegundos);
 
-      // Obtener porcentaje y determinar color
       double porcentaje = double.tryParse(event['division']?.toString() ?? '0') ?? 0.0;
       Color colorPorcentaje = _getColorEficiencia(porcentaje);
 
-      // Manejar imágenes en base64
       List<Uint8List> imageBytesList = [];
-      if (event['imagen'] != null && 
-          event['imagen'] is List && 
-          event['imagen'].isNotEmpty) {
-        
+      if (event['imagen'] != null && event['imagen'] is List && event['imagen'].isNotEmpty) {
         for (var imgData in event['imagen']) {
           if (imgData['miniatura'] != null) {
             try {
               String base64String = imgData['miniatura'];
-              // Extraer solo la parte base64 (eliminar el prefijo data:image/...)
               if (base64String.contains(',')) {
                 base64String = base64String.split(',').last;
               }
-              
               Uint8List bytes = base64.decode(base64String);
               imageBytesList.add(bytes);
             } catch (e) {
@@ -102,7 +104,7 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
         color: Color(0xFFF8F7FC),
         tiempo: tiempo,
         porcentaje: porcentaje.toStringAsFixed(1),
-        colorPorcentaje: colorPorcentaje, // Nuevo campo para el color
+        colorPorcentaje: colorPorcentaje,
       );
     }).toList();
   }
@@ -115,12 +117,8 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
   }
 
   void _onScroll() {
-    
     if (!mounted) return;
-
-    // Cargar más datos cuando esté cerca del final
-    if (_scrollController.position.pixels >= 
-        _scrollController.position.maxScrollExtent - 100) {     
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 100) {     
       _cargarMasDatos();
     }
   }
@@ -133,7 +131,6 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
       
       widget.onCargarMas();
       
-      // Resetear el estado de carga después de un tiempo
       Future.delayed(Duration(seconds: 3), () {
         if (mounted) {
           setState(() {
@@ -147,9 +144,7 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
   @override
   void didUpdateWidget(TimelineScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     if (!mounted) return;
-    
     if (oldWidget.eventos != widget.eventos) {
       _processItems();
     }
@@ -166,30 +161,65 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
   Widget build(BuildContext context) {
     if (!mounted) return SizedBox.shrink();
     
+    // Si está cargando inicialmente, mostrar pantalla completa de carga
+    if (_isInitialLoading) {
+      return _buildFullScreenLoader();
+    }
+    
     return Scaffold(
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: Column(
-          children: [
-            // CABECERA BONITA
-            const SizedBox(height: 20),
-            
-            // CONTENEDOR PRINCIPAL CON SCROLL - ¡AQUÍ ESTÁ LA CORRECCIÓN!
-            Expanded(
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    // LIENZO DE LA LÍNEA DE TIEMPO
-                    // CORRECCIÓN: Cambiamos el SizedBox por un widget que no tenga altura fija
-                    _buildTimelineContent(),
-                    
-                    // INDICADORES DE CARGA (Footer)
-                    _buildFooter(),
-                  ],
+      body: Stack(
+        children: [
+          // Contenido principal
+          FadeTransition(
+            opacity: _fadeAnimation,
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 20),
+                        _buildTimelineContent(),
+                        _buildFooter(),
+                      ],
+                    ),
+                  ),
                 ),
+              ],
+            ),
+          ),
+          
+          // Overlay de carga para cargar más elementos
+          if (widget.cargandoMas || _isLoadingMore)
+            _buildFullScreenLoader(),
+        ],
+      ),
+    );
+  }
+
+  // Pantalla completa de carga con Lumina
+  Widget _buildFullScreenLoader() {
+    return Container(
+      color: Colors.white.withOpacity(0.9), // Fondo semitransparente
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Lumina(
+              assetPath: 'assets/imagen/luminaos.png',
+              duracion: Duration(milliseconds: 1500),
+              size: 120,
+            ),
+            SizedBox(height: 20),
+            Text(
+              _isInitialLoading ? 'Cargando línea de tiempo...' : 'Cargando más eventos...',
+              style: TextStyle(
+                color: Color(0xFF3E2B6B),
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -198,13 +228,11 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
     );
   }
 
-  // NUEVO MÉTODO: Construye el contenido de la línea de tiempo sin altura fija
   Widget _buildTimelineContent() {
     return Column(
       children: [
         Stack(
           children: [
-            // LÍNEAS DE CONEXIÓN
             Positioned.fill(
               child: CustomPaint(
                 painter: EnhancedChainTimelinePainter(
@@ -213,8 +241,6 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
                 ),
               ),
             ),
-            
-            // TARJETAS ANIMADAS
             Column(
               children: List.generate(items.length, (index) {
                 return Padding(
@@ -234,16 +260,9 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
     );
   }
 
-  // MÉTODO PARA EL FOOTER BONITO
   Widget _buildFooter() {
     return Column(
       children: [
-        if (widget.cargandoMas || _isLoadingMore)
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 20),
-            child: CircularProgressIndicator(color: Color(0xFF3E2B6B)),
-          ),
-        
         if (!widget.tieneMasDatos && items.isNotEmpty)
           Padding(
             padding: EdgeInsets.symmetric(vertical: 20),
@@ -252,12 +271,14 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
               style: TextStyle(color: Colors.grey, fontSize: 16),
             ),
           ),
-        
         const SizedBox(height: 40),
       ],
     );
   }
 }
+
+// Las demás clases (TimelineItem, EnhancedChainTimelinePainter, AnimatedTimelineCard)
+// se mantienen igual que en tu código original
 
 // Clase para representar un elemento de la línea de tiempo (MODIFICADA)
 class TimelineItem {

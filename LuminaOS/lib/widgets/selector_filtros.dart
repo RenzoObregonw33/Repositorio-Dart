@@ -113,7 +113,7 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
         padding: const EdgeInsets.all(16.0),
         child: Text(
           'No fue posible cargar la información de empleados en este momento.',
-          style: TextStyle(color: Colors.grey[600], fontSize: 16),
+          style: TextStyle(color: Colors.white, fontSize: 16),
           textAlign: TextAlign.center,
         ),
       );

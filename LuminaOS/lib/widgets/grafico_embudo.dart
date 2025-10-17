@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:login/Models/datos_embudo.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'safe_chart_wrapper.dart';
 
 class GraficoEmbudo extends StatelessWidget {
   final List<FunnelData> data;
@@ -9,7 +10,9 @@ class GraficoEmbudo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return SafeChartWrapper(
+      debugLabel: 'GraficoEmbudo',
+      child: Card(
       elevation: 4,
       margin: const EdgeInsets.all(12),
       shape: RoundedRectangleBorder(
@@ -55,6 +58,7 @@ class GraficoEmbudo extends StatelessWidget {
                   neckHeight: '15%',
                   explode: true,
                   explodeOffset: '5%',
+                  animationDuration: 0, // Deshabilitar animaciones para evitar dispose errors
                   dataLabelSettings: DataLabelSettings(
                     isVisible: true,
                     labelPosition: ChartDataLabelPosition.inside,
@@ -81,6 +85,7 @@ class GraficoEmbudo extends StatelessWidget {
           ],
         ),
       ),
-    );
+      )
+    ); // Cierre de SafeChartWrapper
   }
 }

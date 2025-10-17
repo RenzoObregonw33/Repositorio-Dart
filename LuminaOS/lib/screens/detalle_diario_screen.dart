@@ -145,11 +145,13 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     );
   }
    // Método para ejecutar la búsqueda
-  void _ejecutarBusqueda() {
+  void _ejecutarBusqueda({bool resetPagination = true}) {
     if (!mounted) return; 
     setState(() {
       _textoBusqueda = _busquedaController.text;
-      _start = 0; // Reiniciar paginación al hacer nueva búsqueda
+      if (resetPagination) {
+        _start = 0; // Solo reiniciar paginación cuando sea necesario
+      }
     });
     _cargarDatos();
   }
@@ -295,7 +297,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                     if (value != null && mounted) {
                       setState(() => _tipoBusqueda = value);
                       if (_textoBusqueda.isNotEmpty) {
-                        _ejecutarBusqueda();
+                        _ejecutarBusqueda(resetPagination: false); // NO reiniciar paginación
                       }
                     }
                   },

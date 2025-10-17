@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'safe_chart_wrapper.dart';
 
 class HoraActividadData {
   final String hora;
@@ -38,14 +39,16 @@ class GraficoPicosActividad extends StatelessWidget {
       return hour >= 8 && hour <= 18;
     }).toList();
 
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.all(12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      color: const Color(0xFFF8F7FC),
-      child: Padding(
+    return SafeChartWrapper(
+      debugLabel: 'GraficoPicosActividad',
+      child: Card(
+        elevation: 4,
+        margin: const EdgeInsets.all(12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        color: const Color(0xFFF8F7FC),
+        child: Padding(
         padding: const EdgeInsets.all(16),
         child: SizedBox(
           height: 300, // Misma altura que el gráfico de eficiencia
@@ -112,7 +115,7 @@ class GraficoPicosActividad extends StatelessWidget {
                       width: 0.9,
                       spacing: 0.2,
                       borderWidth: 1,
-                      animationDuration: 2000,
+                      animationDuration: 0, // Deshabilitar animaciones para evitar dispose errors
                       enableTooltip: true,
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(8),
@@ -146,6 +149,7 @@ class GraficoPicosActividad extends StatelessWidget {
           ),
         ),
       ),
-    );
+      )
+    ); // Cierre de SafeChartWrapper
   }
 }

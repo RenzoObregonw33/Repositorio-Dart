@@ -63,7 +63,7 @@ Future<Map<String, dynamic>> loginUser({
   } catch (e) {
     return {
       'success': false,
-      'message': 'Error de conexión: $e'
+      'message': 'Ups, revisa tu conexión a internet'
     };
   }
 }
@@ -111,7 +111,7 @@ Future<Map<String, dynamic>> resetPassword({required String email}) async {
       return {'success': false, 'message': 'Error: ${response.statusCode}'};
     }
   } catch (e) {                                   //Si ocurre otro error como red
-    return {'success': false, 'message': 'Error de conexión: $e'};
+    return {'success': false, 'message': 'Ups, revisa tu conexión a internet'};
   }
 }
 

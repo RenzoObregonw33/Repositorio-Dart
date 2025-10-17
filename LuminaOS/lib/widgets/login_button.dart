@@ -104,12 +104,14 @@ class LoginButton extends StatelessWidget {
 
             if (resultado == 'logout') {
               // ✅ Volver a cargar credenciales guardadas
-              final saved = await SecureStorageService.getCredentials();
-              if (saved != null) {
+              if (await SecureStorageService.hasCredentials()) {
+                final saved = await SecureStorageService.getCredentials();
                 emailController.text = saved['email'] ?? '';
                 passwordController.text = saved['password'] ?? '';
+                print('🚪 Sesión cerrada, credenciales recargadas');
+              } else {
+                print('🚪 Sesión cerrada, no hay credenciales guardadas');
               }
-              print('🚪 Sesión cerrada, credenciales recargadas');
             }
 
           } else {

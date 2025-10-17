@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'safe_chart_wrapper.dart';
 
 class ActividadDiariaData {
   final String dia;
@@ -18,7 +19,7 @@ class GraficoActividadDiaria extends StatefulWidget {
 }
 
 class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
-  bool _esLinea = false;
+  bool _esLinea = true; // Por defecto mostrar gráfico de líneas
   final List<Color> _coloresBarras = [
     Color(0xFF3E2B6B),
     Color(0xFF64D9C5),
@@ -75,7 +76,9 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
   Widget build(BuildContext context) {
     final datos = _procesarDatos();
 
-    return Card(
+    return SafeChartWrapper(
+      debugLabel: 'GraficoActividadSemanal',
+      child: Card(
       elevation: 4,
       margin: const EdgeInsets.all(12),
       shape: RoundedRectangleBorder(
@@ -129,7 +132,8 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
           },
         ),
       ),
-    );
+    )
+    ); // Cierre de SafeChartWrapper
   }
 
   Widget _buildChart(List<ActividadDiariaData> datos, double availableWidth) {
@@ -201,6 +205,7 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
         yValueMapper: (d, _) => d.porcentaje,
         color: _coloresLineas[0],
         width: 2,
+        animationDuration: 0, // Sin animaciones para evitar errors
         markerSettings: MarkerSettings(
           isVisible: true,
           shape: DataMarkerType.circle,
@@ -241,6 +246,7 @@ class _GraficoActividadDiariaState extends State<GraficoActividadDiaria> {
         pointColorMapper: (d, index) => _coloresBarras[index % _coloresBarras.length],
         width: 0.5,
         spacing: 0.05,
+        animationDuration: 0, // Sin animaciones para evitar errors
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(4),
           topRight: Radius.circular(4),

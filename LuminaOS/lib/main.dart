@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:login/screens/Login_screen.dart';
 
 void main() {
+  // Configuración global para deshabilitar animaciones de Syncfusion
+  WidgetsFlutterBinding.ensureInitialized();
+  
   runApp(const MyApp());
 }
 

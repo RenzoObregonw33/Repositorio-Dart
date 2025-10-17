@@ -176,16 +176,63 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
               children: [
                 const SizedBox(height: 20),
                 Expanded(
-                  child: SingleChildScrollView(
+                  child: ListView.builder(
                     controller: _scrollController,
                     physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 20),
-                        _buildTimelineContent(),
-                        _buildFooter(),
-                      ],
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    itemCount: 2, // Solo 2 items: timeline completo + footer
+                    cacheExtent: 500.0,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        // Item principal: toda la línea + todo el contenido
+                        return RepaintBoundary(
+                          key: const ValueKey('full_timeline'),
+                          child: Stack(
+                            children: [
+                              // Línea curva completa - scrollea con todo
+                              Positioned.fill(
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    // Calculamos la altura real basada en el contenido
+                                    double totalHeight = constraints.maxHeight;
+                                    double calculatedItemHeight = items.length > 1 
+                                        ? totalHeight / items.length 
+                                        : 300.0; // altura por defecto si solo hay 1 item
+                                    
+                                    return CustomPaint(
+                                      painter: EnhancedChainTimelinePainter(
+                                        itemCount: items.length,
+                                        itemHeight: calculatedItemHeight,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              // Todo el contenido del timeline
+                              Column(
+                                children: List.generate(items.length, (itemIndex) {
+                                  return RepaintBoundary(
+                                    key: ValueKey('timeline_card_$itemIndex'),
+                                    child: Padding(
+                                      padding: EdgeInsets.only(bottom: itemIndex < items.length - 1 ? 30 : 0),
+                                      child: AnimatedTimelineCard(
+                                        item: items[itemIndex],
+                                        position: itemIndex % 2 == 0 ? ItemPosition.left : ItemPosition.right,
+                                        delay: Duration(milliseconds: itemIndex * 50),
+                                        cardWidth: MediaQuery.of(context).size.width * 0.8,
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        // Footer
+                        return _buildFooter();
+                      }
+                    },
                   ),
                 ),
               ],
@@ -225,38 +272,6 @@ class _TimelineScreenState extends State<TimelineScreen> with TickerProviderStat
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildTimelineContent() {
-    return Column(
-      children: [
-        Stack(
-          children: [
-            Positioned.fill(
-              child: CustomPaint(
-                painter: EnhancedChainTimelinePainter(
-                  itemCount: items.length,
-                  itemHeight: 230.0,
-                ),
-              ),
-            ),
-            Column(
-              children: List.generate(items.length, (index) {
-                return Padding(
-                  padding: EdgeInsets.only(bottom: index < items.length - 1 ? 30 : 0),
-                  child: AnimatedTimelineCard(
-                    item: items[index],
-                    position: index % 2 == 0 ? ItemPosition.left : ItemPosition.right,
-                    delay: Duration(milliseconds: index * 200),
-                    cardWidth: MediaQuery.of(context).size.width * 0.8,
-                  ),
-                );
-              }),
-            ),
-          ],
-        ),
-      ],
     );
   }
 

@@ -102,9 +102,26 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
 
       // Actualizar estado con los datos recibidos
       if (mounted) { // <-- Verificar si el widget está montado antes de setState
+        final empleados = response['data'] ?? [];
+        final recordsTotal = response['recordsTotal'] ?? 0;
+        final recordsFiltered = response['recordsFiltered'] ?? recordsTotal;
+        
+        // 🔍 Debug para identificar el problema
+        print('🐛 API Response Debug:');
+        print('  - Empleados recibidos: ${empleados.length}');
+        print('  - recordsTotal: $recordsTotal');
+        print('  - recordsFiltered: $recordsFiltered');
+        print('  - Start actual: $_start');
+        print('  - Total anterior: $_totalEmpleados');
+        
         setState(() {
-          _empleados = response['data'] ?? [];
-          _totalEmpleados = response['recordsTotal'] ?? 0;
+          _empleados = empleados;
+          // 🔧 Usar recordsFiltered si existe, sino recordsTotal
+          // Y mantener el total si es mayor al recibido (para evitar regresión)
+          final nuevoTotal = recordsFiltered > 0 ? recordsFiltered : recordsTotal;
+          if (nuevoTotal > _totalEmpleados || _start == 0) {
+            _totalEmpleados = nuevoTotal;
+          }
           _cargando = false;
         });
       }
@@ -166,10 +183,32 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     });
     _cargarDatos();
   }
+
+  // Método para construir el texto de paginación correcto
+  String _buildPaginationText() {
+    if (_cargando && _empleados.isEmpty) {
+      // Primera carga - no mostrar datos
+      return 'Cargando...';
+    }
+    
+    if (_cargando && _empleados.isNotEmpty) {
+      // Cargando página siguiente - mostrar proyección esperada
+      final expectedEnd = (_start + _limite).clamp(0, _totalEmpleados);
+      return 'Mostrando ${_start + 1}-$expectedEnd de $_totalEmpleados';
+    }
+    
+    if (_empleados.isEmpty && _totalEmpleados == 0) {
+      return 'No hay resultados';
+    }
+    
+    // Estado normal - datos cargados
+    final actualEnd = _start + _empleados.length;
+    return 'Mostrando ${_start + 1}-$actualEnd de $_totalEmpleados';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
@@ -337,7 +376,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   ),
                   // Indicador de página
                   Text(
-                    'Mostrando ${_start + 1}-${_start + _empleados.length} de $_totalEmpleados',
+                    _buildPaginationText(),
                     style: const TextStyle(fontSize: 14),
                   ),
                   // Botón siguiente

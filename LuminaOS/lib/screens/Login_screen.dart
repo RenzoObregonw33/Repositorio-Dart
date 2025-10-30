@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:login/screens/password_reset_screen.dart';
-import 'package:login/widgets/login_button.dart';
-import 'package:login/widgets/secure_storage_service.dart';
-
+import 'package:luminaos/screens/password_reset_screen.dart';
+import 'package:luminaos/widgets/login_button.dart';
+import 'package:luminaos/widgets/secure_storage_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,33 +11,34 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreemState extends State<LoginScreen> {
-  final TextEditingController _usernameController = TextEditingController();    //Controlador de email
-  final TextEditingController _passwordController = TextEditingController();    //Controlador de password
-  
+  final TextEditingController _usernameController =
+      TextEditingController(); //Controlador de email
+  final TextEditingController _passwordController =
+      TextEditingController(); //Controlador de password
 
-  String? _emailError;              //Mensaje de error para email
-  String? _passwordError;           //Mensaje de error para contraseña
-  bool _ocultarPassword = true;     //Contraseña oculta al escribir
+  String? _emailError; //Mensaje de error para email
+  String? _passwordError; //Mensaje de error para contraseña
+  bool _ocultarPassword = true; //Contraseña oculta al escribir
 
-  @override void initState() { 
-    super.initState(); 
-    // Cargar credenciales después de que el widget esté completamente construido 
-    WidgetsBinding.instance.addPostFrameCallback((_) { 
-      _cargarCredencialesGuardadas(); 
-    }); 
+  @override
+  void initState() {
+    super.initState();
+    // Cargar credenciales después de que el widget esté completamente construido
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _cargarCredencialesGuardadas();
+    });
   }
 
-  // Cargar credenciales guardadas al iniciar la pantalla 
-  Future<void> _cargarCredencialesGuardadas() async { 
-    final bool tieneCredenciales = await 
-    SecureStorageService.hasCredentials(); 
-    if (tieneCredenciales) { 
-      final credenciales = await SecureStorageService.getCredentials(); 
-      setState(() { 
-        _usernameController.text = credenciales['email'] ?? ''; 
-        _passwordController.text = credenciales['password'] ?? ''; 
-      }); 
-    } 
+  // Cargar credenciales guardadas al iniciar la pantalla
+  Future<void> _cargarCredencialesGuardadas() async {
+    final bool tieneCredenciales = await SecureStorageService.hasCredentials();
+    if (tieneCredenciales) {
+      final credenciales = await SecureStorageService.getCredentials();
+      setState(() {
+        _usernameController.text = credenciales['email'] ?? '';
+        _passwordController.text = credenciales['password'] ?? '';
+      });
+    }
   }
 
   //Sobreescribir api
@@ -50,7 +50,6 @@ class _LoginScreemState extends State<LoginScreen> {
   }
 
   @override
-
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
@@ -65,36 +64,37 @@ class _LoginScreemState extends State<LoginScreen> {
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF3D2A6A),
-                  fontFamily: '-apple-system'
+                  fontFamily: '-apple-system',
                 ),
               ),
               SizedBox(height: 10),
               Text(
                 'Bienvenido de regreso,',
-                style: TextStyle( 
-                fontSize: 16,
-                fontFamily: '-apple-system', // Tu fuente principal (como una sola String)
-                fontFamilyFallback: [
-                  'system-ui',
-                  'Segoe UI',
-                  'roboto',
-                  'helvetica',
-                  'arial',
-                  'sans-serif',
-                  'Apple Color Emoji',
-                  'Segoe UI Emoji',
-                  'Segoe UI Symbol',
-                ]),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontFamily:
+                      '-apple-system', // Tu fuente principal (como una sola String)
+                  fontFamilyFallback: [
+                    'system-ui',
+                    'Segoe UI',
+                    'roboto',
+                    'helvetica',
+                    'arial',
+                    'sans-serif',
+                    'Apple Color Emoji',
+                    'Segoe UI Emoji',
+                    'Segoe UI Symbol',
+                  ],
+                ),
               ),
-              Text('te extrañamos!',
-                style: TextStyle( 
-                fontSize: 16,
-                fontFamily: '-apple-system', // Tu fuente principal (como una sola String)
-                fontFamilyFallback: [
-                  'system-ui',
-                  'Segoe UI',
-                  'roboto',
-                ]),
+              Text(
+                'te extrañamos!',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontFamily:
+                      '-apple-system', // Tu fuente principal (como una sola String)
+                  fontFamilyFallback: ['system-ui', 'Segoe UI', 'roboto'],
+                ),
               ),
 
               SizedBox(height: 50),
@@ -105,12 +105,13 @@ class _LoginScreemState extends State<LoginScreen> {
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  labelStyle: TextStyle(fontFamily: '-apple-system',color: Colors.grey),
+                  labelStyle: TextStyle(
+                    fontFamily: '-apple-system',
+                    color: Colors.grey,
+                  ),
                   prefixIcon: Icon(
                     Icons.person_outline,
-                    color: _emailError != null
-                        ? Colors.red
-                        : Color(0xFF3D2A6A),
+                    color: _emailError != null ? Colors.red : Color(0xFF3D2A6A),
                   ),
                   suffixIcon: _emailError != null
                       ? Icon(Icons.error_outline, color: Colors.red)
@@ -131,7 +132,10 @@ class _LoginScreemState extends State<LoginScreen> {
                 obscureText: _ocultarPassword,
                 decoration: InputDecoration(
                   labelText: 'Contraseña',
-                  labelStyle: TextStyle(fontFamily: '-apple-system',color: Colors.grey),
+                  labelStyle: TextStyle(
+                    fontFamily: '-apple-system',
+                    color: Colors.grey,
+                  ),
                   prefixIcon: Icon(
                     Icons.lock_outline,
                     color: _passwordError != null
@@ -166,7 +170,8 @@ class _LoginScreemState extends State<LoginScreen> {
               SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerRight,
-                child: TextButton(                  //Reestablercer contraseña
+                child: TextButton(
+                  //Reestablercer contraseña
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -182,7 +187,7 @@ class _LoginScreemState extends State<LoginScreen> {
                       fontSize: 14,
                       /*decoration: TextDecoration.underline,
                       decorationColor: Color(0xFF3D2A6A),*/
-                      fontFamily: '-apple-system'
+                      fontFamily: '-apple-system',
                     ),
                   ),
                 ),
@@ -205,13 +210,10 @@ class _LoginScreemState extends State<LoginScreen> {
                 height: 30,
                 child: Image.asset('assets/logolumina.png', height: 100),
               ),
-              
             ],
           ),
         ),
       ),
     );
-  
   }
 }
-

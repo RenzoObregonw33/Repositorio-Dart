@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:login/Apis/api_graphics_services.dart';
-import 'package:login/Models/filtro_data.dart';
-import 'package:login/screens/diario_lista_screen.dart';
-import 'package:login/widgets/error_message.dart';
-import 'package:login/widgets/selector_fecha_simple.dart';
-import 'package:login/widgets/selector_filtros.dart';
-import 'package:login/widgets/lumina.dart';
+import 'package:luminaos/Apis/api_graphics_services.dart';
+import 'package:luminaos/Models/filtro_data.dart';
+import 'package:luminaos/screens/diario_lista_screen.dart';
+import 'package:luminaos/widgets/error_message.dart';
+import 'package:luminaos/widgets/selector_fecha_simple.dart';
+import 'package:luminaos/widgets/selector_filtros.dart';
+import 'package:luminaos/widgets/lumina.dart';
 
 // Pantalla que muestra el detalle diario de empleados con filtros y búsqueda
 class DetalleDiarioScreen extends StatefulWidget {
@@ -32,9 +32,11 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
   DateTime _selectedDate = DateTime.now(); // Rango de fechas seleccionado
   bool _mostrarFiltros = false; // Mostrar/ocultar filtros
   List<GrupoFiltros> _filtrosEmpresariales = []; // Filtros aplicados
-  String _tipoBusqueda = 'perso_nombre'; // Tipo de búsqueda (documento/nombre/apellido)
+  String _tipoBusqueda =
+      'perso_nombre'; // Tipo de búsqueda (documento/nombre/apellido)
   String _textoBusqueda = ''; // Texto de búsqueda
-  final TextEditingController _busquedaController = TextEditingController(); // Controlador para el campo de búsqueda
+  final TextEditingController _busquedaController =
+      TextEditingController(); // Controlador para el campo de búsqueda
   int _start = 0; // Índice de inicio para paginación
   final int _limite = 20; // Límite de resultados por página
   final String _orderColumn = 'nombre'; // Columna para ordenar
@@ -53,11 +55,12 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
   }
 
   @override
-    void dispose() {
-      _isDisposed = true;
-      _busquedaController.dispose(); // Importante: limpiar el controlador
-      super.dispose();
-    }
+  void dispose() {
+    _isDisposed = true;
+    _busquedaController.dispose(); // Importante: limpiar el controlador
+    super.dispose();
+  }
+
   // Método para cargar datos de empleados desde la API
   Future<void> _cargarDatos() async {
     if (_isDisposed) return;
@@ -70,7 +73,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     try {
       // Llamada a la API para obtener datos de empleados
       final response = await _apiService.fetchDetalleDiarioEmpleados(
-        fecha: _selectedDate, 
+        fecha: _selectedDate,
         start: _start,
         limite: _limite,
         orderColumn: _orderColumn,
@@ -79,7 +82,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
         busq: _textoBusqueda.trim().toUpperCase(),
       );
 
-      if (_isDisposed) return; 
+      if (_isDisposed) return;
 
       // Manejar errores de la API
       if (response['error'] != null) {
@@ -97,15 +100,18 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
           });
           return;
         }
-        throw Exception('Error ${response['statusCode']}: ${response['message']}');
+        throw Exception(
+          'Error ${response['statusCode']}: ${response['message']}',
+        );
       }
 
       // Actualizar estado con los datos recibidos
-      if (mounted) { // <-- Verificar si el widget está montado antes de setState
+      if (mounted) {
+        // <-- Verificar si el widget está montado antes de setState
         final empleados = response['data'] ?? [];
         final recordsTotal = response['recordsTotal'] ?? 0;
         final recordsFiltered = response['recordsFiltered'] ?? recordsTotal;
-        
+
         // 🔍 Debug para identificar el problema
         print('🐛 API Response Debug:');
         print('  - Empleados recibidos: ${empleados.length}');
@@ -113,12 +119,14 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
         print('  - recordsFiltered: $recordsFiltered');
         print('  - Start actual: $_start');
         print('  - Total anterior: $_totalEmpleados');
-        
+
         setState(() {
           _empleados = empleados;
           // 🔧 Usar recordsFiltered si existe, sino recordsTotal
           // Y mantener el total si es mayor al recibido (para evitar regresión)
-          final nuevoTotal = recordsFiltered > 0 ? recordsFiltered : recordsTotal;
+          final nuevoTotal = recordsFiltered > 0
+              ? recordsFiltered
+              : recordsTotal;
           if (nuevoTotal > _totalEmpleados || _start == 0) {
             _totalEmpleados = nuevoTotal;
           }
@@ -127,14 +135,16 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
       }
     } catch (e) {
       //Manejo de errores
-      if (!_isDisposed && mounted) { // <-- Verificar antes de manejar errores
+      if (!_isDisposed && mounted) {
+        // <-- Verificar antes de manejar errores
         setState(() {
           _cargando = false;
           if (e.toString().contains('500') && _textoBusqueda.isNotEmpty) {
             _empleados = [];
             _errorMessage = '';
           } else {
-            _errorMessage = 'Error al cargar datos: ${e.toString().replaceAll('Exception: ', '')}';
+            _errorMessage =
+                'Error al cargar datos: ${e.toString().replaceAll('Exception: ', '')}';
           }
         });
       }
@@ -144,7 +154,8 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
   void _navegarADetalleEmpleado(Map<String, dynamic> empleado) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Permite que la hoja ocupe casi toda la pantalla
+      isScrollControlled:
+          true, // Permite que la hoja ocupe casi toda la pantalla
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         height: MediaQuery.of(context).size.height * 0.9,
@@ -161,9 +172,10 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
       ),
     );
   }
-   // Método para ejecutar la búsqueda
+
+  // Método para ejecutar la búsqueda
   void _ejecutarBusqueda({bool resetPagination = true}) {
-    if (!mounted) return; 
+    if (!mounted) return;
     setState(() {
       _textoBusqueda = _busquedaController.text;
       if (resetPagination) {
@@ -190,17 +202,17 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
       // Primera carga - no mostrar datos
       return 'Cargando...';
     }
-    
+
     if (_cargando && _empleados.isNotEmpty) {
       // Cargando página siguiente - mostrar proyección esperada
       final expectedEnd = (_start + _limite).clamp(0, _totalEmpleados);
       return 'Mostrando ${_start + 1}-$expectedEnd de $_totalEmpleados';
     }
-    
+
     if (_empleados.isEmpty && _totalEmpleados == 0) {
       return 'No hay resultados';
     }
-    
+
     // Estado normal - datos cargados
     final actualEnd = _start + _empleados.length;
     return 'Mostrando ${_start + 1}-$actualEnd de $_totalEmpleados';
@@ -212,15 +224,25 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text("Detalle diario de Empleados", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),),
+        title: const Text(
+          "Detalle diario de Empleados",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+            fontSize: 20,
+          ),
+        ),
         backgroundColor: Color(0xFF3E2B6A),
         actions: [
           // Botón para recargar datos
           IconButton(
-            color: Colors.white ,
+            color: Colors.white,
             icon: const Icon(Icons.refresh),
             onPressed: _cargarDatos,
           ),
@@ -238,10 +260,13 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
               _cargarDatos();
             },
           ),
-          
+
           // Botones de filtros
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -260,26 +285,29 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
 
           // Panel de filtros empresariales
           if (_mostrarFiltros)
-          SizedBox(
-            height: 300,   
-            child: SelectorFiltros(
-              graphicsService: _apiService,
-              onFiltrosChanged: (filtros) {
-                setState(() => _filtrosEmpresariales = filtros);
-                _cargarDatos();
-              },
-              onClose: () { // 👈 NUEVO
-                setState(() {
-                  _mostrarFiltros = false; // Oculta al presionar la ❌
-                });
-              },
-            ),  
-          ),
-
+            SizedBox(
+              height: 300,
+              child: SelectorFiltros(
+                graphicsService: _apiService,
+                onFiltrosChanged: (filtros) {
+                  setState(() => _filtrosEmpresariales = filtros);
+                  _cargarDatos();
+                },
+                onClose: () {
+                  // 👈 NUEVO
+                  setState(() {
+                    _mostrarFiltros = false; // Oculta al presionar la ❌
+                  });
+                },
+              ),
+            ),
 
           // Barra de búsqueda
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14.0,
+              vertical: 8.0,
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -292,7 +320,10 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 12,
+                        ),
                         // Icono de búsqueda a la derecha que ejecuta la búsqueda
                         suffixIcon: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -336,7 +367,9 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                     if (value != null && mounted) {
                       setState(() => _tipoBusqueda = value);
                       if (_textoBusqueda.isNotEmpty) {
-                        _ejecutarBusqueda(resetPagination: false); // NO reiniciar paginación
+                        _ejecutarBusqueda(
+                          resetPagination: false,
+                        ); // NO reiniciar paginación
                       }
                     }
                   },
@@ -350,9 +383,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
             child: Column(
               children: [
                 _buildLeyendaProductividad(),
-                Expanded(
-                  child: _buildBody(),
-                ),
+                Expanded(child: _buildBody()),
               ],
             ),
           ),
@@ -419,9 +450,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(horizontal: 16),
         ),
         onPressed: onPressed,
@@ -462,9 +491,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
 
     // Mostrar mensaje de error si existe
     if (_errorMessage.isNotEmpty) {
-      return ErrorMessageWidget(
-        mensaje: _errorMessage,
-      );
+      return ErrorMessageWidget(mensaje: _errorMessage);
     }
 
     // Mostrar mensaje cuando no hay empleados
@@ -484,7 +511,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
             // Botón para limpiar búsqueda
             if (_textoBusqueda.isNotEmpty)
               TextButton(
-                onPressed: _limpiarBusqueda,        
+                onPressed: _limpiarBusqueda,
                 child: const Text('Limpiar búsqueda'),
               ),
           ],
@@ -517,20 +544,11 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildItemLeyenda(
-            color: const Color(0xFF64D9C5),
-            texto: 'Alta',
-          ),
+          _buildItemLeyenda(color: const Color(0xFF64D9C5), texto: 'Alta'),
           const SizedBox(width: 30),
-          _buildItemLeyenda(
-            color: const Color(0xFFFFC066),
-            texto: 'Media',
-          ),
+          _buildItemLeyenda(color: const Color(0xFFFFC066), texto: 'Media'),
           const SizedBox(width: 30),
-          _buildItemLeyenda(
-            color: const Color(0xFFFF625C),
-            texto: 'Baja',
-          ),
+          _buildItemLeyenda(color: const Color(0xFFFF625C), texto: 'Baja'),
         ],
       ),
     );
@@ -565,10 +583,13 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
   // Widget para construir la tarjeta de cada empleado
   Widget _buildEmpleadoCard(Map<String, dynamic> empleado) {
     // Extraer datos del empleado
-    final nombreCompleto = '${empleado['nombre']} ${empleado['apPaterno']} ${empleado['apMaterno']}';
-    final horasTrabajadas = _convertirSegundosAHorasMinutos(empleado['tiempoT'] ?? 0);
-    final division = empleado['division'] is int 
-        ? (empleado['division'] as int).toDouble() 
+    final nombreCompleto =
+        '${empleado['nombre']} ${empleado['apPaterno']} ${empleado['apMaterno']}';
+    final horasTrabajadas = _convertirSegundosAHorasMinutos(
+      empleado['tiempoT'] ?? 0,
+    );
+    final division = empleado['division'] is int
+        ? (empleado['division'] as int).toDouble()
         : empleado['division'] ?? 0.0;
     final horario = empleado['horario_descripcion'] ?? 'No especificado';
     final inicio = empleado['inicioA'] ?? '--:--:--';
@@ -577,7 +598,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     // Determinar estado de productividad según porcentaje
     final String estado;
     final Color colorEstado;
-    
+
     if (division >= 50) {
       estado = 'Alta productividad';
       colorEstado = Color(0xFF64D9C5);
@@ -603,12 +624,12 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
           border: Border.all(color: Color(0xFFF8F7FC), width: 1),
           boxShadow: [
             BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 2,
-            spreadRadius: 2,
-            offset: Offset(0, 2)
-            )
-          ]
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 2,
+              spreadRadius: 2,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -626,13 +647,17 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                       fontWeight: FontWeight.w500,
                       fontSize: 16,
                     ),
-                  ),  
+                  ),
                 ),
-                const Icon(Icons.touch_app, color: Color(0xFF3E2B6B), size: 20), // 👈 nuevo icono
+                const Icon(
+                  Icons.touch_app,
+                  color: Color(0xFF3E2B6B),
+                  size: 20,
+                ), // 👈 nuevo icono
               ],
             ),
             const SizedBox(height: 8),
-            
+
             //Esta fila es provisional
             Row(
               children: [
@@ -640,24 +665,21 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   'assets/Icons/objetivo.png',
                   width: 16,
                   height: 16,
-                  color: Color(0xFF3E2B6B), // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Color(
+                    0xFF3E2B6B,
+                  ), // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     "Ejecutivo Comercial",
-                    style: const TextStyle(
-                      color: Colors.black,    
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.black, fontSize: 12),
                   ),
-                  
                 ),
               ],
             ),
-      
+
             Divider(color: Color(0xFF7775E2).withValues(alpha: 0.3)), // Divisor
-      
             // Horario del empleado
             Row(
               children: [
@@ -665,7 +687,9 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   'assets/Icons/reloj.png',
                   width: 16,
                   height: 16,
-                  color: Color(0xFF3E2B6B), // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Color(
+                    0xFF3E2B6B,
+                  ), // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -675,7 +699,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
               ],
             ),
             const SizedBox(height: 8),
-      
+
             // Horas de inicio y última actividad
             Row(
               children: [
@@ -683,23 +707,31 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   'assets/Icons/cronografo.png',
                   width: 16,
                   height: 16,
-                  color: Colors.green, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Colors
+                      .green, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 6),
-                Text("Inicio: $inicio", style: const TextStyle(color: Colors.black)),
+                Text(
+                  "Inicio: $inicio",
+                  style: const TextStyle(color: Colors.black),
+                ),
                 const SizedBox(width: 12),
                 Image.asset(
                   'assets/Icons/cronografo.png',
                   width: 16,
                   height: 16,
-                  color: Colors.red, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Colors
+                      .red, // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 6),
-                Text("Última: $ultima", style: const TextStyle(color: Colors.black)),
+                Text(
+                  "Última: $ultima",
+                  style: const TextStyle(color: Colors.black),
+                ),
               ],
             ),
             const SizedBox(height: 8),
-      
+
             // Horas trabajadas
             Row(
               children: [
@@ -707,15 +739,19 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   'assets/Icons/calendario.png',
                   width: 16,
                   height: 16,
-                  color: Color(0xFF3E2B6B), // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Color(
+                    0xFF3E2B6B,
+                  ), // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 6),
-                Text("Horas trabajadas: $horasTrabajadas",
-                    style: const TextStyle(color: Colors.black)),
+                Text(
+                  "Horas trabajadas: $horasTrabajadas",
+                  style: const TextStyle(color: Colors.black),
+                ),
               ],
             ),
             const SizedBox(height: 8),
-      
+
             // Barra de progreso de eficiencia
             Row(
               children: [
@@ -724,7 +760,9 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
                   'assets/Icons/inversion.png',
                   width: 16,
                   height: 16,
-                  color: Color(0xFF3E2B6B), // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
+                  color: Color(
+                    0xFF3E2B6B,
+                  ), // si quieres cambiar color (solo funciona con imágenes monocromáticas tipo PNG transparente)
                 ),
                 const SizedBox(width: 6),
                 Expanded(
@@ -766,7 +804,7 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            
+
             // Estado de productividad
             Row(
               children: [
@@ -802,4 +840,3 @@ class _DetalleDiarioScreenState extends State<DetalleDiarioScreen> {
     return Color(0xFFFF625C); // Rojo
   }
 }
-

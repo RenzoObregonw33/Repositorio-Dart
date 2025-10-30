@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:login/Apis/api_services.dart';
-import 'package:login/screens/home_screen.dart';
-import 'package:login/widgets/secure_storage_service.dart';
+import 'package:luminaos/Apis/api_services.dart';
+import 'package:luminaos/screens/home_screen.dart';
+import 'package:luminaos/widgets/secure_storage_service.dart';
 
 class LoginButton extends StatelessWidget {
   final TextEditingController emailController;
@@ -27,7 +27,9 @@ class LoginButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16), // Igual que los TextField
           ),
-          padding: const EdgeInsets.symmetric(vertical: 16), // Altura similar al TextField
+          padding: const EdgeInsets.symmetric(
+            vertical: 16,
+          ), // Altura similar al TextField
         ),
         onPressed: () async {
           FocusScope.of(context).unfocus();
@@ -41,7 +43,9 @@ class LoginButton extends StatelessWidget {
           if (email.isEmpty) {
             emailError = 'Este campo no debe estar vacío';
             hasError = true;
-          } else if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$').hasMatch(email)) {
+          } else if (!RegExp(
+            r'^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$',
+          ).hasMatch(email)) {
             emailError = 'Ingrese un email válido';
             hasError = true;
           }
@@ -63,9 +67,8 @@ class LoginButton extends StatelessWidget {
           );
 
           if (result['success']) {
-            // ✅ GUARDAR CREDENCIALES DESPUÉS DE LOGIN EXITOSO 
-            await SecureStorageService.saveCredentials(email, password); 
-            print('✅ Credenciales guardadas: $email');  
+            // ✅ GUARDAR CREDENCIALES DESPUÉS DE LOGIN EXITOSO
+            await SecureStorageService.saveCredentials(email, password);
 
             final data = result['data'];
             final user = data['user'];
@@ -73,19 +76,22 @@ class LoginButton extends StatelessWidget {
             final apellido = user['perso_apPaterno'] ?? '';
             final organizaciones = user['organizaciones'] ?? [];
             final token = (data['token'] ?? '').toString().trim();
-            final fotoUrl = user['foto_url'] ?? 'https://rhnube.com.pe/fotosUser/default.png';
+            final fotoUrl =
+                user['foto_url'] ??
+                'https://rhnube.com.pe/fotosUser/default.png';
 
-            print('🟢 Token recibido: $token'); print("🟢 Nombre: $nombre"); print("🟢 Apellido: $apellido"); print("🟢 Organizaciones: $organizaciones");
-
-            final organizacionDetalles = organizaciones.map<Map<String, dynamic>>((org) {
-              return {
-                'razonSocial': org['organi_razonSocial'] ?? 'Sin nombre',
-                'ruc': org['organi_ruc'] ?? 'Sin RUC',
-                'id': org['organi_id']?.toString() ?? '0',
-                'tipo': org['organi_tipo'] ?? 'No especificado',
-                'cantidad_empleados_lumina': org['cantidad_empleados_lumina'] ?? 0,
-              };
-            }).toList();
+            final organizacionDetalles = organizaciones
+                .map<Map<String, dynamic>>((org) {
+                  return {
+                    'razonSocial': org['organi_razonSocial'] ?? 'Sin nombre',
+                    'ruc': org['organi_ruc'] ?? 'Sin RUC',
+                    'id': org['organi_id']?.toString() ?? '0',
+                    'tipo': org['organi_tipo'] ?? 'No especificado',
+                    'cantidad_empleados_lumina':
+                        org['cantidad_empleados_lumina'] ?? 0,
+                  };
+                })
+                .toList();
 
             final resultado = await Navigator.push(
               context,
@@ -108,12 +114,8 @@ class LoginButton extends StatelessWidget {
                 final saved = await SecureStorageService.getCredentials();
                 emailController.text = saved['email'] ?? '';
                 passwordController.text = saved['password'] ?? '';
-                print('🚪 Sesión cerrada, credenciales recargadas');
-              } else {
-                print('🚪 Sesión cerrada, no hay credenciales guardadas');
               }
             }
-
           } else {
             final message = result['message'] ?? 'Error desconocido';
             if (message.toLowerCase().contains('correo')) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:login/screens/dashboard_screen.dart';
-import 'package:login/screens/detalle_diario_screen.dart'; // Eliminamos el 'hide'
+import 'package:luminaos/screens/dashboard_screen.dart';
+import 'package:luminaos/screens/detalle_diario_screen.dart'; // Eliminamos el 'hide'
 
 class TabsDashboardScreen extends StatefulWidget {
   final String token;
@@ -27,22 +27,26 @@ class _TabsDashboardScreenState extends State<TabsDashboardScreen> {
           // Contenido principal con margen inferior para los tabs
           Positioned.fill(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 70), // Espacio para los tabs
+              padding: const EdgeInsets.only(
+                bottom: 70,
+              ), // Espacio para los tabs
               child: _currentTabIndex == 0
                   ? DashboardScreen(
                       token: widget.token,
                       organiId: widget.organiId,
                     )
-                  : DetalleDiarioScreen(token: widget.token,
-                      organiId: widget.organiId,),
+                  : DetalleDiarioScreen(
+                      token: widget.token,
+                      organiId: widget.organiId,
+                    ),
             ),
           ),
 
           // Tabs en la parte inferior
           Positioned(
             bottom: 10, // Reducido de 20 a 10
-            left: 20,    // Reducido de 30 a 20
-            right: 20,   // Reducido de 30 a 20
+            left: 20, // Reducido de 30 a 20
+            right: 20, // Reducido de 30 a 20
             child: Container(
               height: 60,
               decoration: BoxDecoration(
@@ -50,7 +54,7 @@ class _TabsDashboardScreenState extends State<TabsDashboardScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha:  0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     spreadRadius: 2,
                   ),

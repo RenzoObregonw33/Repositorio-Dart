@@ -27,8 +27,16 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('../key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+} else {
+    throw new FileNotFoundException("❌ key.properties not found! App cannot be signed.")
+}
+
 android {
-    namespace "com.example.login"
+    namespace "com.lumina.luminaos"
     compileSdk = 36  // ✅ Actualizado a SDK 36
 
     compileOptions {
@@ -41,12 +49,24 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.login"
+        applicationId "com.lumina.luminaos"
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion 36  // ✅ Actualizado a SDK 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
+        // ndk {
+        //     abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
+        // }
+    }
+
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
     }
 
     buildTypes {
@@ -54,7 +74,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 }

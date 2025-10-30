@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:login/Apis/api_services.dart';
+import 'package:luminaos/Apis/api_services.dart';
 
 //Widget con estado
 class PasswordResetScreen extends StatefulWidget {
@@ -10,14 +10,14 @@ class PasswordResetScreen extends StatefulWidget {
 // Estado asociado al widget PasswordResetScreen
 class _PasswordResetScreenState extends State<PasswordResetScreen> {
   final TextEditingController _emailController = TextEditingController();
-  final FocusNode _focusNode = FocusNode(); 
+  final FocusNode _focusNode = FocusNode();
   String? _error;
   bool _enviado = false; // 🔹 Nueva bandera para controlar el botón
 
   @override
   void initState() {
     super.initState();
-    
+
     // Enfocar automáticamente al iniciar
     Future.delayed(Duration.zero, () {
       FocusScope.of(context).requestFocus(_focusNode);
@@ -26,7 +26,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
 
   // Método que se llama cuando el widget se elimina de la pantalla
   @override
-  void dispose() {                        
+  void dispose() {
     _emailController.dispose();
     super.dispose();
   }
@@ -68,25 +68,37 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(  
+    return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFF3D2A6A),
         iconTheme: IconThemeData(color: Colors.white),
-        title: Text('Recuperar contraseña', style: TextStyle(color: Colors.white, fontFamily: 'Inter')),
+        title: Text(
+          'Recuperar contraseña',
+          style: TextStyle(color: Colors.white, fontFamily: 'Inter'),
+        ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),                        
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Introduce tu dirección de correo electronico:', style: TextStyle(fontFamily: 'Nunito')),
+            Text(
+              'Introduce tu dirección de correo electronico:',
+              style: TextStyle(fontFamily: 'Nunito'),
+            ),
             SizedBox(height: 20),
             TextField(
               controller: _emailController,
               decoration: InputDecoration(
                 labelText: 'Correo electrónico',
-                labelStyle: TextStyle(fontFamily: '-apple-system',color: Colors.grey),
-                prefixIcon: Icon(Icons.email_outlined, color: Color(0xFF3D2A6A)),
+                labelStyle: TextStyle(
+                  fontFamily: '-apple-system',
+                  color: Colors.grey,
+                ),
+                prefixIcon: Icon(
+                  Icons.email_outlined,
+                  color: Color(0xFF3D2A6A),
+                ),
                 errorText: _error,
               ),
               keyboardType: TextInputType.emailAddress,
@@ -99,15 +111,24 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _enviado ? Colors.grey : Color(0xFF7775E2), // 🔹 Cambia a gris cuando está deshabilitado
+                      backgroundColor: _enviado
+                          ? Colors.grey
+                          : Color(
+                              0xFF7775E2,
+                            ), // 🔹 Cambia a gris cuando está deshabilitado
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
-                      )
+                      ),
                     ),
-                    onPressed: _enviado ? null : _enviarSolicitud, // 🔹 Bloqueo del botón
-                    child: Text('Enviar notificación', style: TextStyle(fontFamily: 'Inter')),
+                    onPressed: _enviado
+                        ? null
+                        : _enviarSolicitud, // 🔹 Bloqueo del botón
+                    child: Text(
+                      'Enviar notificación',
+                      style: TextStyle(fontFamily: 'Inter'),
+                    ),
                   ),
                 ),
               ],

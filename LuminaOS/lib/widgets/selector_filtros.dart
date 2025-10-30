@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:login/Models/filtro_data.dart';
-import 'package:login/Apis/api_graphics_services.dart';
+import 'package:luminaos/Models/filtro_data.dart';
+import 'package:luminaos/Apis/api_graphics_services.dart';
 
 class SelectorFiltros extends StatefulWidget {
   final ApiGraphicsService graphicsService;
@@ -157,7 +157,11 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close, size: 18, color: Color(0xFF3E2B6B)),
+                  icon: const Icon(
+                    Icons.close,
+                    size: 18,
+                    color: Color(0xFF3E2B6B),
+                  ),
                   onPressed: widget.onClose,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -202,7 +206,10 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
                     },
                     children: grupo.filtros.map((filtro) {
                       return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
@@ -212,7 +219,10 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
                           ),
                         ),
                         child: CheckboxListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
                           title: Text(
                             filtro.descripcion,
                             style: const TextStyle(
@@ -264,10 +274,7 @@ class _SelectorFiltrosState extends State<SelectorFiltros> {
               ),
               child: const Text(
                 'Aplicar Filtros',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
             ),
           ),

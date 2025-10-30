@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:login/screens/Login_screen.dart';
+import 'package:luminaos/screens/Login_screen.dart';
 
 void main() {
   // Configuración global para deshabilitar animaciones de Syncfusion

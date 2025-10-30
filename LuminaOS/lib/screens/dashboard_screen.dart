@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:login/Apis/api_graphics_services.dart';
-import 'package:login/Models/datos_actividad.dart';
-import 'package:login/Models/datos_embudo.dart';
-import 'package:login/Models/filtro_data.dart';
-import 'package:login/widgets/grafico_actividad_semanal.dart';
-import 'package:login/widgets/grafico_distribucion_actividad.dart';
-import 'package:login/widgets/grafico_donut.dart';
-import 'package:login/widgets/grafico_eficiencia.dart';
-import 'package:login/widgets/grafico_embudo.dart';
-import 'package:login/widgets/grafico_picos_actividad.dart';
-import 'package:login/widgets/grafico_picos_porcentaje.dart';
-import 'package:login/widgets/grafico_top_empleados.dart';
-import 'package:login/widgets/selector_empleados.dart';
-import 'package:login/widgets/selector_fechas.dart';
-import 'package:login/widgets/selector_filtros.dart';
-import 'package:login/widgets/lumina.dart';
+import 'package:luminaos/Apis/api_graphics_services.dart';
+import 'package:luminaos/Models/datos_actividad.dart';
+import 'package:luminaos/Models/datos_embudo.dart';
+import 'package:luminaos/Models/filtro_data.dart';
+import 'package:luminaos/widgets/grafico_actividad_semanal.dart';
+import 'package:luminaos/widgets/grafico_distribucion_actividad.dart';
+import 'package:luminaos/widgets/grafico_donut.dart';
+import 'package:luminaos/widgets/grafico_eficiencia.dart';
+import 'package:luminaos/widgets/grafico_embudo.dart';
+import 'package:luminaos/widgets/grafico_picos_actividad.dart';
+import 'package:luminaos/widgets/grafico_picos_porcentaje.dart';
+import 'package:luminaos/widgets/grafico_top_empleados.dart';
+import 'package:luminaos/widgets/selector_empleados.dart';
+import 'package:luminaos/widgets/selector_fechas.dart';
+import 'package:luminaos/widgets/selector_filtros.dart';
+import 'package:luminaos/widgets/lumina.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String token;
@@ -46,8 +46,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<DatosActividad> _distribucionActividad = [];
   List<String> _picosLabels = [];
   List<double> _picosValores = [];
-  List<HoraActividadPorcentajeData> _picosPorcentajeData = []; 
-  Map<String, dynamic> _actividadDiaria = {}; 
+  List<HoraActividadPorcentajeData> _picosPorcentajeData = [];
+  Map<String, dynamic> _actividadDiaria = {};
   List<TopEmpleadoData> _topEmpleadosData = [];
   bool _isDisposed = false;
   int _intentosRefresh = 0;
@@ -55,7 +55,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _graphicsService = ApiGraphicsService(token: widget.token, organiId: widget.organiId);
+    _graphicsService = ApiGraphicsService(
+      token: widget.token,
+      organiId: widget.organiId,
+    );
     final now = DateTime.now();
     _dateRange = DateTimeRange(
       start: DateTime(now.year, now.month, now.day),
@@ -77,10 +80,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: const Color(0xFF3E2B6B),
         iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('Dashboard Gráficos', 
+        title: const Text(
+          'Dashboard Gráficos',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400),
           textAlign: TextAlign.center,
         ),
@@ -88,10 +95,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           IconButton(
             color: Colors.white,
             icon: const Icon(Icons.refresh),
-            onPressed: _dateRange != null ? () {
-              if (!mounted) return;
-              _loadData();
-            } : null,
+            onPressed: _dateRange != null
+                ? () {
+                    if (!mounted) return;
+                    _loadData();
+                  }
+                : null,
           ),
         ],
         centerTitle: true,
@@ -115,7 +124,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               // Botones de filtros
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
                 child: Row(
                   children: [
                     Expanded(
@@ -146,15 +158,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
 
               // Área principal de gráficos
-              Expanded(
-                child: _buildMainContent(),
-              ),
+              Expanded(child: _buildMainContent()),
             ],
           ),
 
           // Overlay de filtros
-          if (_mostrarFiltros)
-            _buildFiltrosOverlay(),
+          if (_mostrarFiltros) _buildFiltrosOverlay(),
 
           // Overlay de empleados - SOLO el fondo oscuro
           if (_mostrarEmpleados)
@@ -193,7 +202,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Center(
           child: SelectorFiltros(
             graphicsService: _graphicsService,
-            onFiltrosChanged: (filtros) { 
+            onFiltrosChanged: (filtros) {
               if (!mounted) return;
               setState(() {
                 _filtrosEmpresariales = filtros;
@@ -217,9 +226,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           const SizedBox(height: 8),
           // Gráficos
-          Expanded(
-            child: _buildAllGraphs(),
-          ),
+          Expanded(child: _buildAllGraphs()),
         ],
       ),
     );
@@ -248,9 +255,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(horizontal: 16),
         ),
         onPressed: onPressed,
@@ -269,7 +274,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadData() async {
-    if (_isDisposed || !mounted) return; 
+    if (_isDisposed || !mounted) return;
 
     setState(() {
       _isLoading = true;
@@ -282,42 +287,66 @@ class _DashboardScreenState extends State<DashboardScreen> {
           .where((f) => f.seleccionado)
           .map((f) => f.id)
           .toList();
-      
+
       debugPrint('Filtros seleccionados: $filtrosSeleccionados');
-      
+
       final data = await _graphicsService.fetchGraphicsData(
         fechaIni: _dateRange!.start,
         fechaFin: _dateRange!.end,
         organiId: widget.organiId,
-        empleadosIds: _empleadosSeleccionados.isNotEmpty ? _empleadosSeleccionados : null,
+        empleadosIds: _empleadosSeleccionados.isNotEmpty
+            ? _empleadosSeleccionados
+            : null,
       );
 
-      if (_isDisposed || !mounted) return; 
+      if (_isDisposed || !mounted) return;
 
       setState(() {
-        _eficiencia = double.parse(data['eficiencia']['resultado'].replaceAll(',', ''));
+        _eficiencia = double.parse(
+          data['eficiencia']['resultado'].replaceAll(',', ''),
+        );
 
         final embudoProcesos = data['embudo_procesos'] ?? {};
         _productivas = (embudoProcesos['productivas'] ?? 0).toDouble();
         _noProductivas = (embudoProcesos['no_productivas'] ?? 0).toDouble();
         print('✅ EMBUDO PROCESOS - Productivas: $_productivas');
         print('✅ EMBUDO PROCESOS - No Productivas: $_noProductivas');
-        
+
         final comparativo = data['comparativo_horas'] ?? {};
         _productivas = (comparativo['productivas'] ?? 0).toDouble();
         _noProductivas = (comparativo['no_productivas'] ?? 0).toDouble();
 
         _funnelData = [
-          FunnelData('Horas productivas', (comparativo['productivas'] ?? 0).toDouble(), const Color(0xFF446078)),
-          FunnelData('Horas no productivas', (comparativo['no_productivas'] ?? 0).toDouble(), const Color(0xFFC4DEF9)),
-          FunnelData('Horas programadas', (comparativo['programadas'] ?? 0).toDouble(), const Color(0xFF232B36)),
-          FunnelData('Horas de presencia', (comparativo['presencia'] ?? 0).toDouble(), const Color(0xFF64D9C5)),
+          FunnelData(
+            'Horas productivas',
+            (comparativo['productivas'] ?? 0).toDouble(),
+            const Color(0xFF446078),
+          ),
+          FunnelData(
+            'Horas no productivas',
+            (comparativo['no_productivas'] ?? 0).toDouble(),
+            const Color(0xFFC4DEF9),
+          ),
+          FunnelData(
+            'Horas programadas',
+            (comparativo['programadas'] ?? 0).toDouble(),
+            const Color(0xFF232B36),
+          ),
+          FunnelData(
+            'Horas de presencia',
+            (comparativo['presencia'] ?? 0).toDouble(),
+            const Color(0xFF64D9C5),
+          ),
         ];
 
         final actividad = data['sStackUltimos7Dias'];
         final labelsDias = List<String>.from(actividad['labels'] ?? []);
-        final horasCon = List<double>.from(actividad['horas_productivas'].map((e) => e.toDouble()));
-        final horasSin = List<double>.from(actividad['horas_no_productivas'].map((e) => e.toDouble()));
+        final horasCon = List<double>.from(
+          actividad['horas_productivas'].map((e) => e.toDouble()),
+        );
+        final horasSin = List<double>.from(
+          actividad['horas_no_productivas'].map((e) => e.toDouble()),
+        );
 
         _distribucionActividad = List.generate(labelsDias.length, (i) {
           return DatosActividad(
@@ -328,27 +357,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
         });
 
         final tendenciaHora = data['tendencia_por_hora'] ?? {};
-        _picosLabels = List<String>.from(tendenciaHora['labelsGraficoHoras'] ?? []);
-        _picosValores = List<double>.from((tendenciaHora['seriesGraficoHora'] ?? []).map((e) => e.toDouble()));
+        _picosLabels = List<String>.from(
+          tendenciaHora['labelsGraficoHoras'] ?? [],
+        );
+        _picosValores = List<double>.from(
+          (tendenciaHora['seriesGraficoHora'] ?? []).map((e) => e.toDouble()),
+        );
 
         _picosPorcentajeData = List.generate(
           tendenciaHora['labelsGraficoPorcentajeHora']?.length ?? 0,
           (index) => HoraActividadPorcentajeData(
             hora: tendenciaHora['labelsGraficoPorcentajeHora'][index],
-            porcentaje: tendenciaHora['seriesGraficoPorcentajeHora'][index].toDouble(),
+            porcentaje: tendenciaHora['seriesGraficoPorcentajeHora'][index]
+                .toDouble(),
           ),
         );
 
         _actividadDiaria = data['actividad_ultimos_dias'] ?? {};
 
-        final topEmpleados = data['top_empleados'] ?? {
-          'labels': [],
-          'series': {'Actividad positiva': [], 'Actividad negativa': []}
-        };
+        final topEmpleados =
+            data['top_empleados'] ??
+            {
+              'labels': [],
+              'series': {'Actividad positiva': [], 'Actividad negativa': []},
+            };
 
-        final labels = (topEmpleados['labels'] as List<dynamic>? ?? []).map((e) => e.toString()).toList();
-        final positiva = (topEmpleados['series']['Actividad positiva'] as List<dynamic>? ?? []).map((e) => double.tryParse(e.toString()) ?? 0.0).toList();
-        final negativa = (topEmpleados['series']['Actividad negativa'] as List<dynamic>? ?? []).map((e) => double.tryParse(e.toString()) ?? 0.0).toList();
+        final labels = (topEmpleados['labels'] as List<dynamic>? ?? [])
+            .map((e) => e.toString())
+            .toList();
+        final positiva =
+            (topEmpleados['series']['Actividad positiva'] as List<dynamic>? ??
+                    [])
+                .map((e) => double.tryParse(e.toString()) ?? 0.0)
+                .toList();
+        final negativa =
+            (topEmpleados['series']['Actividad negativa'] as List<dynamic>? ??
+                    [])
+                .map((e) => double.tryParse(e.toString()) ?? 0.0)
+                .toList();
 
         _topEmpleadosData = [];
         for (int i = 0; i < labels.length; i++) {
@@ -356,21 +402,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final pos = (i < positiva.length ? positiva[i] : 0).toDouble();
           final neg = (i < negativa.length ? negativa[i] : 0).toDouble();
           final porcentajeFinal = pos != 0 ? pos : -neg;
-                
-          _topEmpleadosData.add(TopEmpleadoData(
-            nombre: nombre,
-            porcentaje: porcentajeFinal,
-          ));
+
+          _topEmpleadosData.add(
+            TopEmpleadoData(nombre: nombre, porcentaje: porcentajeFinal),
+          );
         }
       });
     } catch (e) {
-        if (!_isDisposed && mounted) {
+      if (!_isDisposed && mounted) {
         setState(() {
           _error = 'Error al cargar datos: ${e.toString()}';
         });
       }
     } finally {
-        if (!_isDisposed && mounted) {
+      if (!_isDisposed && mounted) {
         setState(() => _isLoading = false);
       }
     }
@@ -400,29 +445,56 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     // Lista de todos los gráficos
     final List<Widget> todosLosGraficos = [
-      if (_eficiencia != null) 
-        SizedBox(height: 350, child: GraficoEficiencia(eficiencia: _eficiencia!)),
-      
+      if (_eficiencia != null)
+        SizedBox(
+          height: 350,
+          child: GraficoEficiencia(eficiencia: _eficiencia!),
+        ),
+
       if (_funnelData.isNotEmpty)
         SizedBox(height: 350, child: GraficoEmbudo(data: _funnelData)),
-      
+
       if (_productivas != null && _noProductivas != null)
-        SizedBox(height: 350, child: GraficoDonut(productivas: _productivas!, noProductivas: _noProductivas!)),
-      
+        SizedBox(
+          height: 350,
+          child: GraficoDonut(
+            productivas: _productivas!,
+            noProductivas: _noProductivas!,
+          ),
+        ),
+
       if (_distribucionActividad.isNotEmpty)
-        SizedBox(height: 350, child: GraficoDistribucionActividad(datos: _distribucionActividad)),
-      
+        SizedBox(
+          height: 350,
+          child: GraficoDistribucionActividad(datos: _distribucionActividad),
+        ),
+
       if (_picosLabels.isNotEmpty && _picosValores.isNotEmpty)
-        SizedBox(height: 350, child: GraficoPicosActividad(labels: _picosLabels, valores: _picosValores)),
-      
+        SizedBox(
+          height: 350,
+          child: GraficoPicosActividad(
+            labels: _picosLabels,
+            valores: _picosValores,
+          ),
+        ),
+
       if (_picosPorcentajeData.isNotEmpty)
-        SizedBox(height: 350, child: GraficoPicosPorcentaje(datos: _picosPorcentajeData)),
-      
+        SizedBox(
+          height: 350,
+          child: GraficoPicosPorcentaje(datos: _picosPorcentajeData),
+        ),
+
       if (_actividadDiaria.isNotEmpty)
-        SizedBox(height: 350, child: GraficoActividadDiaria(apiResponse: _actividadDiaria)),
-      
+        SizedBox(
+          height: 350,
+          child: GraficoActividadDiaria(apiResponse: _actividadDiaria),
+        ),
+
       if (_topEmpleadosData.isNotEmpty)
-        SizedBox(height: 400, child: GraficoTopEmpleados(data: _topEmpleadosData)),
+        SizedBox(
+          height: 400,
+          child: GraficoTopEmpleados(data: _topEmpleadosData),
+        ),
     ];
 
     // Si no hay gráficos, mostrar mensaje
@@ -440,7 +512,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 10),
                 IconButton(
-                  icon: const Icon(Icons.refresh_rounded, size: 32, color: Color(0xFF757575)),
+                  icon: const Icon(
+                    Icons.refresh_rounded,
+                    size: 32,
+                    color: Color(0xFF757575),
+                  ),
                   onPressed: () {
                     if (_intentosRefresh < 2) {
                       setState(() {

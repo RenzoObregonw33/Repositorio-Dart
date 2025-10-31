@@ -1,57 +1,66 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart'; // ← AGREGAR: Para widgets de iOS
+import 'package:luminaos/Models/home_data.dart';
 import 'package:luminaos/screens/tabs_dashboard_screen.dart';
 
-class HomeScreem extends StatelessWidget {
-  //Parametros
-  final String nombre;
-  final String apellido;
-  final String token;
-  final List<Map<String, dynamic>> organizaciones;
-  final String rolNombre; // Nuevo
-  final int rolId; // Nuevo
-  final String fotoUrl; // Nuevo
 
-  //Constructor
-  const HomeScreem({
-    super.key,
-    required this.nombre,
-    required this.apellido,
-    required this.organizaciones,
-    required this.token,
-    required this.rolNombre,
-    required this.rolId,
-    required this.fotoUrl,
-  });
+
+class HomeScreem extends StatelessWidget {
+  
+  final HomeData homedata;
+
+  const HomeScreem({super.key, required this.homedata});
 
   // Método para cerrar sesión
   void _cerrarSesion(BuildContext context) async {
-    //Mostrar diálogo de confirmación
+    // Mostrar diálogo de confirmación con estilo nativo para cada plataforma
     final confirmar = await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Cerrar sesión',
-            style: TextStyle(fontFamily: '-apple-system'),
-          ),
-          content: Text(
-            '¿Estás seguro de que quieres cerrar sesión?',
-            style: TextStyle(fontFamily: '-apple-system'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(
-                'Cancelar',
-                style: TextStyle(color: Color(0xFF3E2B6A)),
+        if (!Platform.isAndroid){
+          return AlertDialog(
+            title: Text(
+              'Cerrar sesión',
+              style: TextStyle(fontFamily: 'Roboto'), // ← Cambiar a Roboto para Android
+            ),
+            content: Text(
+              '¿Estás seguro de que quieres cerrar sesión?',
+              style: TextStyle(fontFamily: 'Roboto'), // ← Cambiar a Roboto para Android
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(
+                  'Cancelar',
+                  style: TextStyle(color: Color(0xFF3E2B6A)),
+                ),
               ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text('Cerrar sesión', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text('Cerrar sesión', style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          );
+        }else{
+          // 🍎 iOS: Cupertino Design (nativo de iOS)
+          return CupertinoAlertDialog(
+            title: Text('Cerrar sesión'),
+            content: Text('¿Estás seguro de que quieres cerrar sesión?'),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('Cancelar'),
+              ),
+              CupertinoDialogAction(
+                isDestructiveAction: true, // ← Esto lo hace ROJO automáticamente en iOS
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text('Cerrar sesión'),
+              ),
+            ],
+          );
+        }
       },
     );
     if (confirmar == true) {
@@ -102,10 +111,10 @@ class HomeScreem extends StatelessWidget {
                       radius: 30,
                       backgroundColor:
                           Colors.grey[300], // Color de fondo si no hay imagen
-                      child: fotoUrl.isNotEmpty && fotoUrl != 'null'
+                      child: homedata.fotoUrl.isNotEmpty && homedata.fotoUrl != 'null'
                           ? ClipOval(
                               child: Image.network(
-                                fotoUrl,
+                                homedata.fotoUrl,
                                 width: 60,
                                 height: 60,
                                 fit: BoxFit.cover,
@@ -166,7 +175,7 @@ class HomeScreem extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '$nombre $apellido',
+                        '${homedata.nombre} ${homedata.apellido}',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w500,
@@ -200,11 +209,11 @@ class HomeScreem extends StatelessWidget {
               //esto crea una lista
               child: ListView.separated(
                 //crea Listas Dinamicas jala datos de una BD o una API
-                itemCount: organizaciones.length,
+                itemCount: homedata.organizaciones.length,
                 separatorBuilder: (context, index) =>
                     const SizedBox(height: 15),
                 itemBuilder: (context, index) {
-                  final org = organizaciones[index];
+                  final org = homedata.organizaciones[index];
 
                   // Validación básica
                   final razonSocial = org['razonSocial'];
@@ -221,7 +230,7 @@ class HomeScreem extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (context) => TabsDashboardScreen(
                             organiId: int.parse(org['id'].toString()),
-                            token: token,
+                            token: homedata.token,
                           ),
                         ),
                       );

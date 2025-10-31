@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:luminaos/Apis/api_services.dart';
+import 'package:luminaos/Models/home_data.dart';
 import 'package:luminaos/screens/home_screen.dart';
 import 'package:luminaos/widgets/secure_storage_service.dart';
 
@@ -93,18 +94,20 @@ class LoginButton extends StatelessWidget {
                 })
                 .toList();
 
+            final homeData = HomeData(
+              nombre: nombre,
+              apellido: apellido,
+              token: token,
+              organizaciones: organizacionDetalles,
+              rolNombre: data['user']['rol_nombre'],
+              rolId: data['user']['rol_id'],
+              fotoUrl: fotoUrl,
+            );
+
             final resultado = await Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => HomeScreem(
-                  nombre: nombre,
-                  apellido: apellido,
-                  organizaciones: organizacionDetalles,
-                  token: token,
-                  rolNombre: data['user']['rol_nombre'],
-                  rolId: data['user']['rol_id'],
-                  fotoUrl: fotoUrl,
-                ),
+                builder: (context) => HomeScreem(homedata: homeData),
               ),
             );
 
